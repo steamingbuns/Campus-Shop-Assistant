@@ -31,10 +31,19 @@
 }
 
 .login-subtitle {
-  text-align: center;
-  color: #6b7280;
+  color: #666;
   margin-bottom: 2rem;
-  font-size: 0.9rem;
+  font-size: 1rem;
+}
+
+.error-message {
+  background-color: #ffebee;
+  color: #c62828;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  border: 1px solid #ffcdd2;
+  font-size: 14px;
 }
 
 .login-form {

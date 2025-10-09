@@ -4,6 +4,21 @@
     min-height: 100vh;
 }
 
+.view-reports-page h1 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 30px;
+  font-size: 2.5rem;
+}
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 20px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
 .search-reports {
   text-align: center;
   margin-bottom: 30px;
@@ -22,4 +37,31 @@
 
 .search-input:focus {
   border-color: #007bff;
+}
+.reports-list {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.report {
+  display: grid;
+  align-items: center;
+  padding: 15px 0;
+  border-bottom: 1px solid #eee;
+  align-items: start;
+}
+
+.report-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.report p {
+  text-align: left;
+}
+
+.report-details {
 }

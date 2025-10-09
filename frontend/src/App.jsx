@@ -8,6 +8,7 @@ import Signup from './pages/Signup';
 import MarketPlace from './pages/MarketPlace';
 import Cart from './pages/Cart';
 import ViewReports from './pages/Admin/ViewReports';
+import TransactionsLog from './pages/Admin/TransactionsLog'
 import './App.css'
 
 function App() {

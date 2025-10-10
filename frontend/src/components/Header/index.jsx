@@ -19,6 +19,11 @@ function Header() {
         </div>
         
         <nav className="header-nav">
+          {isLoggedIn && (
+            <Link to="/seller-dashboard" className="nav-link sell-link">
+              Sell
+            </Link>
+          )}
           <Link to="/" className="nav-link">Home</Link>
           <Link to="/marketplace" className="nav-link">Marketplace</Link>
           {isLoggedIn && (

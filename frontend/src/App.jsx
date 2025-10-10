@@ -6,7 +6,9 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import MarketPlace from './pages/MarketPlace';
+import ItemView from './pages/ItemView';
 import Cart from './pages/Cart';
+import SellerDashboard from './pages/SellerDashboard';
 import './App.css'
 
 function App() {
@@ -18,7 +20,9 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/marketplace" element={<MarketPlace />} />
+            <Route path="/product/:productId" element={<ItemView />} />
             <Route path="/cart" element={<Cart />} />
+            <Route path="/seller-dashboard" element={<SellerDashboard />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
           </Routes>

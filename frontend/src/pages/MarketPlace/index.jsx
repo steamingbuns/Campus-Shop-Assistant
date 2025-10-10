@@ -10,8 +10,15 @@ const MarketPlace = () => {
   const navigate = useNavigate();
   const { isLoggedIn } = useAuth();
   const { addToCart } = useCart();
+  
+  const handleViewProduct = (productId) => {
+    navigate(`/product/${productId}`);
+  };
 
-  const handleAddToCart = (product) => {
+  const handleAddToCart = (product, e) => {
+    // Stop event from bubbling up to the card click handler
+    e.stopPropagation();
+    
     if (!isLoggedIn) {
       // Redirect to login if not logged in
       navigate('/login');
@@ -129,7 +136,11 @@ const MarketPlace = () => {
         <div className="products-container">
           <div className="products-grid">
             {filteredProducts.map(product => (
-              <div key={product.id} className="product-card">
+              <div 
+                key={product.id} 
+                className="product-card"
+                onClick={() => handleViewProduct(product.id)}
+              >
                 <img 
                   src={product.image} 
                   alt={product.name}
@@ -139,7 +150,7 @@ const MarketPlace = () => {
                 <p className="price">{formatPrice(product.price)}</p>
                 <button 
                   className="buy-btn"
-                  onClick={() => handleAddToCart(product)}
+                  onClick={(e) => handleAddToCart(product, e)}
                 >
                   Add to Cart
                 </button>

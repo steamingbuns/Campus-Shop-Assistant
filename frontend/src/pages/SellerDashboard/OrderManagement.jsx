@@ -13,7 +13,7 @@ function OrderManagement() {
       total: 59.98,
       status: 'pending',
       date: '2025-10-08',
-      trackingNumber: ''
+      completionCode: 'A7K9X2'
     },
     {
       id: 'ORD-002',
@@ -24,9 +24,9 @@ function OrderManagement() {
         { name: 'Coffee Mug', quantity: 1, price: 14.99 }
       ],
       total: 53.96,
-      status: 'shipped',
+      status: 'done',
       date: '2025-10-07',
-      trackingNumber: 'TRK123456789'
+      completionCode: 'B3M5N8'
     },
     {
       id: 'ORD-003',
@@ -38,7 +38,7 @@ function OrderManagement() {
       total: 49.95,
       status: 'pending',
       date: '2025-10-09',
-      trackingNumber: ''
+      completionCode: 'P4T7W1'
     },
     {
       id: 'ORD-004',
@@ -49,38 +49,49 @@ function OrderManagement() {
         { name: 'USB Cable', quantity: 2, price: 9.99 }
       ],
       total: 49.97,
-      status: 'delivered',
+      status: 'done',
       date: '2025-10-05',
-      trackingNumber: 'TRK987654321'
+      completionCode: 'Q8R2L5'
     }
   ]);
 
   const [selectedOrder, setSelectedOrder] = useState(null);
-  const [showTrackingModal, setShowTrackingModal] = useState(false);
-  const [trackingNumber, setTrackingNumber] = useState('');
+  const [showCompletionModal, setShowCompletionModal] = useState(false);
+  const [enteredCode, setEnteredCode] = useState('');
+  const [codeError, setCodeError] = useState('');
 
-  const handleMarkAsShipped = (orderId) => {
+  const handleMarkAsDone = (orderId) => {
     setSelectedOrder(orders.find(o => o.id === orderId));
-    setShowTrackingModal(true);
+    setShowCompletionModal(true);
+    setCodeError('');
   };
 
-  const handleSubmitTracking = (e) => {
+  const handleSubmitCompletion = (e) => {
     e.preventDefault();
+    
+    // Verify the completion code
+    if (enteredCode.trim().toUpperCase() !== selectedOrder.completionCode.toUpperCase()) {
+      setCodeError('Invalid completion code. Please ask the customer for their code.');
+      return;
+    }
+
+    // Mark order as done
     setOrders(orders.map(order =>
       order.id === selectedOrder.id
-        ? { ...order, status: 'shipped', trackingNumber: trackingNumber }
+        ? { ...order, status: 'done' }
         : order
     ));
-    setShowTrackingModal(false);
-    setTrackingNumber('');
+    
+    setShowCompletionModal(false);
+    setEnteredCode('');
+    setCodeError('');
     setSelectedOrder(null);
   };
 
   const getStatusColor = (status) => {
     switch (status) {
       case 'pending': return 'status-pending';
-      case 'shipped': return 'status-shipped';
-      case 'delivered': return 'status-delivered';
+      case 'done': return 'status-done';
       default: return '';
     }
   };
@@ -90,8 +101,7 @@ function OrderManagement() {
   };
 
   const pendingOrders = orders.filter(o => o.status === 'pending');
-  const shippedOrders = orders.filter(o => o.status === 'shipped');
-  const deliveredOrders = orders.filter(o => o.status === 'delivered');
+  const completedOrders = orders.filter(o => o.status === 'done');
 
   return (
     <div className="order-management">
@@ -112,17 +122,17 @@ function OrderManagement() {
           </div>
         </div>
         <div className="stat-card">
-          <div className="stat-icon shipped">🚚</div>
+          <div className="stat-icon done">✅</div>
           <div className="stat-info">
-            <h3>{shippedOrders.length}</h3>
-            <p>Shipped Orders</p>
+            <h3>{completedOrders.length}</h3>
+            <p>Completed Orders</p>
           </div>
         </div>
         <div className="stat-card">
-          <div className="stat-icon delivered">✅</div>
+          <div className="stat-icon total">📊</div>
           <div className="stat-info">
-            <h3>{deliveredOrders.length}</h3>
-            <p>Delivered Orders</p>
+            <h3>{orders.length}</h3>
+            <p>Total Orders</p>
           </div>
         </div>
       </div>
@@ -138,7 +148,6 @@ function OrderManagement() {
               <th>Items</th>
               <th>Total</th>
               <th>Status</th>
-              <th>Tracking</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -168,27 +177,17 @@ function OrderManagement() {
                     {getStatusText(order.status)}
                   </span>
                 </td>
-                <td>
-                  {order.trackingNumber ? (
-                    <span className="tracking-number">{order.trackingNumber}</span>
-                  ) : (
-                    <span className="no-tracking">—</span>
-                  )}
-                </td>
                 <td className="actions-cell">
                   {order.status === 'pending' && (
                     <button
-                      className="btn-ship"
-                      onClick={() => handleMarkAsShipped(order.id)}
+                      className="btn-complete"
+                      onClick={() => handleMarkAsDone(order.id)}
                     >
-                      Mark as Shipped
+                      Mark as Done
                     </button>
                   )}
-                  {order.status === 'shipped' && (
-                    <span className="shipped-label">✓ Shipped</span>
-                  )}
-                  {order.status === 'delivered' && (
-                    <span className="delivered-label">✓ Delivered</span>
+                  {order.status === 'done' && (
+                    <span className="done-label">✓ Completed</span>
                   )}
                 </td>
               </tr>
@@ -197,36 +196,48 @@ function OrderManagement() {
         </table>
       </div>
 
-      {/* Tracking Modal */}
-      {showTrackingModal && (
-        <div className="modal-overlay" onClick={() => setShowTrackingModal(false)}>
+      {/* Completion Modal */}
+      {showCompletionModal && (
+        <div className="modal-overlay" onClick={() => setShowCompletionModal(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <h3>Mark Order as Shipped</h3>
+            <h3>Complete Order</h3>
             <p className="order-id-modal">Order: {selectedOrder?.id}</p>
-            <form onSubmit={handleSubmitTracking}>
+            <p className="modal-instruction">
+              Ask the customer for their completion code to verify the handover.
+            </p>
+            <form onSubmit={handleSubmitCompletion}>
               <div className="form-group">
-                <label>Tracking Number (Optional)</label>
+                <label>Completion Code *</label>
                 <input
                   type="text"
-                  value={trackingNumber}
-                  onChange={(e) => setTrackingNumber(e.target.value)}
-                  placeholder="Enter tracking number"
+                  value={enteredCode}
+                  onChange={(e) => {
+                    setEnteredCode(e.target.value);
+                    setCodeError('');
+                  }}
+                  placeholder="Enter 6-character code"
+                  maxLength="6"
+                  required
+                  className={codeError ? 'error' : ''}
+                  style={{ textTransform: 'uppercase', letterSpacing: '2px', fontWeight: '600' }}
                 />
-                <small>Provide a tracking number for the customer to track their shipment</small>
+                {codeError && <small className="error-message">{codeError}</small>}
+                {!codeError && <small>The customer should have received this code with their order</small>}
               </div>
               <div className="modal-actions">
                 <button
                   type="button"
                   className="btn-cancel"
                   onClick={() => {
-                    setShowTrackingModal(false);
-                    setTrackingNumber('');
+                    setShowCompletionModal(false);
+                    setEnteredCode('');
+                    setCodeError('');
                   }}
                 >
                   Cancel
                 </button>
                 <button type="submit" className="btn-submit">
-                  Confirm Shipment
+                  Complete Order
                 </button>
               </div>
             </form>

@@ -57,12 +57,12 @@
   background-color: #fff8e1;
 }
 
-.stat-icon.shipped {
-  background-color: #e3f2fd;
+.stat-icon.done {
+  background-color: #e8f5e9;
 }
 
-.stat-icon.delivered {
-  background-color: #e8f5e9;
+.stat-icon.total {
+  background-color: #f3e5f5;
 }
 
 .stat-info h3 {
@@ -165,18 +165,12 @@
   color: #f57c00;
 }
 
-.status-badge.status-shipped {
-  background-color: #e3f2fd;
-  color: #1976d2;
-}
-
-.status-badge.status-delivered {
+.status-badge.status-done {
   background-color: #e8f5e9;
   color: #2e7d32;
 }
 
-.tracking-number {
-  font-family: monospace;
+.meetup-location {
   background-color: #f5f5f5;
   padding: 0.4rem 0.8rem;
   border-radius: 6px;
@@ -184,7 +178,7 @@
   color: #1976d2;
 }
 
-.no-tracking {
+.no-location {
   color: #999;
 }
 
@@ -192,7 +186,7 @@
   text-align: center;
 }
 
-.btn-ship {
+.btn-complete {
   background: linear-gradient(135deg, #1488D8 0%, #030391 100%);
   color: white;
   border: none;
@@ -204,13 +198,12 @@
   transition: all 0.3s ease;
 }
 
-.btn-ship:hover {
+.btn-complete:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(20, 136, 216, 0.3);
 }
 
-.shipped-label,
-.delivered-label {
+.done-label {
   color: #2e7d32;
   font-weight: 600;
   font-size: 0.9rem;
@@ -248,8 +241,18 @@
 
 .order-id-modal {
   color: #666;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.5rem;
   font-weight: 600;
+}
+
+.modal-instruction {
+  color: #1976d2;
+  background-color: #e3f2fd;
+  padding: 0.75rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+  border-left: 4px solid #1976d2;
 }
 
 .form-group {
@@ -278,11 +281,21 @@
   border-color: #1488D8;
 }
 
+.form-group input.error {
+  border-color: #d32f2f;
+  background-color: #ffebee;
+}
+
 .form-group small {
   display: block;
   margin-top: 0.5rem;
   color: #666;
   font-size: 0.85rem;
+}
+
+.form-group small.error-message {
+  color: #d32f2f;
+  font-weight: 600;
 }
 
 .modal-actions {

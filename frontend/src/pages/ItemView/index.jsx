@@ -214,30 +214,6 @@ const ItemView = () => {
               <p>{product.description}</p>
             </div>
 
-            <div className="product-specifications">
-              <h3>Specifications</h3>
-              <div className="specifications-list">
-                {product.specifications.map((spec, index) => (
-                  <div key={index} className="spec-item">
-                    <span className="spec-name">{spec.name}:</span>
-                    <span className="spec-value">{spec.value}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            
-            <div className="shipping-info">
-              <h3>Shipping Information</h3>
-              <p>
-                <i className="shipping-icon">🚚</i>
-                {product.shipping.free ? 'Free Shipping' : 'Standard Shipping Fee Applies'}
-              </p>
-              <p>
-                <i className="delivery-icon">📦</i>
-                Estimated Delivery: {product.shipping.estimatedDelivery}
-              </p>
-            </div>
-
             {/* Seller Information */}
             <div className="seller-info">
               <h3>Seller Information</h3>
@@ -258,10 +234,6 @@ const ItemView = () => {
                   <div className="seller-stat-item">
                     <span className="stat-label">Total Sales:</span>
                     <span className="stat-value">{product.seller.totalSales.toLocaleString()}</span>
-                  </div>
-                  <div className="seller-stat-item">
-                    <span className="stat-label">Response Time:</span>
-                    <span className="stat-value">{product.seller.responseTime}</span>
                   </div>
                   <div className="seller-stat-item">
                     <span className="stat-label">Member Since:</span>

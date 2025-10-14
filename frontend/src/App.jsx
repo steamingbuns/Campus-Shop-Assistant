@@ -10,6 +10,7 @@ import Cart from './pages/Cart';
 import ViewReports from './pages/Admin/ViewReports';
 import TransactionsLog from './pages/Admin/TransactionsLog'
 import './App.css'
+import { TransactionProvider } from './contexts/TransactionContext';
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/viewreports" element={<ViewReports />} />
+            <Route path='/txlog' element={<TransactionsLog />} />
           </Routes>
         </Router>
       </CartProvider>

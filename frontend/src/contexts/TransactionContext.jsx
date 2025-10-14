@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useState } from "react";
 
-const TransactionContext = createContext();
+const TransactionsContext = createContext();
 
 const formatTime = (date) => {
     if (!(date instanceof Date) || isNaN(date)) {

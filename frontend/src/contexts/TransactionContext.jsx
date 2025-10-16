@@ -59,6 +59,4 @@ export const TransactionsProvider = ({ children }) => {
     const [isAdding, setIsAdding] = useState(false);
 
     const isReady = true;
-
-    const updateTransaction
 }

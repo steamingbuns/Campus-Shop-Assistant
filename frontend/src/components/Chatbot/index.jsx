@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import './Chatbot.css';
 
-import avatarImg from 'D:\\Huy\\Uni stuffs\\Studying\\Year 3\\Đồ án Tổng Hợp\\chatbot-chat-message-vectorart\\Chatbot Chat Message.jpg'
+import avatarImg from '../../assets/chatbot.jpg';
 
 const Chatbot = () => {
   const [isOpen, setIsOpen] = useState(false);

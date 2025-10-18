@@ -17,46 +17,46 @@ const formatTime = (date) => {
 // --- Custom Mock Data (Static Demo List) ---
 const DEMO_TRANSACTIONS = [
     {
-        id: 'tx-1001',
-        fromUserID: 1,
-        toUserID: 2,
-        status: 'complete',
-        time: new Date(Date.now() - 120000), // 2 minutes ago
-        fromBank: 'Global Pay Inc.',
-        toBank: 'City Bank',
+        id: "tx-1001",
+        status: "complete",
+        time: new Date(Date.now() - 120000),
+        fromBank: "Global Pay Inc.",
+        toBank: "City Bank",
         amount: 150000,
+        fromUser: "Fiona Glenanne",
+        toUser: "Charlie Brown"
     },
     {
-        id: 'tx-1002',
-        fromUserID: 14,
-        toUserID: 3,
-        status: 'stuck',
-        time: new Date(Date.now() - 75000), // 1 minute 15 seconds ago
-        fromBank: 'Credit Union',
-        toBank: 'Bank A',
+        id: "tx-1002",
+        status: "stuck",
+        time: new Date(Date.now() - 75000),
+        fromBank: "Credit Union",
+        toBank: "Bank A",
         amount: 98000,
+        fromUser: "Charlie Brown",
+        toUser: "Ethan Hunt"
     },
     {
-        id: 'tx-1003',
-        fromUserID: 5,
-        toUserID: 2,
-        status: 'processing',
-        time: new Date(Date.now() - 3000), // 3 seconds ago
-        fromBank: 'Digital Wallet',
-        toBank: 'Bank B',
+        id: "tx-1003",
+        status: "processing",
+        time: new Date(Date.now() - 3000),
+        fromBank: "Digital Wallet",
+        toBank: "Bank B",
         amount: 460000,
+        fromUser: "Bob Smith",
+        toUser: "Ethan Hunt"
     },
     {
-        id: 'tx-1004',
-        fromUserID: 1,
-        toUserID: 9,
-        status: 'refunded',
-        time: new Date(Date.now() - 240000), // 4 minutes ago
-        fromBank: 'State Finance',
-        toBank: 'Digital Wallet',
+        id: "tx-1004",
+        status: "refunded",
+        time: new Date(Date.now() - 240000),
+        fromBank: "State Finance",
+        toBank: "Digital Wallet",
         amount: 100000,
-    },
-];
+        fromUser: "Fiona Glenanne",
+        toUser: "Fiona Glenanne"
+    }
+]
 
 export const useTransaction = () => {
     const context = useContext(TransactionContext);
@@ -92,8 +92,8 @@ export const TransactionProvider = ({ children }) => {
         // Mock 
         const newTransaction = {
             id: docId,
-            fromUserID: 1,
-            toUserID: 2,
+            fromUser: "mock user",
+            toUserID: "mocked user",
             status: 'processing',
             time: new Date(),
             fromBank: 'Mock Bank A',

@@ -1,7 +1,7 @@
 .view-reports-page {
-    padding: 20px;
-    background-color: #f9f9f9;
-    min-height: 100vh;
+  padding: 20px;
+  background-color: #f9f9f9;
+  min-height: 100vh;
 }
 
 .view-reports-page h1 {
@@ -38,11 +38,12 @@
 .search-input:focus {
   border-color: #007bff;
 }
+
 .reports-list {
   background: white;
   border-radius: 8px;
   padding: 20px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .report {
@@ -63,5 +64,31 @@
   text-align: left;
 }
 
-.report-details {
+/* REPORT STATUS */
+
+.status-open {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  background-color: #f8d7da;
+  color: #a72731;
+}
+
+.status-in-review {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  background-color: #fff3cd;
+  color: #b58900;
+}
+
+.status-resolved {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  background-color: #d4edda;
+  color: #1f7a28;
 }

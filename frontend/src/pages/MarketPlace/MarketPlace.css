@@ -2,9 +2,7 @@
 .marketplace {
   min-height: 100vh;
   padding: 140px 32px 64px;
-  background: radial-gradient(circle at 8% -5%, rgba(65, 158, 255, 0.35) 0%, transparent 60%),
-    radial-gradient(circle at 92% 15%, rgba(9, 80, 200, 0.32) 0%, transparent 55%),
-    linear-gradient(140deg, #f5f8ff 0%, #eaf0ff 48%, #fef9ff 100%);
+  background: #ffffff;
   box-sizing: border-box;
 }
 

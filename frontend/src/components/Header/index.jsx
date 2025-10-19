@@ -19,13 +19,13 @@ function Header() {
         </div>
         
         <nav className="header-nav">
+          <Link to="/" className="nav-link">Home</Link>
+          <Link to="/marketplace" className="nav-link">Marketplace</Link>
           {isLoggedIn && (
             <Link to="/seller-dashboard" className="nav-link sell-link">
               Sell
             </Link>
           )}
-          <Link to="/" className="nav-link">Home</Link>
-          <Link to="/marketplace" className="nav-link">Marketplace</Link>
           {isLoggedIn && (
             <Link to="/cart" className="nav-link cart-link">
               Cart ({getCartItemsCount()})
@@ -36,7 +36,9 @@ function Header() {
         <div className="header-actions">
           {isLoggedIn ? (
             <div className="user-menu">
-              <span className="user-welcome">Hello, {user?.name || 'User'}!</span>
+              <span className="user-welcome">
+                Hello, <Link to="/profile" className="user-name-link">{user?.name || 'User'}</Link>!
+              </span>
               <button onClick={handleLogout} className="btn-secondary">Logout</button>
             </div>
           ) : (

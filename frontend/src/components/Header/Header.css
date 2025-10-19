@@ -18,6 +18,13 @@
   gap: 1rem;
 }
 
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-left: auto;
+}
+
 .logo h1 {
   margin: 0;
   font-size: 2rem;
@@ -106,7 +113,7 @@
 /* Navigation */
 .header-nav {
   display: flex;
-  gap: 2rem;
+  gap: 1.25rem;
   align-items: center;
 }
 
@@ -131,6 +138,10 @@
     flex-direction: column;
     text-align: center;
     gap: 1.5rem;
+  }
+
+  .header-right {
+    flex-direction: column;
   }
   
   .logo h1 {

@@ -107,7 +107,7 @@ const MarketPlace = () => {
     <div className="marketplace">
       <div className="container">
         <h1>Campus Marketplace</h1>
-        
+
         {/* Simple Search */}
         <div className="search-section">
           <input

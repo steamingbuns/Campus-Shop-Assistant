@@ -1,6 +1,9 @@
 /* Item View Styles */
 .item-view {
-  padding: 20px;
+  padding-top: 120px;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-bottom: 20px;
   background-color: #f9f9f9;
   min-height: 100vh;
   width: 100%;

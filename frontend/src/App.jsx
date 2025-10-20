@@ -11,7 +11,7 @@ import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import SellerDashboard from './pages/SellerDashboard';
 import Profile from './pages/Profile';
-import AdminDashboard from './pages/AdminPanel/AdminDashboard';
+import AdminDashboard from './pages/AdminConsole/AdminDashboard';
 import './App.css'
 
 function App() {

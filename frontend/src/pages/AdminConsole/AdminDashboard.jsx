@@ -1,10 +1,12 @@
 import { useState } from "react";
 import UsersPanel from "./UsersPanel.jsx";
 import ListingsPanel from "./ListingsPanel.jsx";
+import ReportsPanel from "./ReportsPanel.jsx";
 
 const TABS = [
   { key: "users", label: "Manage Users" },
   { key: "listings", label: "Manage Listings" },
+  { key: "reports", label: "View Reports" },
 ];
 
 export default function AdminDashboard() {
@@ -26,6 +28,7 @@ export default function AdminDashboard() {
         <div className="mx-auto max-w-5xl bg-white rounded-2xl shadow border border-gray-200 p-6">
           {active === "users" && <UsersPanel />}
           {active === "listings" && <ListingsPanel />}
+          {active === "reports" && <ReportsPanel />}
         </div>
       </main>
     </div>

@@ -11,6 +11,7 @@ import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import SellerDashboard from './pages/SellerDashboard';
 import Profile from './pages/Profile';
+import AdminDashboard from './pages/AdminPanel/AdminDashboard';
 import './App.css'
 
 function App() {
@@ -27,6 +28,7 @@ function App() {
             <Route path="/cart" element={<Cart />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/seller-dashboard" element={<SellerDashboard />} />
+            <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
           </Routes>

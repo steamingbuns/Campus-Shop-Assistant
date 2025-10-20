@@ -7,8 +7,8 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import MarketPlace from './pages/MarketPlace';
 import Cart from './pages/Cart';
+import AdminDashboard from "./pages/AdminPanel/AdminDashboard.jsx";
 import './App.css'
-import AdminDashboard from "./admin/AdminDashboard.jsx";
 
 function App() {
   return (

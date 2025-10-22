@@ -1,8 +1,10 @@
 .seller-dashboard {
-  min-height: 100vh;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   padding-top: 120px;
-  padding-bottom: 50px;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-bottom: 20px;
+  background-color: #f9f9f9;
+  min-height: 100vh;
 }
 
 .dashboard-container {
@@ -12,18 +14,20 @@
 }
 
 .dashboard-title {
-  font-size: 2.5rem;
-  color: #1488D8;
+  font-size: 2rem;
+  color: #333;
   margin-bottom: 0.5rem;
   margin-top: 0;
   font-weight: 700;
 }
 
 .dashboard-subtitle {
-  font-size: 1.1rem;
+  font-size: 1rem;
   color: #666;
-  margin-bottom: 2rem;
+  margin-bottom: 30px;
   margin-top: 0;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #ddd;
 }
 
 .dashboard-tabs {

@@ -12,6 +12,7 @@ import Checkout from './pages/Checkout';
 import SellerDashboard from './pages/SellerDashboard';
 import Profile from './pages/Profile';
 import AdminDashboard from './pages/AdminConsole/AdminDashboard';
+import Review from './pages/Review';
 import './App.css'
 
 function App() {
@@ -29,6 +30,7 @@ function App() {
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/seller-dashboard" element={<SellerDashboard />} />
             <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/review/:productId" element={<Review />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
           </Routes>

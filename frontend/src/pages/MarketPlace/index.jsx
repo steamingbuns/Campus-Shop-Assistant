@@ -1,8 +1,10 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useCart } from '../../contexts/CartContext';
 import './MarketPlace.css';
+import SearchBox from '../../components/SearchBox';
+import Chatbot from '../../components/Chatbot';
 
 const MarketPlace = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -103,20 +105,59 @@ const MarketPlace = () => {
     };
   }, []);
 
+  const [displayedProducts, setDisplayedProducts] = useState(products);
+
+  const handleSearch = useCallback(async (query) => {
+    try {
+      const q = (query || '').trim().toLowerCase();
+
+      // Edge case: empty query -> reset to full list
+      if (!q) {
+        setDisplayedProducts(products);
+        setSearchQuery('');
+        return;
+      }
+
+      // Filter - inexpensive for small arrays. For large datasets, do server-side search.
+      const results = products.filter(p =>
+        (String(p.name || '').toLowerCase().includes(q)) ||
+        (String(p.category || '').toLowerCase().includes(q))
+      );
+
+      setDisplayedProducts(results);
+      setSearchQuery(query); // keep last query in parent state if needed
+    } catch (err) {
+      // Error handling: log and keep current displayedProducts unchanged
+      // Optionally show a toast or UI error state
+      // console.error provides dev-time details without breaking UI
+      console.error('MarketPlace: search failed', err);
+    }
+  }, [products]);
+
+  // Ensure displayedProducts syncs to products source if products array changes
+  // (e.g., loaded from API). This avoids stale lists.
+  useEffect(() => {
+    setDisplayedProducts(products);
+  }, [products]);
+
   return (
     <div className="marketplace">
       <div className="container">
         <h1>Campus Marketplace</h1>
-        
+
         {/* Simple Search */}
         <div className="search-section">
-          <input
-            type="text"
+          <SearchBox
+            onSearch={handleSearch}
+            products={products}
             placeholder="Search products..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="search-input"
+            maxSuggestions={8}
           />
+        </div>
+
+        {/* Chatbot */}
+        <div className="search">
+          <Chatbot/>
         </div>
 
         {/* Simple Categories */}
@@ -170,3 +211,7 @@ const MarketPlace = () => {
 };
 
 export default MarketPlace;
+
+
+
+

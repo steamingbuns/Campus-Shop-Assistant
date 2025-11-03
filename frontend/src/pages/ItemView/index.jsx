@@ -93,6 +93,14 @@ const ItemView = () => {
     navigate('/cart');
   };
 
+  const handleWriteReview = () => {
+    if (!isLoggedIn) {
+      navigate('/login');
+      return;
+    }
+    navigate(`/review/${productId}`);
+  };
+
   const handleQuantityChange = (e) => {
     const value = parseInt(e.target.value);
     if (value > 0 && value <= product?.stock) {
@@ -300,6 +308,12 @@ const ItemView = () => {
                 disabled={product.stock <= 0}
               >
                 Buy Now
+              </button>
+              <button 
+                className="write-review-btn"
+                onClick={handleWriteReview}
+              >
+                ✍️ Write a Review
               </button>
             </div>
           </div>

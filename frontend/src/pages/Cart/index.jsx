@@ -23,10 +23,6 @@ const Cart = () => {
     updateQuantity(productId, newQuantity);
   };
 
-  const handleCheckout = () => {
-    alert('Checkout functionality coming soon!');
-  };
-
   if (cartItems.length === 0) {
     return (
       <div className="cart-page">
@@ -114,7 +110,8 @@ const Cart = () => {
               <span>{formatPrice(getCartTotal())}</span>
             </div>
             
-            <button className="checkout-btn" onClick={handleCheckout}>
+            <button className="checkout-btn"
+            onClick={() => navigate('/checkout')}>
               Proceed to Checkout
             </button>
             

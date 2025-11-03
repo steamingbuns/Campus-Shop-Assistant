@@ -1,6 +1,9 @@
 /* Item View Styles */
 .item-view {
-  padding: 20px;
+  padding-top: 120px;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-bottom: 20px;
   background-color: #f9f9f9;
   min-height: 100vh;
   width: 100%;
@@ -504,9 +507,10 @@
 .action-buttons {
   display: flex;
   gap: 15px;
+  flex-wrap: wrap;
 }
 
-.add-to-cart-btn, .buy-now-btn {
+.add-to-cart-btn, .buy-now-btn, .write-review-btn {
   flex: 1;
   padding: 12px 20px;
   border: none;
@@ -514,7 +518,8 @@
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
+  min-width: 150px;
 }
 
 .add-to-cart-btn {
@@ -534,6 +539,19 @@
 
 .buy-now-btn:hover:not(:disabled) {
   background-color: #0056b3;
+}
+
+.write-review-btn {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  color: #fff;
+  border: 2px solid #f59e0b;
+  box-shadow: 0 2px 6px rgba(245, 158, 11, 0.3);
+}
+
+.write-review-btn:hover {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(245, 158, 11, 0.4);
 }
 
 .action-buttons button:disabled {

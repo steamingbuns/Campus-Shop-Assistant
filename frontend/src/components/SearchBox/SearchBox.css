@@ -1,0 +1,358 @@
+/* ===================================
+   SearchBox Container
+   =================================== */
+.searchbox-container {
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+/* ===================================
+   Search Input Field
+   =================================== */
+.searchbox-field {
+  position: relative;
+  width: 100%;
+  background: #fff;
+  border: 2px solid #3B82F6;
+  border-radius: 9999px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  transition: border-color 300ms, box-shadow 300ms;
+  display: flex;
+  align-items: center;
+}
+
+/* Focused state - darker blue border */
+.searchbox-field.focused {
+  border-color: #2563EB;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+}
+
+/* Searching state - visual feedback during loading */
+.searchbox-field.searching {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* Input element */
+.searchbox-input {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 1.125rem;
+  color: #1F2937;
+  padding: 16px 48px 16px 24px;
+  border-radius: 9999px;
+  box-sizing: border-box;
+  transition: opacity 200ms;
+}
+
+/* Placeholder styling */
+.searchbox-input::placeholder {
+  color: #6B7280;
+  font-size: 1.125rem;
+}
+
+/* Disabled state */
+.searchbox-input:disabled {
+  cursor: not-allowed;
+}
+
+/* ===================================
+   Search Icon Button
+   =================================== */
+.searchbox-icon {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 200ms;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+/* Hover effect for search icon */
+.searchbox-icon:not(:disabled):hover svg circle,
+.searchbox-icon:not(:disabled):hover svg line {
+  stroke: #2563EB;
+}
+
+/* Disabled state for search icon */
+.searchbox-icon:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Loading spinner animation */
+.searchbox-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ===================================
+   Suggestions Dropdown
+   =================================== */
+.searchbox-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 100%;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 20px 25px rgba(0,0,0,0.15);
+  border: 1px solid #DBEAFE;
+  max-height: 320px;
+  overflow-y: auto;
+  z-index: 10;
+  /* Smooth dropdown appearance */
+  animation: slideDown 200ms ease-out;
+}
+
+/* Dropdown slide down animation */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Custom scrollbar for dropdown */
+.searchbox-dropdown::-webkit-scrollbar {
+  width: 8px;
+}
+
+.searchbox-dropdown::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 0 12px 12px 0;
+}
+
+.searchbox-dropdown::-webkit-scrollbar-thumb {
+  background: #3B82F6;
+  border-radius: 4px;
+}
+
+.searchbox-dropdown::-webkit-scrollbar-thumb:hover {
+  background: #2563EB;
+}
+
+/* ===================================
+   Individual Suggestion Items
+   =================================== */
+.searchbox-suggestion {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 12px 24px;
+  cursor: pointer;
+  transition: background 200ms;
+  background: #fff;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+/* Remove border from last suggestion */
+.searchbox-suggestion:last-child {
+  border-bottom: none;
+}
+
+/* Hover state */
+.searchbox-suggestion:hover {
+  background: #EFF6FF;
+}
+
+/* Selected state (keyboard navigation) */
+.searchbox-suggestion.selected {
+  background: #DBEAFE;
+  outline: 2px solid #3B82F6;
+  outline-offset: -2px;
+}
+
+/* Focus state for accessibility */
+.searchbox-suggestion:focus {
+  outline: 2px solid #3B82F6;
+  outline-offset: -2px;
+}
+
+/* ===================================
+   Suggestion Content Layout
+   =================================== */
+.suggestion-left {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0; /* Allow text truncation */
+}
+
+/* Product name */
+.suggestion-name {
+  font-size: 16px;
+  color: #1F2937;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Category label */
+.suggestion-category {
+  font-size: 14px;
+  color: #6B7280;
+  margin-top: 2px;
+}
+
+/* Price section */
+.suggestion-right {
+  display: flex;
+  align-items: center;
+  margin-left: 16px;
+  flex-shrink: 0;
+}
+
+/* Price value */
+.suggestion-price {
+  font-size: 16px;
+  color: #2563EB;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+/* ===================================
+   Empty State
+   =================================== */
+.searchbox-empty {
+  text-align: center;
+  color: #6B7280;
+  padding: 16px 24px;
+  font-size: 16px;
+}
+
+/* ===================================
+   Responsive Design
+   =================================== */
+@media (max-width: 768px) {
+  /* Smaller container on mobile */
+  .searchbox-container {
+    max-width: 100%;
+  }
+
+  /* Adjust input padding for mobile */
+  .searchbox-input {
+    font-size: 1rem;
+    padding: 14px 44px 14px 20px;
+  }
+
+  .searchbox-input::placeholder {
+    font-size: 1rem;
+  }
+
+  /* Adjust icon position */
+  .searchbox-icon {
+    right: 12px;
+  }
+
+  /* Smaller suggestion items on mobile */
+  .searchbox-suggestion {
+    padding: 10px 16px;
+  }
+
+  .suggestion-name {
+    font-size: 14px;
+  }
+
+  .suggestion-category {
+    font-size: 13px;
+  }
+
+  .suggestion-price {
+    font-size: 14px;
+  }
+
+  .searchbox-empty {
+    font-size: 14px;
+    padding: 12px 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Even smaller adjustments for very small screens */
+  .searchbox-input {
+    padding: 12px 40px 12px 16px;
+  }
+
+  .searchbox-icon {
+    right: 10px;
+    width: 20px;
+    height: 20px;
+  }
+
+  .searchbox-icon svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+/* ===================================
+   Accessibility Enhancements
+   =================================== */
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .searchbox-field {
+    border-width: 3px;
+  }
+
+  .searchbox-suggestion.selected {
+    outline-width: 3px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .searchbox-field,
+  .searchbox-suggestion,
+  .searchbox-icon {
+    transition: none;
+  }
+
+  .searchbox-dropdown {
+    animation: none;
+  }
+
+  .searchbox-spinner {
+    animation: none;
+  }
+}
+
+/* Focus visible for keyboard navigation */
+.searchbox-input:focus-visible {
+  outline: 2px solid #2563EB;
+  outline-offset: 2px;
+}
+
+.searchbox-icon:focus-visible {
+  outline: 2px solid #2563EB;
+  outline-offset: 2px;
+  border-radius: 4px;
+}

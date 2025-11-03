@@ -59,15 +59,13 @@ export async function register(req, res) {
       });
     }
 
-    // Hash password
-    const saltRounds = 10;
-    const password_hash = await bcrypt.hash(password, saltRounds);
-
-    // Create user
+    // Create user (password will be hashed in the model)
     const newUser = await userModel.createUser({
       name,
       email,
-      password_hash,
+      password,
+      address: req.body.address,
+      phone_number: req.body.phone_number,
       role: 'user',
       status: 'active'
     });

@@ -1,15 +1,48 @@
 import sql from '../db/index.js';
+import bcrypt from 'bcrypt';
 
 export async function createUser(userData) {
-  const { name, email, password_hash, role = 'user', status = 'active' } = userData;
-  
-  const result = await sql`
-    INSERT INTO "User" (name, email, password_hash, role, status, create_at, updated_at)
-    VALUES (${name}, ${email}, ${password_hash}, ${role}, ${status}, NOW(), NOW())
-    RETURNING user_id, name, email, role, status, create_at
+  const {
+    name,
+    email,
+    password,
+    address,
+    phone_number,
+    role = 'user',
+    status = 'active'
+  } = userData;
+
+  // Hash the password
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  // Insert user
+  const newUser = await sql`
+    INSERT INTO "User" (
+      name,
+      email,
+      password_hash,
+      address,
+      phone_number,
+      role,
+      status,
+      create_at,
+      updated_at
+    ) 
+    VALUES (
+      ${name},
+      ${email},
+      ${hashedPassword},
+      ${address || null},
+      ${phone_number || null},
+      ${role},
+      ${status},
+      NOW(),
+      NOW()
+    ) 
+    RETURNING *
   `;
-  
-  return result[0];
+
+  return newUser[0];
 }
 
 export async function findUserByEmail(email) {
@@ -23,8 +56,7 @@ export async function findUserByEmail(email) {
 
 export async function findUserById(userId) {
   const result = await sql`
-    SELECT user_id, name, email, address, phone_number, role, status, create_at, updated_at
-    FROM "User"
+    SELECT * FROM "User"
     WHERE user_id = ${userId}
   `;
   
@@ -40,18 +72,59 @@ export async function findUserByIdWithPassword(userId) {
   return result[0];
 }
 
+/**
+ * Find user by phone number
+ * @param {string} phoneNumber - The phone number to search
+ * @returns {Promise<Object|null>} - The user object if found, null otherwise
+ */
+export async function findUserByPhoneNumber(phoneNumber) {
+  try {
+    // Normalize phone number by removing hyphens, spaces, and other separators
+    const normalizedPhoneNumber = phoneNumber.replace(/[-\s()]/g, '');
+    
+    // Query using a pattern match that ignores formatting characters
+    const users = await sql`
+      SELECT * FROM "User"
+      WHERE REPLACE(
+              REPLACE(
+                REPLACE(
+                  REPLACE(phone_number, '-', ''),
+                ' ', ''),
+              '(', ''),
+            ')', '') = ${normalizedPhoneNumber}
+    `;
+    
+    return users.length > 0 ? users[0] : null;
+  } catch (error) {
+    console.error("Error in findUserByPhoneNumber:", error);
+    throw error;
+  }
+}
+
 export async function updateUser(userId, updates) {
   const { name, address, phone_number } = updates;
   
+  // Build update object with only provided fields
+  const updateFields = {};
+  if (name !== undefined) updateFields.name = name;
+  if (address !== undefined) updateFields.address = address;
+  if (phone_number !== undefined) updateFields.phone_number = phone_number;
+  
+  // If no fields to update, return current user
+  if (Object.keys(updateFields).length === 0) {
+    return await findUserById(userId);
+  }
+  
+  // Build the SQL query dynamically
+  const setClause = Object.keys(updateFields)
+    .map(key => `${key} = $${key}`)
+    .join(', ');
+  
   const result = await sql`
     UPDATE "User"
-    SET 
-      name = COALESCE(${name}, name),
-      address = COALESCE(${address}, address),
-      phone_number = COALESCE(${phone_number}, phone_number),
-      updated_at = NOW()
+    SET ${sql(updateFields)}, updated_at = NOW()
     WHERE user_id = ${userId}
-    RETURNING user_id, name, email, address, phone_number, role, status, updated_at
+    RETURNING *
   `;
   
   return result[0];
@@ -99,6 +172,20 @@ export async function updateUserStatus(userId, status) {
       updated_at = NOW()
     WHERE user_id = ${userId}
     RETURNING user_id, email, status
+  `;
+  
+  return result[0];
+}
+
+// Promote user to admin (admin function)
+export async function promoteToAdmin(userId) {
+  const result = await sql`
+    UPDATE "User"
+    SET 
+      role = 'admin',
+      updated_at = NOW()
+    WHERE user_id = ${userId}
+    RETURNING user_id, name, email, role
   `;
   
   return result[0];

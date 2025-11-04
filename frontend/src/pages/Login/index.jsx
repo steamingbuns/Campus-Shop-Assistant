@@ -1,35 +1,33 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import authService from '../../services/authService';
 import './Login.css';
 
 function Login() {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
-    // Basic validation
-    if (!username || !password) {
+    if (!email || !password) {
       setError('Please fill in all fields');
       return;
     }
 
-    // For demo purposes, accept any username/password
-    // In real app, this would be an API call
-    const userData = {
-      id: 1,
-      name: username,
-      email: `${username}@example.com`
-    };
-
-    login(userData);
-    navigate('/marketplace'); // Redirect to marketplace after login
+    try {
+      const response = await authService.login({ email, password });
+      login(response.user, response.token);
+      navigate('/marketplace');
+    } catch (err) {
+      setError(err.message || 'Login failed. Please check your credentials.');
+      console.error(err);
+    }
   };
 
   return (
@@ -42,13 +40,13 @@ function Login() {
         
         <form className="login-form" onSubmit={handleSubmit}>
           <div className="form-group">
-            <label className="form-label">Username</label>
+            <label className="form-label">Email</label>
             <input 
-              type="text" 
+              type="email" 
               className="form-input" 
-              placeholder="Enter your username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              placeholder="Enter your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
           </div>
           

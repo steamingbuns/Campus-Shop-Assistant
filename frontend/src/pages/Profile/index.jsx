@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
+import OrderTracking from './OrderTracking';
 import './Profile.css';
 
 function Profile() {
@@ -184,39 +185,7 @@ function Profile() {
     </div>
   );
 
-  const renderStats = () => (
-    <div className="profile-section">
-      <div className="section-header">
-        <div>
-          <h2>Account Statistics</h2>
-          <p className="section-subtitle">Your activity overview</p>
-        </div>
-      </div>
-
-      <div className="stats-grid">
-        <div className="stat-card">
-          <div className="stat-icon">🛒</div>
-          <div className="stat-value">0</div>
-          <div className="stat-label">Orders Placed</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-icon">💰</div>
-          <div className="stat-value">0</div>
-          <div className="stat-label">Items Sold</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-icon">⭐</div>
-          <div className="stat-value">0</div>
-          <div className="stat-label">Reviews</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-icon">❤️</div>
-          <div className="stat-value">0</div>
-          <div className="stat-label">Wishlist Items</div>
-        </div>
-      </div>
-    </div>
-  );
+  const renderOrderTracking = () => <OrderTracking />;
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -224,8 +193,8 @@ function Profile() {
         return renderPersonalInfo();
       case 'security':
         return renderSecurity();
-      case 'stats':
-        return renderStats();
+      case 'tracking':
+        return renderOrderTracking();
       default:
         return renderPersonalInfo();
     }
@@ -262,11 +231,11 @@ function Profile() {
             Security
           </button>
           <button
-            className={`tab-button ${activeTab === 'stats' ? 'active' : ''}`}
-            onClick={() => setActiveTab('stats')}
+            className={`tab-button ${activeTab === 'tracking' ? 'active' : ''}`}
+            onClick={() => setActiveTab('tracking')}
           >
-            <span className="tab-icon">📊</span>
-            Statistics
+            <span className="tab-icon">🚚</span>
+            Order Tracking
           </button>
         </div>
 

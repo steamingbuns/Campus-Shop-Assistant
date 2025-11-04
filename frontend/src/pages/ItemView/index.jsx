@@ -1,159 +1,232 @@
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
+import productService from '../../services/productService';
+import userService from '../../services/userService';
 import './ItemView.css';
 
-const ItemView = () => {
+const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=800&q=80';
+
+function ItemView() {
   const { productId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const { addToCart } = useCart();
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, token } = useAuth();
+
   const [product, setProduct] = useState(null);
+  const [reviews, setReviews] = useState([]);
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [canReview, setCanReview] = useState(false);
 
-  // Fetch product data based on productId
   useEffect(() => {
-    // In a real application, you would fetch from your API
-    // This is a mock implementation
-    setIsLoading(true);
-    
-    // Simulate API fetch with setTimeout
-    setTimeout(() => {
-      // Mock product data
-      const mockProduct = {
-        id: Number(productId) || 1,
-        name: 'Campus Textbook: Advanced Programming',
-        price: 175000,
-        description: `This comprehensive textbook is essential for computer science students. 
-                     It covers advanced programming concepts including algorithms, data structures, 
-                     and software design patterns. Perfect for both classroom use and self-study.`,
-        specifications: [
-          { name: 'Author', value: 'Prof. Jane Smith' },
-          { name: 'Publisher', value: 'Campus Press' },
-          { name: 'Pages', value: '450' },
-          { name: 'Publication Year', value: '2025' },
-          { name: 'Language', value: 'English' },
-          { name: 'ISBN', value: '978-1-234567-89-0' }
-        ],
-        stock: 15,
-        rating: 4.5,
-        reviewCount: 3,
-        images: [
-          'https://via.placeholder.com/600x600?text=Textbook+Main',
-          'https://via.placeholder.com/600x600?text=Textbook+Cover',
-          'https://via.placeholder.com/600x600?text=Textbook+Back',
-          'https://via.placeholder.com/600x600?text=Textbook+Inside'
-        ],
-        reviews: [
-          { id: 1, user: 'Student123', rating: 5, comment: 'Excellent textbook with clear explanations and good examples.', date: '2025-09-15' },
-          { id: 2, user: 'CSMajor', rating: 4, comment: 'Very helpful for my advanced programming course.', date: '2025-09-10' },
-          { id: 3, user: 'CodeLearner', rating: 5, comment: 'The exercises are challenging but valuable.', date: '2025-09-05' }
-        ],
-        category: 'books',
-        shipping: {
-          free: true,
-          estimatedDelivery: '1-3 days'
-        },
-        seller: {
-          name: 'Campus Bookstore',
-          email: 'bookstore@campus.edu',
-          phone: '+1 (555) 123-4567',
-          rating: 4.8,
-          totalSales: 1250,
-          responseTime: '< 2 hours',
-          joinDate: '2023-01-15'
+    let isMounted = true;
+
+    async function loadProduct() {
+      if (!productId) return;
+      setLoading(true);
+      setError(null);
+
+      try {
+        const [productData, reviewData] = await Promise.all([
+          productService.getProduct(productId),
+          productService.getProductReviews(productId),
+        ]);
+
+        if (!isMounted) return;
+
+        const normalizedProduct = {
+          ...productData,
+          price: Number(productData?.price ?? 0),
+          stock: Number(productData?.stock ?? 0),
+          rating: Number(productData?.rating?.average ?? productData?.rating ?? 0),
+          ratingCount: Number(productData?.rating?.count ?? productData?.reviewCount ?? 0),
+          category: productData?.category || productData?.categoryName || 'Marketplace',
+          images: (productData?.images || []).map((image) => image.url),
+          seller: {
+            name: productData?.seller?.name || 'Campus Seller',
+            email: productData?.seller?.email || 'seller@example.com',
+            phoneNumber: productData?.seller?.phoneNumber || productData?.seller?.phone || 'N/A',
+            rating: Number(
+              productData?.seller?.rating ?? productData?.ratings ?? productData?.rating?.average ?? 4.5
+            ),
+            totalSales: productData?.seller?.totalSales ?? productData?.sellerSales ?? 0,
+            joinDate: productData?.seller?.joinDate ?? productData?.createdAt,
+          },
+        };
+
+        setProduct(normalizedProduct);
+        setReviews(reviewData?.reviews || []);
+        setQuantity(1);
+        setActiveImage(0);
+      } catch (err) {
+        console.error('Failed to load product', err);
+        if (isMounted) {
+          setError(err.message || 'Unable to load product information.');
         }
-      };
-      
-      setProduct(mockProduct);
-      setIsLoading(false);
-    }, 500);
-  }, [productId]);
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    }
 
-  const handleAddToCart = () => {
+    loadProduct();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [productId, location.state?.reviewSubmitted]);
+
+  useEffect(() => {
+    const checkEligibility = async () => {
+      // Reset on product change
+      setCanReview(false);
+
+      if (isLoggedIn && productId && token) {
+        try {
+          const response = await userService.checkReviewEligibility(productId, token);
+          setCanReview(response.eligible);
+        } catch (error) {
+          console.error("Failed to check review eligibility", error);
+          setCanReview(false); // Ensure it's false on error
+        }
+      }
+    };
+
+    checkEligibility();
+  }, [isLoggedIn, productId, token]);
+
+  const productImages = useMemo(() => {
+    if (!product?.images || product.images.length === 0) {
+      return [FALLBACK_IMAGE];
+    }
+    return product.images;
+  }, [product]);
+
+  const formatPrice = useMemo(
+    () => (price) => new Intl.NumberFormat('vi-VN').format(price) + ' đ',
+    []
+  );
+
+  const renderStars = (rating) => {
+    const stars = [];
+    const safeRating = Number.isFinite(rating) ? rating : 0;
+    const fullStars = Math.floor(safeRating);
+    const hasHalfStar = safeRating % 1 >= 0.5;
+    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+
+    for (let i = 0; i < fullStars; i += 1) {
+      stars.push(
+        <span key={`star-${i}`} className="star full">
+          ★
+        </span>
+      );
+    }
+
+    if (hasHalfStar) {
+      stars.push(
+        <span key="half-star" className="star half">
+          ★
+        </span>
+      );
+    }
+
+    for (let i = 0; i < emptyStars; i += 1) {
+      stars.push(
+        <span key={`empty-${i}`} className="star empty">
+          ☆
+        </span>
+      );
+    }
+
+    return <>{stars}</>;
+  };
+
+  const handleProtectedAction = (callback) => {
     if (!isLoggedIn) {
       navigate('/login');
       return;
     }
-    
-    addToCart(product, quantity);
-    alert(`${quantity} ${product.name}${quantity > 1 ? 's' : ''} added to cart!`);
+    callback();
   };
 
-  const handleBuyNow = () => {
-    if (!isLoggedIn) {
-      navigate('/login');
-      return;
-    }
-    
-    addToCart(product, quantity);
-    navigate('/cart');
-  };
+  const productPayload = product
+    ? {
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: productImages[0],
+      }
+    : null;
 
-  const handleWriteReview = () => {
-    if (!isLoggedIn) {
-      navigate('/login');
-      return;
-    }
-    navigate(`/review/${productId}`);
-  };
+  const handleAddToCart = () =>
+    handleProtectedAction(() => {
+      if (!productPayload) return;
+      addToCart(productPayload, quantity);
+      alert(
+        `${quantity} ${product.name}${quantity > 1 ? 's' : ''} added to cart!`
+      );
+    });
 
-  const handleQuantityChange = (e) => {
-    const value = parseInt(e.target.value);
-    if (value > 0 && value <= product?.stock) {
+  const handleBuyNow = () =>
+    handleProtectedAction(() => {
+      if (!productPayload) return;
+      addToCart(productPayload, quantity);
+      navigate('/cart');
+    });
+
+  const handleWriteReview = () =>
+    handleProtectedAction(() => {
+      navigate(`/review/${productId}`);
+    });
+
+  const handleQuantityChange = (event) => {
+    const value = Number.parseInt(event.target.value, 10);
+    if (!Number.isInteger(value)) return;
+    if (value >= 1 && value <= (product?.stock ?? 1)) {
       setQuantity(value);
     }
   };
 
   const decreaseQuantity = () => {
-    if (quantity > 1) {
-      setQuantity(quantity - 1);
-    }
+    setQuantity((current) => Math.max(1, current - 1));
   };
 
   const increaseQuantity = () => {
-    if (product && quantity < product.stock) {
-      setQuantity(quantity + 1);
-    }
+    setQuantity((current) =>
+      Math.min(product?.stock ?? current + 1, current + 1)
+    );
   };
 
-  // Format price with VND currency
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat('vi-VN').format(price) + ' đ';
-  };
-
-  // Render star rating
-  const renderStars = (rating) => {
-    const stars = [];
-    const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 !== 0;
-    
-    for (let i = 0; i < fullStars; i++) {
-      stars.push(<span key={`star-${i}`} className="star full">★</span>);
-    }
-    
-    if (hasHalfStar) {
-      stars.push(<span key="half-star" className="star half">★</span>);
-    }
-    
-    // Calculate empty stars correctly: 5 total - full stars - (1 if half star exists, 0 otherwise)
-    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
-    for (let i = 0; i < emptyStars; i++) {
-      stars.push(<span key={`empty-star-${i}`} className="star empty">☆</span>);
-    }
-    
-    return <>{stars}</>;
-  };
-
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="item-view">
         <div className="container loading">
-          <div className="loading-spinner"></div>
+          <div className="loading-spinner" />
           <p>Loading product information...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="item-view">
+        <div className="container error">
+          <h2>Unable to load product</h2>
+          <p>{error}</p>
+          <button
+            type="button"
+            onClick={() => navigate('/marketplace')}
+            className="btn-primary"
+          >
+            Return to Marketplace
+          </button>
         </div>
       </div>
     );
@@ -164,8 +237,12 @@ const ItemView = () => {
       <div className="item-view">
         <div className="container error">
           <h2>Product Not Found</h2>
-          <p>Sorry, we couldn't find the product you're looking for.</p>
-          <button onClick={() => navigate('/marketplace')} className="btn-primary">
+          <p>Sorry, we could not find the product you were looking for.</p>
+          <button
+            type="button"
+            onClick={() => navigate('/marketplace')}
+            className="btn-primary"
+          >
             Return to Marketplace
           </button>
         </div>
@@ -177,23 +254,31 @@ const ItemView = () => {
     <div className="item-view">
       <div className="container">
         <div className="breadcrumb">
-          <span onClick={() => navigate('/')}>Home</span> &gt; 
-          <span onClick={() => navigate('/marketplace')}>Marketplace</span> &gt; 
-          <span onClick={() => navigate(`/marketplace?category=${product.category}`)}>{product.category.charAt(0).toUpperCase() + product.category.slice(1)}</span> &gt; 
+          <span onClick={() => navigate('/')}>Home</span> &gt;
+          <span onClick={() => navigate('/marketplace')}>Marketplace</span> &gt;
+          <span
+            onClick={() =>
+              navigate(`/marketplace?category=${encodeURIComponent(product.category)}`)
+            }
+          >
+            {product.category.charAt(0).toUpperCase() + product.category.slice(1)}
+          </span>{' '}
+          &gt;
           <span className="current">{product.name}</span>
         </div>
-        
+
         <div className="product-container">
-          {/* Left Column: Image Gallery */}
           <div className="product-gallery">
             <div className="main-image">
-              <img src={product.images[activeImage]} alt={product.name} />
+              <img src={productImages[activeImage]} alt={product.name} />
             </div>
             <div className="thumbnail-container">
-              {product.images.map((image, index) => (
-                <div 
-                  key={index} 
-                  className={`thumbnail ${activeImage === index ? 'active' : ''}`}
+              {productImages.map((image, index) => (
+                <div
+                  key={image}
+                  className={`thumbnail ${
+                    activeImage === index ? 'active' : ''
+                  }`}
                   onClick={() => setActiveImage(index)}
                 >
                   <img src={image} alt={`${product.name} view ${index + 1}`} />
@@ -201,28 +286,26 @@ const ItemView = () => {
               ))}
             </div>
           </div>
-          
-          {/* Right Column: Product Details */}
+
           <div className="product-details">
             <h1 className="product-title">{product.name}</h1>
-            
+
             <div className="product-rating">
               {renderStars(product.rating)}
               <span className="rating-text">
-                {product.rating.toFixed(1)} ({product.reviewCount} reviews)
+                {product.rating.toFixed(1)} ({product.ratingCount} reviews)
               </span>
             </div>
-            
+
             <div className="product-price">
               <span className="current-price">{formatPrice(product.price)}</span>
             </div>
-            
+
             <div className="product-description">
               <h3>Description</h3>
-              <p>{product.description}</p>
+              <p>{product.description || 'Product description is coming soon.'}</p>
             </div>
 
-            {/* Seller Information */}
             <div className="seller-info">
               <h3>Seller Information</h3>
               <div className="seller-details">
@@ -234,18 +317,31 @@ const ItemView = () => {
                     <h4 className="seller-name">{product.seller.name}</h4>
                     <div className="seller-rating">
                       {renderStars(product.seller.rating)}
-                      <span className="seller-rating-text">{product.seller.rating.toFixed(1)}</span>
+                      <span className="seller-rating-text">
+                        {Number(product.seller.rating).toFixed(1)}
+                      </span>
                     </div>
                   </div>
                 </div>
                 <div className="seller-stats">
                   <div className="seller-stat-item">
                     <span className="stat-label">Total Sales:</span>
-                    <span className="stat-value">{product.seller.totalSales.toLocaleString()}</span>
+                    <span className="stat-value">
+                      {product.seller.totalSales
+                        ? product.seller.totalSales.toLocaleString()
+                        : '—'}
+                    </span>
                   </div>
                   <div className="seller-stat-item">
                     <span className="stat-label">Member Since:</span>
-                    <span className="stat-value">{new Date(product.seller.joinDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })}</span>
+                    <span className="stat-value">
+                      {product.seller.joinDate
+                        ? new Date(product.seller.joinDate).toLocaleDateString(
+                            'en-US',
+                            { year: 'numeric', month: 'short' }
+                          )
+                        : '—'}
+                    </span>
                   </div>
                 </div>
                 <div className="seller-contact">
@@ -255,37 +351,41 @@ const ItemView = () => {
                   </div>
                   <div className="contact-item">
                     <i className="contact-icon">📞</i>
-                    <span>{product.seller.phone}</span>
+                    <span>{product.seller.phoneNumber}</span>
                   </div>
                 </div>
               </div>
             </div>
-            
+
             <div className="stock-info">
               <span className={product.stock > 0 ? 'in-stock' : 'out-of-stock'}>
-                {product.stock > 0 ? `In Stock (${product.stock} available)` : 'Out of Stock'}
+                {product.stock > 0
+                  ? `In Stock (${product.stock} available)`
+                  : 'Out of Stock'}
               </span>
             </div>
-            
+
             <div className="quantity-selector">
               <span>Quantity:</span>
               <div className="quantity-controls">
-                <button 
-                  className="quantity-btn" 
+                <button
+                  type="button"
+                  className="quantity-btn"
                   onClick={decreaseQuantity}
                   disabled={quantity <= 1}
                 >
                   -
                 </button>
-                <input 
-                  type="number" 
-                  value={quantity} 
-                  onChange={handleQuantityChange} 
-                  min="1" 
+                <input
+                  type="number"
+                  value={quantity}
+                  onChange={handleQuantityChange}
+                  min="1"
                   max={product.stock}
                 />
-                <button 
-                  className="quantity-btn" 
+                <button
+                  type="button"
+                  className="quantity-btn"
                   onClick={increaseQuantity}
                   disabled={quantity >= product.stock}
                 >
@@ -293,147 +393,97 @@ const ItemView = () => {
                 </button>
               </div>
             </div>
-            
+
             <div className="action-buttons">
-              <button 
+              <button
+                type="button"
                 className="add-to-cart-btn"
                 onClick={handleAddToCart}
                 disabled={product.stock <= 0}
               >
                 Add to Cart
               </button>
-              <button 
+              <button
+                type="button"
                 className="buy-now-btn"
                 onClick={handleBuyNow}
                 disabled={product.stock <= 0}
               >
                 Buy Now
               </button>
-              <button 
-                className="write-review-btn"
-                onClick={handleWriteReview}
-              >
-                ✍️ Write a Review
-              </button>
+              {canReview && (
+                <button
+                  type="button"
+                  className="write-review-btn"
+                  onClick={handleWriteReview}
+                >
+                  ✍️ Write a Review
+                </button>
+              )}
             </div>
           </div>
         </div>
-        
-        {/* Reviews Section */}
+
         <div className="reviews-section">
           <h2>Customer Reviews</h2>
-          
+
           <div className="review-summary">
             <div className="average-rating">
               <span className="large-rating">{product.rating.toFixed(1)}</span>
               <div className="stars-container">
                 {renderStars(product.rating)}
-                <p>{product.reviewCount} reviews</p>
+                <p>{product.ratingCount} reviews</p>
               </div>
             </div>
-            
+
             <div className="rating-distribution">
-              {[5, 4, 3, 2, 1].map(star => {
-                // Calculate number of reviews for each star rating
-                const reviewsForStar = product.reviews.filter(r => r.rating === star).length;
-                const percentage = product.reviewCount > 0 ? (reviewsForStar / product.reviewCount) * 100 : 0;
-                
+              {[5, 4, 3, 2, 1].map((star) => {
+                const count = reviews.filter((review) => review.rating === star).length;
+                const percentage = product.ratingCount
+                  ? (count / product.ratingCount) * 100
+                  : 0;
                 return (
                   <div key={star} className="rating-bar-item">
                     <span className="rating-label">{star} ★</span>
                     <div className="rating-bar-container">
-                      <div 
-                        className="rating-bar-fill" 
+                      <div
+                        className="rating-bar-fill"
                         style={{ width: `${percentage}%` }}
-                      ></div>
+                      />
                     </div>
-                    <span className="rating-count">{reviewsForStar}</span>
+                    <span className="rating-count">{count}</span>
                   </div>
                 );
               })}
             </div>
           </div>
-          
+
           <div className="reviews-list">
-            {product.reviews.map(review => (
-              <div key={review.id} className="review-item">
-                <div className="review-header">
-                  <div className="review-user">{review.user}</div>
-                  <div className="review-rating">
-                    {renderStars(review.rating)}
+            {reviews.length === 0 ? (
+              <p>No reviews yet. Be the first to share your thoughts!</p>
+            ) : (
+              reviews.map((review) => (
+                <div key={review.id} className="review-item">
+                  <div className="review-header">
+                    <div className="review-user">
+                      {review.userName || `User #${review.userId}`}
+                    </div>
+                    <div className="review-rating">{renderStars(review.rating)}</div>
+                    <div className="review-date">
+                      {new Date(review.createdAt).toLocaleDateString()}
+                    </div>
                   </div>
-                  <div className="review-date">{review.date}</div>
-                </div>
-                <div className="review-comment">{review.comment}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-        
-        {/* Related Products Section */}
-        <div className="related-products">
-          <h2>You May Also Like</h2>
-          <div className="related-products-grid">
-            {/* Placeholder Related Products */}
-            {[
-              {
-                id: 101,
-                name: 'Data Structures & Algorithms',
-                price: 165000,
-                rating: 4.7,
-                image: 'https://via.placeholder.com/250x250?text=Data+Structures',
-                category: 'books'
-              },
-              {
-                id: 102,
-                name: 'Software Engineering Fundamentals',
-                price: 180000,
-                rating: 4.6,
-                image: 'https://via.placeholder.com/250x250?text=Software+Engineering',
-                category: 'books'
-              },
-              {
-                id: 103,
-                name: 'Web Development Essentials',
-                price: 145000,
-                rating: 4.8,
-                image: 'https://via.placeholder.com/250x250?text=Web+Dev',
-                category: 'books'
-              },
-              {
-                id: 104,
-                name: 'Computer Networks Guide',
-                price: 170000,
-                rating: 4.5,
-                image: 'https://via.placeholder.com/250x250?text=Networks',
-                category: 'books'
-              }
-            ].map(relatedProduct => (
-              <div 
-                key={relatedProduct.id} 
-                className="related-product-card"
-                onClick={() => navigate(`/item/${relatedProduct.id}`)}
-              >
-                <div className="related-product-image">
-                  <img src={relatedProduct.image} alt={relatedProduct.name} />
-                </div>
-                <div className="related-product-info">
-                  <h3 className="related-product-name">{relatedProduct.name}</h3>
-                  <div className="related-product-rating">
-                    {renderStars(relatedProduct.rating)}
-                    <span className="related-rating-text">{relatedProduct.rating.toFixed(1)}</span>
-                  </div>
-                  <div className="related-product-price">
-                    <span className="related-current-price">{formatPrice(relatedProduct.price)}</span>
+                  <div className="review-comment">
+                    {review.comment || 'No comment provided.'}
                   </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
       </div>
     </div>
   );
-};
+}
 
 export default ItemView;

@@ -356,3 +356,17 @@
     max-height: 200px;
   }
 }
+
+.error-message {
+  color: #e74c3c; /* A strong red color for errors */
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.form-group input.input-error,
+.form-group select.input-error,
+.form-section textarea.input-error {
+  border-color: #e74c3c;
+}

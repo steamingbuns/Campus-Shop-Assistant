@@ -2,11 +2,13 @@ import { useState } from 'react';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import productService from '../../services/productService';
+import orderService from '../../services/orderService';
 import './Checkout.css';
 
 function Checkout() {
   const { cartItems, getCartTotal, clearCart } = useCart();
-  const { isLoggedIn, user } = useAuth();
+  const { isLoggedIn, user, token } = useAuth();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -22,6 +24,8 @@ function Checkout() {
   });
 
   const [isProcessing, setIsProcessing] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [formSubmitted, setFormSubmitted] = useState(false);
 
   // Redirect to login if not authenticated
   if (!isLoggedIn) {
@@ -45,27 +49,105 @@ function Checkout() {
       ...prev,
       [name]: value
     }));
+    // Clear error for the current field when user starts typing
+    if (formSubmitted) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: undefined
+      }));
+    }
+  };
+
+  const validate = (data) => {
+    const newErrors = {};
+    // Regex for Vietnamese phone numbers (simple example, adjust as needed)
+    const phoneRegex = /^(0?)(3[2-9]|5[6|8|9]|7[0|6-9]|8[0-6|8|9]|9[0-4|6-9])[0-9]{7}$/;
+
+    if (!data.fullName.trim()) newErrors.fullName = 'Full Name is required';
+    if (!data.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(data.email)) {
+      newErrors.email = 'Invalid email address';
+    }
+    if (!data.phone.trim()) {
+      newErrors.phone = 'Phone Number is required';
+    } else if (!phoneRegex.test(data.phone)) {
+      newErrors.phone = 'Invalid Vietnamese phone number';
+    }
+    if (!data.meetingTower) newErrors.meetingTower = 'Meeting Tower/Building is required';
+    if (!data.meetingLocation.trim()) newErrors.meetingLocation = 'Specific Location is required';
+    if (!data.meetingDate) newErrors.meetingDate = 'Meeting Date is required';
+    if (!data.meetingTime) {
+      newErrors.meetingTime = 'Meeting Time is required';
+    } else {
+      // Validate that meeting date + time is not in the past
+      const selectedDateTime = new Date(`${data.meetingDate}T${data.meetingTime}:00`);
+      const now = new Date();
+      if (selectedDateTime < now) {
+        newErrors.meetingTime = 'Meeting date and time cannot be in the past';
+      }
+    }
+
+    return newErrors;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setFormSubmitted(true); // Mark form as submitted to show errors
+
+    const validationErrors = validate(formData);
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
+    setErrors({}); // Clear previous errors if validation passes
     setIsProcessing(true);
 
-    // Simulate order processing
-    setTimeout(() => {
-      // TODO: API call to create order
-      console.log('Order submitted:', {
-        items: cartItems,
-        total: getCartTotal(),
-        meetingDetails: formData
-      });
+    setErrors({}); // Clear previous errors if validation passes
+    setIsProcessing(true);
 
-      // Clear cart and redirect to success page
+    try {
+      // 1. Create the order
+      const orderData = {
+        items: cartItems.map(item => ({ productId: item.id, quantity: item.quantity, price: item.price })),
+        meetingDetails: {
+          fullName: formData.fullName,
+          email: formData.email,
+          phone: formData.phone,
+          meetingTower: formData.meetingTower,
+          meetingLocation: formData.meetingLocation,
+          meetingDate: formData.meetingDate,
+          meetingTime: formData.meetingTime,
+        },
+        notes: formData.notes,
+      };
+
+      if (!token) {
+        throw new Error('Authentication token not found.');
+      }
+
+      const orderResponse = await orderService.createOrder(orderData, token);
+      const orderId = orderResponse.orderId;
+
+      // 2. Decrease product stock
+      const itemsToDecreaseStock = cartItems.map(item => ({
+        productId: item.id,
+        quantity: item.quantity
+      }));
+      await productService.decreaseProductStock(itemsToDecreaseStock, token);
+
+      // 3. Clear cart and show success
       clearCart();
       setIsProcessing(false);
-      alert('Order placed successfully! 🎉');
+      alert(`Order placed successfully! Your Order Code is: ${orderResponse.orderCode}`);
       navigate('/marketplace');
-    }, 2000);
+
+    } catch (error) {
+      console.error('Order submission error:', error);
+      setIsProcessing(false);
+      alert(`Failed to place order: ${error.message || 'An unexpected error occurred.'}`);
+    }
   };
 
   const subtotal = getCartTotal();
@@ -95,6 +177,7 @@ function Checkout() {
                       required
                       placeholder="Enter your full name"
                     />
+                    {formSubmitted && errors.fullName && <p className="error-message">{errors.fullName}</p>}
                   </div>
 
                   <div className="form-group">
@@ -107,6 +190,7 @@ function Checkout() {
                       required
                       placeholder="your.email@example.com"
                     />
+                    {formSubmitted && errors.email && <p className="error-message">{errors.email}</p>}
                   </div>
 
                   <div className="form-group">
@@ -119,6 +203,7 @@ function Checkout() {
                       required
                       placeholder="0123456789"
                     />
+                    {formSubmitted && errors.phone && <p className="error-message">{errors.phone}</p>}
                   </div>
                 </div>
               </div>
@@ -146,6 +231,7 @@ function Checkout() {
                       <option value="Tower C6">Tower C6</option>
                       <option value="Cafeteria">Cafeteria</option>
                     </select>
+                    {formSubmitted && errors.meetingTower && <p className="error-message">{errors.meetingTower}</p>}
                   </div>
 
                   <div className="form-group">
@@ -158,6 +244,7 @@ function Checkout() {
                       required
                       placeholder="e.g., Floor 3, near elevator"
                     />
+                    {formSubmitted && errors.meetingLocation && <p className="error-message">{errors.meetingLocation}</p>}
                   </div>
 
                   <div className="form-group">
@@ -170,6 +257,7 @@ function Checkout() {
                       required
                       min={new Date().toISOString().split('T')[0]}
                     />
+                    {formSubmitted && errors.meetingDate && <p className="error-message">{errors.meetingDate}</p>}
                   </div>
 
                   <div className="form-group">
@@ -193,6 +281,7 @@ function Checkout() {
                       <option value="17:00">05:00 PM</option>
                       <option value="18:00">06:00 PM</option>
                     </select>
+                    {formSubmitted && errors.meetingTime && <p className="error-message">{errors.meetingTime}</p>}
                   </div>
                 </div>
               </div>

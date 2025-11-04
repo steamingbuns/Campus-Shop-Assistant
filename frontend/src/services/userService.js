@@ -30,6 +30,11 @@ const userService = {
   async testToken(token) {
     return api.get('/users/test-token', token);
   },
+
+  // Check if user can review a product
+  async checkReviewEligibility(productId, token) {
+    return api.get(`/users/check-review-eligibility/${productId}`, token);
+  },
 };
 
 export default userService;

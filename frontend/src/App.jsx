@@ -13,6 +13,7 @@ import SellerDashboard from './pages/SellerDashboard';
 import Profile from './pages/Profile';
 import AdminDashboard from './pages/AdminConsole/AdminDashboard';
 import Review from './pages/Review';
+import ProtectedRoute from './components/ProtectedRoute';
 import './App.css'
 
 function App() {
@@ -23,16 +24,20 @@ function App() {
           <Header />
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/profile" element={<Profile />} />
             <Route path="/marketplace" element={<MarketPlace />} />
             <Route path="/product/:productId" element={<ItemView />} />
-            <Route path="/cart" element={<Cart />} />
-            <Route path="/checkout" element={<Checkout />} />
-            <Route path="/seller-dashboard" element={<SellerDashboard />} />
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/review/:productId" element={<Review />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+
+            {/* Protected Routes */}
+            <Route element={<ProtectedRoute />}>
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/cart" element={<Cart />} />
+              <Route path="/checkout" element={<Checkout />} />
+              <Route path="/seller-dashboard" element={<SellerDashboard />} />
+              <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/review/:productId" element={<Review />} />
+            </Route>
           </Routes>
         </Router>
       </CartProvider>

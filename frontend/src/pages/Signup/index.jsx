@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import authService from '../../services/authService';
 import './Signup.css';
 
 function Signup() {
@@ -9,7 +10,7 @@ function Signup() {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
@@ -26,19 +27,20 @@ function Signup() {
     }
 
     // Email validation (basic)
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex = /^[^S@]+@[^S@]+\.[^S@]+$/;
     if (!emailRegex.test(email)) {
       setError('Please enter a valid email address');
       return;
     }
 
-    // For demo purposes, simulate successful signup
-    // In real app, this would be an API call to create user
-    console.log('Creating user:', { username, email, password });
-
-    // Simulate successful signup
-    alert('Account created successfully! Please log in.');
-    navigate('/login'); // Redirect to login page after successful signup
+    try {
+      await authService.register({ name: username, email, password, role: 'seller' });
+      alert('Account created successfully! Please log in.');
+      navigate('/login');
+    } catch (err) {
+      setError(err.message || 'Signup failed. Please try again.');
+      console.error(err);
+    }
   };
   
   return (

@@ -1,12 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import productService from '../../services/productService';
 import './Review.css';
+
+const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=800&q=80';
 
 function Review() {
   const { productId } = useParams();
   const navigate = useNavigate();
-  const { isLoggedIn, user } = useAuth();
+  const { isLoggedIn, user, token } = useAuth();
   
   const [product, setProduct] = useState(null);
   const [rating, setRating] = useState(0);
@@ -15,6 +18,16 @@ function Review() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
 
+  const productImageSrc = useMemo(() => {
+    if (product?.images && product.images.length > 0) {
+      return product.images[0].url;
+    }
+    if (product?.image) {
+      return product.image;
+    }
+    return FALLBACK_IMAGE;
+  }, [product]);
+
   // Redirect to login if not authenticated
   useEffect(() => {
     if (!isLoggedIn) {
@@ -22,16 +35,20 @@ function Review() {
     }
   }, [isLoggedIn, navigate]);
 
-  // Fetch product details
   useEffect(() => {
-    // Mock product data - in production, fetch from API
-    const mockProduct = {
-      id: productId,
-      name: 'Sample Product',
-      image: 'https://via.placeholder.com/150',
-      price: 99.99
+    const fetchProduct = async () => {
+      try {
+        const response = await productService.getProduct(productId);
+        setProduct(response);
+      } catch (error) {
+        console.error('Failed to fetch product:', error);
+        // Handle error (e.g., show a not found message)
+      }
     };
-    setProduct(mockProduct);
+
+    if (productId) {
+      fetchProduct();
+    }
   }, [productId]);
 
   const validateForm = () => {
@@ -60,27 +77,24 @@ function Review() {
     
     setIsSubmitting(true);
     
-    // Simulate API call
-    setTimeout(() => {
-      const review = {
-        productId,
-        userId: user?.id,
-        userName: user?.name,
-        rating,
-        review: reviewText,
-        date: new Date().toISOString()
-      };
-      
-      console.log('Submitting review:', review);
-      
-      // Show success message
+    const reviewData = {
+      rating,
+      comment: reviewText,
+    };
+
+    try {
+      if (!token) {
+        throw new Error('Authentication token not found.');
+      }
+      await productService.addReview(productId, reviewData, token);
       alert('Thank you for your review!');
-      
-      // Redirect to product page
-      navigate(`/product/${productId}`);
-      
+      navigate(`/product/${productId}`, { state: { reviewSubmitted: true } });
+    } catch (error) {
+      console.error('Failed to submit review:', error);
+      setErrors({ api: error.message || 'Failed to submit review. You may not be eligible to review this product.' });
+    } finally {
       setIsSubmitting(false);
-    }, 1000);
+    }
   };
 
   const renderStars = () => {
@@ -111,7 +125,7 @@ function Review() {
         <h1 className="review-title">Write a Review</h1>
         
         <div className="product-summary">
-          <img src={product.image} alt={product.name} className="product-image" />
+          <img src={productImageSrc} alt={product.name} className="product-image" />
           <div className="product-info">
             <h2>{product.name}</h2>
             <p className="product-price">${product.price}</p>
@@ -180,6 +194,7 @@ function Review() {
               {isSubmitting ? 'Submitting...' : 'Submit Review'}
             </button>
           </div>
+          {errors.api && <p className="error-text api-error">{errors.api}</p>}
         </form>
       </div>
     </div>

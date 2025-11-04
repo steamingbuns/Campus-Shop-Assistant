@@ -2,6 +2,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { validationResult } from 'express-validator';
 import * as userModel from '../models/userModel.js';
+import * as productModel from '../models/productModel.js';
 
 // Token blacklist for logout functionality
 export const tokenBlacklist = new Set();
@@ -59,6 +60,10 @@ export async function register(req, res) {
       });
     }
 
+    const requestedRole = req.body.role ? String(req.body.role).toLowerCase() : null;
+    const allowedRoles = new Set(['seller']);
+    const role = requestedRole && allowedRoles.has(requestedRole) ? requestedRole : 'seller';
+
     // Create user (password will be hashed in the model)
     const newUser = await userModel.createUser({
       name,
@@ -66,7 +71,7 @@ export async function register(req, res) {
       password,
       address: req.body.address,
       phone_number: req.body.phone_number,
-      role: 'user',
+      role,
       status: 'active'
     });
 
@@ -417,5 +422,22 @@ export async function getAllUsers(req, res) {
     res.status(500).json({
       error: 'Failed to retrieve users'
     });
+  }
+}
+
+export async function checkReviewEligibility(req, res) {
+  try {
+    const { productId } = req.params;
+    const { userId } = req.user;
+
+    const order = await productModel.findCompletedOrderForProductByUser({
+      userId,
+      productId: parseInt(productId, 10),
+    });
+
+    res.json({ eligible: !!order });
+  } catch (error) {
+    console.error('Check review eligibility error:', error);
+    res.status(500).json({ error: 'Failed to check review eligibility' });
   }
 }

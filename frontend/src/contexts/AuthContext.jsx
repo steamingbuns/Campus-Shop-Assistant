@@ -13,32 +13,43 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
+  const [token, setToken] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   // Check if user is logged in on app load
   useEffect(() => {
     const savedUser = localStorage.getItem('campusShopUser');
-    if (savedUser) {
+    const savedToken = localStorage.getItem('campusShopToken');
+    if (savedUser && savedToken) {
       setUser(JSON.parse(savedUser));
+      setToken(savedToken);
       setIsLoggedIn(true);
     }
+    setLoading(false);
   }, []);
 
-  const login = (userData) => {
+  const login = (userData, userToken) => {
     setUser(userData);
+    setToken(userToken);
     setIsLoggedIn(true);
     localStorage.setItem('campusShopUser', JSON.stringify(userData));
+    localStorage.setItem('campusShopToken', userToken);
   };
 
   const logout = () => {
     setUser(null);
+    setToken(null);
     setIsLoggedIn(false);
     localStorage.removeItem('campusShopUser');
+    localStorage.removeItem('campusShopToken');
     localStorage.removeItem('campusShopCart'); // Clear cart on logout
   };
 
   const value = {
     isLoggedIn,
     user,
+    token,
+    loading,
     login,
     logout
   };

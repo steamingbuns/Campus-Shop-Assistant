@@ -1,0 +1,5 @@
+fastapi
+uvicorn[standard]
+spacy
+python-multipart
+# Add any extra production packages here (gunicorn, prometheus client, etc.)

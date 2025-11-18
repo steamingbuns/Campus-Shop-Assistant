@@ -156,7 +156,7 @@ const MarketPlace = () => {
         </div>
 
         {/* Chatbot */}
-        <div className="search">
+        <div className="chatbot">
           <Chatbot/>
         </div>
 

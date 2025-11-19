@@ -20,7 +20,8 @@ This project is a Campus Shop Assistant, a full-stack e-commerce application. It
     Navigate to the `backend` directory and run the following command to initialize the database schema:
     ```bash
     cd backend
-    npm run init:db
+    npm run db:init
+
     ```
     You should see a message like "Schema applied successfully." upon successful initialization.
 

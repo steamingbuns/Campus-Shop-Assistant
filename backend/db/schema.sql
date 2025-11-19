@@ -1,5 +1,9 @@
 -- Campus Shop Assistant Database Schema
 
+-- Create schema if not exists
+DROP SCHEMA IF EXISTS "public" CASCADE;
+CREATE SCHEMA IF NOT EXISTS "public";
+
 -- User table
 CREATE TABLE public."User" (
     user_id SERIAL PRIMARY KEY,

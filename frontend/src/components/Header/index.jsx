@@ -1,14 +1,22 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useCart } from '../../contexts/CartContext';
+import authService from '../../services/authService';
 import './Header.css';
 
 function Header() {
-  const { isLoggedIn, user, logout } = useAuth();
+  const { isLoggedIn, user, token, logout } = useAuth();
   const { getCartItemsCount } = useCart();
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    try {
+      await authService.logout(token);
+      logout();
+    } catch (err) {
+      console.error('Logout error:', err);
+      // Still logout locally even if API call fails
+      logout();
+    }
   };
 
   return (

@@ -20,9 +20,29 @@ This project is a Campus Shop Assistant, a full-stack e-commerce application. It
     Navigate to the `backend` directory and run the following command to initialize the database schema:
     ```bash
     cd backend
-    npm run init:db
+    npm run db:init
     ```
     You should see a message like "Schema applied successfully." upon successful initialization.
+
+#### Database Management Commands
+
+After initial setup, you can use these commands to manage your database:
+
+```bash
+# Complete database rebuild with seed data (recommended for fresh start)
+npm run db:reset-seed
+
+# Reset database only (drop and recreate tables from schema)
+npm run db:reset
+
+# Seed data only (requires tables to exist)
+npm run db:seed
+```
+
+**Seed Data Includes:**
+- 5 test users (sellers)
+- 5 product categories (Stationery, Books, Clothing, Electronics, Accessories)
+- 32 sample products with varied descriptions
 
 ### Running the Application
 
@@ -47,11 +67,11 @@ This project is a Campus Shop Assistant, a full-stack e-commerce application. It
 
 - **Register a new user:**
   ```bash
-  curl -X POST http://localhost:5000/api/users/register -H "Content-Type: application/json" -d '''{"username": "testuser", "password": "password", "email": "test@example.com", "user_type": "buyer"}'''
+  curl -X POST http://localhost:5000/api/users/register -H "Content-Type: application/json" -d '{"username": "testuser", "password": "password", "email": "test@example.com", "user_type": "buyer"}'
   ```
 - **Login a user:**
   ```bash
-  curl -X POST http://localhost:5000/api/users/login -H "Content-Type: application/json" -d '''{"email": "test@example.com", "password": "password"}'''
+  curl -X POST http://localhost:5000/api/users/login -H "Content-Type: application/json" -d '{"email": "test@example.com", "password": "password"}'
   ```
 - **Get user profile:** (Requires authentication token)
   ```bash
@@ -59,7 +79,7 @@ This project is a Campus Shop Assistant, a full-stack e-commerce application. It
   ```
 - **Update user profile:** (Requires authentication token)
   ```bash
-  curl -X PUT http://localhost:5000/api/users/me -H "Content-Type: application/json" -H "Authorization: Bearer <YOUR_TOKEN>" -d '''{"username": "newusername"}'''
+  curl -X PUT http://localhost:5000/api/users/me -H "Content-Type: application/json" -H "Authorization: Bearer <YOUR_TOKEN>" -d '{"username": "newusername"}'
   ```
 
 ### Product Routes (`/api/product`)
@@ -74,11 +94,11 @@ This project is a Campus Shop Assistant, a full-stack e-commerce application. It
   ```
 - **Create a new product:** (Requires seller authentication token)
   ```bash
-  curl -X POST http://localhost:5000/api/product -H "Content-Type: application/json" -H "Authorization: Bearer <YOUR_SELLER_TOKEN>" -d '''{"name": "My Product", "description": "This is a great product.", "price": 19.99, "quantity": 100}'''
+  curl -X POST http://localhost:5000/api/product -H "Content-Type: application/json" -H "Authorization: Bearer <YOUR_SELLER_TOKEN>" -d '{"name": "My Product", "description": "This is a great product.", "price": 19.99, "quantity": 100}'
   ```
 - **Update a product:** (Requires seller authentication token)
   ```bash
-  curl -X PUT http://localhost:5000/api/product/1 -H "Content-Type: application/json" -H "Authorization: Bearer <YOUR_SELLER_TOKEN>" -d '''{"price": 24.99}'''
+  curl -X PUT http://localhost:5000/api/product/1 -H "Content-Type: application/json" -H "Authorization: Bearer <YOUR_SELLER_TOKEN>" -d '{"price": 24.99}'
   ```
 - **Delete a product:** (Requires seller authentication token)
   ```bash
@@ -89,7 +109,7 @@ This project is a Campus Shop Assistant, a full-stack e-commerce application. It
 
 - **Create a new order:** (Requires authentication token)
   ```bash
-  curl -X POST http://localhost:5000/api/orders -H "Content-Type: application/json" -H "Authorization: Bearer <YOUR_TOKEN>" -d '''{"products": [{"product_id": 1, "quantity": 2}]}'''
+  curl -X POST http://localhost:5000/api/orders -H "Content-Type: application/json" -H "Authorization: Bearer <YOUR_TOKEN>" -d '{"products": [{"product_id": 1, "quantity": 2}]}'
   ```
 - **Get all orders for the logged-in user:** (Requires authentication token)
   ```bash
@@ -101,5 +121,5 @@ This project is a Campus Shop Assistant, a full-stack e-commerce application. It
   ```
 - **Update order status:** (Requires seller authentication token)
   ```bash
-  curl -X PUT http://localhost:5000/api/orders/1/status -H "Content-Type: application/json" -H "Authorization: Bearer <YOUR_SELLER_TOKEN>" -d '''{"status": "shipped"}'''
+  curl -X PUT http://localhost:5000/api/orders/1/status -H "Content-Type: application/json" -H "Authorization: Bearer <YOUR_SELLER_TOKEN>" -d '{"status": "shipped"}'
   ```

@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 import userRoutes from './routes/userRoutes.js';
 import productRoutes from './routes/productRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
+import reportRoutes from './routes/reportRoutes.js';
 
 const PORT = Number.parseInt(process.env.PORT, 10) || 5000;
 const DEFAULT_ALLOWED_ORIGINS = [
@@ -61,6 +62,7 @@ app.use(cookieParser());
 app.use("/api/users", userRoutes);
 app.use("/api/product", productRoutes);
 app.use("/api/orders", orderRoutes);
+app.use("/api/report", reportRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

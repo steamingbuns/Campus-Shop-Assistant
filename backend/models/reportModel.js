@@ -1,4 +1,6 @@
-import sql from '../db/init.js';
+import sql from '../db/index.js';
+
+// Actual functions
 
 export const createReport = async (report_id, reporter_id, item_id, reported_id) => {
     try {

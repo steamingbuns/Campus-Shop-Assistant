@@ -2,12 +2,13 @@ import sql from '../db/index.js';
 
 // Actual functions
 
-export const createReport = async (report_id, reporter_id, item_id, reported_id) => {
+export const createReport = async (reporter_id, item_id, reported_id, details) => {
     try {
-        const [result] = await sql
-            `INSERT INTO "Report" (report_id, reporter_id, item_id, reported_id, status, created_at)
-            VALUES (${report_id}, ${reporter_id}, ${item_id}, ${reported_id}, 'open', NOW())`;
-        return result;
+        const result = await sql
+            `INSERT INTO "Report" (reporter_id, item_id, reported_id, details, status)
+            VALUES (${reporter_id}, ${item_id}, ${reported_id}, ${details}, 'open')
+            RETURNING *`;
+        return result[0];
     }
     catch (err) {
         console.log("Error in createReport:", err);
@@ -17,7 +18,7 @@ export const createReport = async (report_id, reporter_id, item_id, reported_id)
 
 export const getReportsByStatus = async (status) => {
     try {
-        const [results] = await sql
+        const results =  await sql
             `SELECT * FROM "Report" WHERE status=${status}`
             ;
 
@@ -31,12 +32,12 @@ export const getReportsByStatus = async (status) => {
 
 export const updateReportStatus = async (report_id, newStatus) => {
     try {
-        const [result] = await sql
+        const result = await sql
             `UPDATE "Report"
          SET status=${newStatus}
          WHERE report_id=${report_id}
          RETURNING *`;
-        return result;
+        return result[0];
     }
     catch (err) {
         console.log("Eror in updateReportStatus:", err);
@@ -48,7 +49,7 @@ export const updateReportStatus = async (report_id, newStatus) => {
 export const filterReportsBySearchQuery = async (searchQuery) => {
     try {
         const query = `%${searchQuery.toLowerCase()}%`;
-        const [results] = await sql
+        const results = await sql
             `SELECT * FROM "Report"
          WHERE LOWER(details) LIKE ${query}
             OR CAST(report_id AS TEXT) LIKE ${query}`;
@@ -62,7 +63,7 @@ export const filterReportsBySearchQuery = async (searchQuery) => {
 
 export const getAllReports = async () => {
     try {
-        const [results] = await sql
+        const results = await sql
             `SELECT * FROM "Report"`;
         return results;
     }
@@ -83,3 +84,16 @@ export const deleteReportById = async (report_id) => {
         throw err;
     }
 };
+
+export const getReportById = async (report_id) => {
+    try {
+        const result = await sql
+        `SELECT * FROM "Report"
+         WHERE report_id=${report_id}`;
+        return result[0];
+    }
+    catch (err) {
+        console.log("Error in getReportById:", err);
+        throw err;
+    }
+}

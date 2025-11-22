@@ -1,4 +1,6 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import {useAuth} from '../../contexts/AuthContext.jsx';
+import reportService from '../../services/reportService.js';
 
 const STATUS_ORDER = {
     'open': 1,
@@ -41,30 +43,20 @@ const ReportCard = ({ report, handleStatusChange, renderActionButton }) => {
                     borderRadius: '12px',
                     fontSize: '12px',
                     fontWeight: '700',
-                    backgroundColor: report.status === 'open' ? '#fee2e2' : 
-                                   report.status === 'in-review' ? '#fef3c7' : '#dcfce7',
-                    color: report.status === 'open' ? '#991b1b' : 
-                           report.status === 'in-review' ? '#92400e' : '#166534'
+                    backgroundColor: report.status === 'open' ? '#fee2e2' :
+                        report.status === 'in-review' ? '#fef3c7' : '#dcfce7',
+                    color: report.status === 'open' ? '#991b1b' :
+                        report.status === 'in-review' ? '#92400e' : '#166534'
                 }}>
                     {statusText}
                 </span>
             </div>
             <div style={{ marginBottom: '12px', color: '#4b5563' }}>
-                <p style={{ margin: '4px 0' }}><strong>Type:</strong> {report.type}</p>
                 <p style={{ margin: '4px 0' }}><strong>Reported by:</strong> {report.reporterUser}</p>
-
-                {report.type === 'product' ? (
-                    <div>
-                        <p style={{ margin: '4px 0' }}><strong>Product ID:</strong> {report.productID}</p>
-                        <p style={{ margin: '4px 0' }}><strong>Details:</strong> {report.details}</p>
-                    </div>
-                ) : (
-                    <div>
-                        <p style={{ margin: '4px 0' }}><strong>Message:</strong> {report.message}</p>
-                        <p style={{ margin: '4px 0' }}><strong>Sent by:</strong> {report.fromUser}</p>
-                        <p style={{ margin: '4px 0' }}><strong>Details:</strong> {report.details}</p>
-                    </div>
-                )}
+                <div>
+                    <p style={{ margin: '4px 0' }}><strong>Product ID:</strong> {report.productID}</p>
+                    <p style={{ margin: '4px 0' }}><strong>Details:</strong> {report.details}</p>
+                </div>
             </div>
             <div>
                 {renderActionButton(report)}
@@ -75,60 +67,92 @@ const ReportCard = ({ report, handleStatusChange, renderActionButton }) => {
 
 const MockReports = [
     {
-        id: 1,
-        type: "product",
-        productID: 2,
+        report_id: 1,
+        reporter_id: 1,
+        product_id: 2,
+        reported_id: 2,
         details: "Product description doesn't match actual item",
         status: "resolved",
-        reporterUser: "Alex Chen"
+        createdAt: "2025-10-01T10:00:00Z",
     },
     {
-        id: 2,
-        type: "message",
-        message: "Urgent assistance needed",
-        details: "Server downtime",
-        status: "in-review",
-        reporterUser: "Kenji Sato",
-        fromUser: "Sam Geller"
-    },
-    {
-        id: 3,
-        type: "product",
-        productID: 5,
+        report_id: 3,
+        reporter_id: 2,
+        product_id: 5,
+        reported_id: 1,
         details: "Torn pages",
         status: "resolved",
-        reporterUser: "Kenji Sato"
+        createdAt: "2025-10-01T10:00:00Z",
     },
     {
-        id: 4,
-        type: "message",
-        message: "Follow-up query",
-        details: "Pricing question",
-        status: "open",
-        reporterUser: "Jules Winn",
-        fromUser: "Alex Chen"
-    },
-    {
-        id: 5,
-        type: "product",
+        report_id: 5,
+        reporter_id: 2,
         productID: 6,
+        reported_id: 1,
         details: "Scam only 16GB",
         status: "open",
-        reporterUser: "Alex Chen"
     }
 ];
 
 export default function ReportsPanel() {
+    const { isLoggedIn, user, token } = useAuth();
     const [searchQuery, setSearchQuery] = useState('');
     const [reportsList, setReportsList] = useState(MockReports);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
 
-    const updateReportStatus = useCallback((reportId, newStatus) => {
-        setReportsList(currentReports =>
-            currentReports.map(report =>
-                report.id === reportId ? { ...report, status: newStatus } : report
-            )
-        );
-    }, []);
+    if (!isLoggedIn || user.role !== 'admin') {
+        return <div>You do not have permission to view this page.</div>;
+    }
+
+    const fetchReports = useCallback(async (query = '') => {
+        setIsLoading(true);
+        setError(null);
+
+        try {
+            let fetchedReports;
+            if (query) {
+                fetchedReports = await reportService.filterReportsBySearchQuery({query}, token);
+            }
+            else {
+                fetchedReports = await reportService.getAllReports(token);
+            }
+            const sorted = fetchedReports.sort((a, b) => {
+                const statusA = STATUS_ORDER[a.status] || INVALID_STATUS;
+                const statusB = STATUS_ORDER[b.status] || INVALID_STATUS;
+                if (statusA !== statusB) {
+                    return statusA - statusB;
+                }});
+                return a.report_id - b.report_id;
+        }
+        catch (err) {
+            setError('Failed to fetch reports. Please try again later.');
+            console.error(err);
+        }
+        finally {
+            setIsLoading(false);
+        };
+    }, [token]);
+
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            fetchReports(searchQuery);
+        }, 300);
+
+        return () => clearTimeout(handler);
+    }, [searchQuery, fetchReports]);
+
+    const updateReportStatus = useCallback(async (reportId, newStatus) => {
+        try {
+            await reportService.updateReportStatus(reportId, { status: newStatus }, token);
+
+            fetchReports(searchQuery);
+        }
+        catch (err) {
+            setError('Failed to update report status. Please try again later.');
+            console.error(err);
+        }
+    }, [token, fetchReports, searchQuery]);
 
     const handleStatusChange = useCallback((reportId, currStatus) => {
         let newStatus;
@@ -144,35 +168,6 @@ export default function ReportsPanel() {
         }
         updateReportStatus(reportId, newStatus);
     }, [updateReportStatus]);
-
-    const sortedReports = useMemo(() => {
-        return [...reportsList].sort((a, b) => {
-            const statusA = STATUS_ORDER[a.status] || INVALID_STATUS;
-            const statusB = STATUS_ORDER[b.status] || INVALID_STATUS;
-
-            if (statusA !== statusB) {
-                return statusA - statusB;
-            }
-
-            return a.id - b.id;
-        });
-    }, [reportsList]);
-
-    const filteredReports = useMemo(() => {
-        if (!searchQuery) {
-            return sortedReports;
-        }
-
-        const lowerCaseQuery = searchQuery.toLowerCase();
-
-        return sortedReports.filter(report => {
-            const idMatch = report.id.toString().includes(lowerCaseQuery);
-            const detailsMatch = report.details.toLowerCase().includes(lowerCaseQuery);
-            const messageMatch = report.message && report.message.toLowerCase().includes(lowerCaseQuery);
-
-            return idMatch || detailsMatch || messageMatch;
-        });
-    }, [searchQuery, sortedReports]);
 
     const renderActionButton = useCallback((report) => {
         if (report.status === 'resolved') return null;
@@ -206,7 +201,7 @@ export default function ReportsPanel() {
             <h2 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '16px', marginTop: 0 }}>
                 View Reports
             </h2>
-            
+
             <div style={{ marginBottom: '20px' }}>
                 <input
                     type='text'
@@ -218,30 +213,34 @@ export default function ReportsPanel() {
                         fontSize: '14px',
                         outline: 'none'
                     }}
-                    placeholder='Search by ID, details, or reporter name...'
+                    placeholder='Search by report ID or details...'
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onFocus={(e) => e.target.style.borderColor = '#2563eb'}
                     onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
                 />
             </div>
+            {isLoading && <p style={{ textAlign: 'center', color: '#6b7280', padding: '20px' }}>Loading reports...</p>}
+            {error && <p style={{ textAlign: 'center', color: '#dc2626', padding: '20px' }}>Error: {error}</p>}
 
-            <div>
-                {filteredReports.length > 0 ? (
-                    filteredReports.map(report => (
-                        <ReportCard
-                            key={report.id}
-                            report={report}
-                            handleStatusChange={handleStatusChange}
-                            renderActionButton={renderActionButton}
-                        />
-                    ))
-                ) : (
-                    <p style={{ textAlign: 'center', color: '#6b7280', padding: '20px' }}>
-                        No reports found
-                    </p>
-                )}
-            </div>
+            {!isLoading && !error && (
+                <div>
+                    {reportsList.length > 0 ? (
+                        reportsList.map(report => (
+                            <ReportCard
+                                key={report.id}
+                                report={report}
+                                handleStatusChange={handleStatusChange}
+                                renderActionButton={renderActionButton}
+                            />
+                        ))
+                    ) : (
+                        <p style={{ textAlign: 'center', color: '#6b7280', padding: '20px' }}>
+                            No reports found
+                        </p>
+                    )}
+                </div>
+            )}
         </div>
     );
 }

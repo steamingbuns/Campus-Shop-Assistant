@@ -114,6 +114,7 @@ CREATE TABLE public."Report" (
     reporter_id integer NOT NULL,
     item_id integer NOT NULL,
     reported_id integer NOT NULL,
+    details text,
     status character varying(20),
     create_at timestamp with time zone DEFAULT NOW()
 );

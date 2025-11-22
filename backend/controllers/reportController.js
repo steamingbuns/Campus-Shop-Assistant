@@ -4,7 +4,7 @@ import { findUserById } from '../models/userModel.js';
 
 export const createReport = async (req, res) => {
     try {
-        const { reporter_id, item_id, reported_id } = req.body;
+        const { reporter_id, item_id, reported_id, details } = req.body;
         if (!item_id || !reported_id) {
             return res.status(400).json({ error: 'item_id and reported_id are required' });
         }
@@ -22,9 +22,10 @@ export const createReport = async (req, res) => {
             return res.status(404).json({ error: 'Reported user not found' });
         }
 
-        const newReport = await reportModel.createReport(reporter_id, item_id, reported_id);
+        const newReport = await reportModel.createReport(reporter_id, item_id, reported_id, details);
+        console.log(newReport);
 
-        res.json({ message: 'Report created successfully', report_id: newReport.report_id });
+        res.json({ message: 'Report created successfully', newReport: newReport });
     }
     catch (err) {
         console.log("createReport error:", err);
@@ -48,6 +49,14 @@ export const updateReportStatus = async (req, res) => {
     try {
         const { report_id } = req.params;
         const { newStatus } = req.body;
+
+        if (!newStatus) {
+            return res.status(400).json({ error: 'newStatus is required' });
+        }
+
+        if (!['open', 'in-review', 'resolved'].includes(newStatus)) {
+            return res.status(400).json({ error: 'Invalid status value' });
+        };
 
         const updatedReport = await reportModel.updateReportStatus(report_id, newStatus);
         res.json({ message: 'Report status updated successfully', report_id: report_id, newStatus: newStatus });
@@ -84,11 +93,32 @@ export const getAllReports = async (req, res) => {
 export const deleteReportById = async (req, res) => {
     try {
         const { report_id } = req.params;
-        const result = await reportModel.deleteReportById(report_id);
+        const report = await reportModel.getReportById(report_id);
+        console.log(report);
+        if (!report) {
+            return res.status(404).json({ error: 'Report not found' });
+        }
+        await reportModel.deleteReportById(report_id);
         res.json({ message: 'Report deleted successfully', report_id: report_id });
     }
     catch (err) {
         console.log("deleteReportById error:", err);
         res.status(500).json({ error: 'Failed to delete report' });
+    }
+};
+
+export const getReportById = async (req, res) => {
+    try {
+        const { report_id } = req.params;
+        const report = await reportModel.getReportById(report_id);
+        console.log(report);
+        if (!report) {
+            return res.status(404).json({ error: 'Report not found' });
+        }
+        res.json(report);
+    }
+    catch (err) {
+        console.log("getReportById error:", err);
+        res.status(500).json({ error: 'Failed to retrieve report' });
     }
 };

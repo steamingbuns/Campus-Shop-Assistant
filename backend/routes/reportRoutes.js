@@ -4,8 +4,8 @@ import * as reportController from '../controllers/reportController.js';
 
 const router = express.Router();
 
-// POST /api/report               -> Create a new report (auth required)
-router.post('/', authenticate, reportController.createReport);
+// POST /api/report/create               -> Create a new report (auth required)
+router.post('/create', authenticate, reportController.createReport);
 
 // GET /api/report/status/:status -> Get reports by status (staff/admin only)
 router.get('/status/:status', authenticate, authorize(['staff', 'admin']), reportController.getReportsByStatus);
@@ -18,6 +18,9 @@ router.get('/search', authenticate, authorize(['staff', 'admin']), reportControl
 
 // GET /api/report                -> Get all reports (staff/admin only)
 router.get('/', authenticate, authorize(['staff', 'admin']), reportController.getAllReports);
+
+// GET /api/report/:report_id     -> Get report by ID (staff/admin only)
+router.get('/:report_id', authenticate, authorize(['staff', 'admin']), reportController.getReportById);
 
 // DELETE /api/report/:report_id  -> Delete a report by ID (admin only)
 router.delete('/:report_id', authenticate, authorize(['admin']), reportController.deleteReportById);

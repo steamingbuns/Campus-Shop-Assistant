@@ -205,10 +205,6 @@ ALTER TABLE public."Report"
     FOREIGN KEY (reporter_id) REFERENCES public."User"(user_id)
     ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE public."Report"
-  ADD CONSTRAINT fk_report_reported
-    FOREIGN KEY (reported_id) REFERENCES public."User"(user_id)
-    ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE public."Report"
   ADD CONSTRAINT fk_report_product
     FOREIGN KEY (item_id) REFERENCES public."Product"(product_id)
     ON DELETE RESTRICT ON UPDATE CASCADE;

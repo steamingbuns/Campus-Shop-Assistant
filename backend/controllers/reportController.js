@@ -18,7 +18,7 @@ export const createReport = async (req, res) => {
             return res.status(404).json({ error: 'Reporter user not found' });
         }
 
-        const newReport = await reportModel.createReport(reporter_id, item_id, reported_id, details);
+        const newReport = await reportModel.createReport(reporter_id, item_id, details);
         console.log(newReport);
 
         res.json({ message: 'Report created successfully', newReport: newReport });

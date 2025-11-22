@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import {useAuth} from '../../contexts/AuthContext.jsx';
+import { useAuth } from '../../contexts/AuthContext.jsx';
 import reportService from '../../services/reportService.js';
 
 const STATUS_ORDER = {
@@ -112,7 +112,7 @@ export default function ReportsPanel() {
         try {
             let fetchedReports;
             if (query) {
-                fetchedReports = await reportService.filterReportsBySearchQuery({query}, token);
+                fetchedReports = await reportService.filterReportsBySearchQuery({ query }, token);
             }
             else {
                 fetchedReports = await reportService.getAllReports(token);
@@ -122,8 +122,12 @@ export default function ReportsPanel() {
                 const statusB = STATUS_ORDER[b.status] || INVALID_STATUS;
                 if (statusA !== statusB) {
                     return statusA - statusB;
-                }});
+
+                }
                 return a.report_id - b.report_id;
+            });
+
+            return sorted;
         }
         catch (err) {
             setError('Failed to fetch reports. Please try again later.');

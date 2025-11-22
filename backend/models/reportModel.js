@@ -2,11 +2,11 @@ import sql from '../db/index.js';
 
 // Actual functions
 
-export const createReport = async (reporter_id, item_id, reported_id, details) => {
+export const createReport = async (reporter_id, item_id, details) => {
     try {
         const result = await sql
-            `INSERT INTO "Report" (reporter_id, item_id, reported_id, details, status)
-            VALUES (${reporter_id}, ${item_id}, ${reported_id}, ${details}, 'open')
+            `INSERT INTO "Report" (reporter_id, item_id, details, status)
+            VALUES (${reporter_id}, ${item_id}, ${details}, 'open')
             RETURNING *`;
         return result[0];
     }

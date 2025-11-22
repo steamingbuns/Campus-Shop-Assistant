@@ -5,7 +5,7 @@ import * as reportController from '../controllers/reportController.js';
 const router = express.Router();
 
 // POST /api/report/create               -> Create a new report (auth required)
-router.post('/create', authenticate, reportController.createReport);
+router.post('/', authenticate, reportController.createReport);
 
 // GET /api/report/status/:status -> Get reports by status (staff/admin only)
 router.get('/status/:status', authenticate, authorize(['staff', 'admin']), reportController.getReportsByStatus);

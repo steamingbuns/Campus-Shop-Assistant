@@ -25,7 +25,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 // Routes
-app.use("/users", userRoutes);
+app.use("/api/users", userRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
+import productDetailsService from '../../services/productDetailsService';
 import './ItemView.css';
 
 const ItemView = () => {
@@ -16,61 +17,22 @@ const ItemView = () => {
 
   // Fetch product data based on productId
   useEffect(() => {
-    // In a real application, you would fetch from your API
-    // This is a mock implementation
-    setIsLoading(true);
-    
-    // Simulate API fetch with setTimeout
-    setTimeout(() => {
-      // Mock product data
-      const mockProduct = {
-        id: Number(productId) || 1,
-        name: 'Campus Textbook: Advanced Programming',
-        price: 175000,
-        description: `This comprehensive textbook is essential for computer science students. 
-                     It covers advanced programming concepts including algorithms, data structures, 
-                     and software design patterns. Perfect for both classroom use and self-study.`,
-        specifications: [
-          { name: 'Author', value: 'Prof. Jane Smith' },
-          { name: 'Publisher', value: 'Campus Press' },
-          { name: 'Pages', value: '450' },
-          { name: 'Publication Year', value: '2025' },
-          { name: 'Language', value: 'English' },
-          { name: 'ISBN', value: '978-1-234567-89-0' }
-        ],
-        stock: 15,
-        rating: 4.5,
-        reviewCount: 3,
-        images: [
-          'https://via.placeholder.com/600x600?text=Textbook+Main',
-          'https://via.placeholder.com/600x600?text=Textbook+Cover',
-          'https://via.placeholder.com/600x600?text=Textbook+Back',
-          'https://via.placeholder.com/600x600?text=Textbook+Inside'
-        ],
-        reviews: [
-          { id: 1, user: 'Student123', rating: 5, comment: 'Excellent textbook with clear explanations and good examples.', date: '2025-09-15' },
-          { id: 2, user: 'CSMajor', rating: 4, comment: 'Very helpful for my advanced programming course.', date: '2025-09-10' },
-          { id: 3, user: 'CodeLearner', rating: 5, comment: 'The exercises are challenging but valuable.', date: '2025-09-05' }
-        ],
-        category: 'books',
-        shipping: {
-          free: true,
-          estimatedDelivery: '1-3 days'
-        },
-        seller: {
-          name: 'Campus Bookstore',
-          email: 'bookstore@campus.edu',
-          phone: '+1 (555) 123-4567',
-          rating: 4.8,
-          totalSales: 1250,
-          responseTime: '< 2 hours',
-          joinDate: '2023-01-15'
-        }
-      };
-      
-      setProduct(mockProduct);
-      setIsLoading(false);
-    }, 500);
+    const fetchProduct = async () => {
+      setIsLoading(true);
+      try {
+        const data = await productDetailsService.getProductById(productId);
+        setProduct(data);
+      } catch (error) {
+        console.error("Failed to fetch product", error);
+        setProduct(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (productId) {
+      fetchProduct();
+    }
   }, [productId]);
 
   const handleAddToCart = () => {
@@ -129,20 +91,28 @@ const ItemView = () => {
   const renderStars = (rating) => {
     const stars = [];
     const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 !== 0;
+    const decimal = rating - fullStars;
+    const hasPartialStar = decimal > 0;
     
+    // Full stars
     for (let i = 0; i < fullStars; i++) {
       stars.push(<span key={`star-${i}`} className="star full">★</span>);
     }
     
-    if (hasHalfStar) {
-      stars.push(<span key="half-star" className="star half">★</span>);
+    // Partial star with exact percentage
+    if (hasPartialStar) {
+      const percentage = Math.round(decimal * 100);
+      stars.push(
+        <span key="partial-star" className="star partial" style={{ '--fill-percent': `${percentage}%` }}>
+          ★
+        </span>
+      );
     }
     
-    // Calculate empty stars correctly: 5 total - full stars - (1 if half star exists, 0 otherwise)
-    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+    // Empty stars
+    const emptyStars = 5 - fullStars - (hasPartialStar ? 1 : 0);
     for (let i = 0; i < emptyStars; i++) {
-      stars.push(<span key={`empty-star-${i}`} className="star empty">☆</span>);
+      stars.push(<span key={`empty-star-${i}`} className="star empty">★</span>);
     }
     
     return <>{stars}</>;
@@ -365,68 +335,6 @@ const ItemView = () => {
                   <div className="review-date">{review.date}</div>
                 </div>
                 <div className="review-comment">{review.comment}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-        
-        {/* Related Products Section */}
-        <div className="related-products">
-          <h2>You May Also Like</h2>
-          <div className="related-products-grid">
-            {/* Placeholder Related Products */}
-            {[
-              {
-                id: 101,
-                name: 'Data Structures & Algorithms',
-                price: 165000,
-                rating: 4.7,
-                image: 'https://via.placeholder.com/250x250?text=Data+Structures',
-                category: 'books'
-              },
-              {
-                id: 102,
-                name: 'Software Engineering Fundamentals',
-                price: 180000,
-                rating: 4.6,
-                image: 'https://via.placeholder.com/250x250?text=Software+Engineering',
-                category: 'books'
-              },
-              {
-                id: 103,
-                name: 'Web Development Essentials',
-                price: 145000,
-                rating: 4.8,
-                image: 'https://via.placeholder.com/250x250?text=Web+Dev',
-                category: 'books'
-              },
-              {
-                id: 104,
-                name: 'Computer Networks Guide',
-                price: 170000,
-                rating: 4.5,
-                image: 'https://via.placeholder.com/250x250?text=Networks',
-                category: 'books'
-              }
-            ].map(relatedProduct => (
-              <div 
-                key={relatedProduct.id} 
-                className="related-product-card"
-                onClick={() => navigate(`/item/${relatedProduct.id}`)}
-              >
-                <div className="related-product-image">
-                  <img src={relatedProduct.image} alt={relatedProduct.name} />
-                </div>
-                <div className="related-product-info">
-                  <h3 className="related-product-name">{relatedProduct.name}</h3>
-                  <div className="related-product-rating">
-                    {renderStars(relatedProduct.rating)}
-                    <span className="related-rating-text">{relatedProduct.rating.toFixed(1)}</span>
-                  </div>
-                  <div className="related-product-price">
-                    <span className="related-current-price">{formatPrice(relatedProduct.price)}</span>
-                  </div>
-                </div>
               </div>
             ))}
           </div>

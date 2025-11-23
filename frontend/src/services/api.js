@@ -9,6 +9,19 @@ const api = {
     
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
+    } else {
+      // Try to get token from localStorage
+      try {
+        const savedUser = localStorage.getItem('campusShopUser');
+        if (savedUser) {
+          const userData = JSON.parse(savedUser);
+          if (userData.token) {
+            headers["Authorization"] = `Bearer ${userData.token}`;
+          }
+        }
+      } catch (e) {
+        console.error("Error reading token from localStorage", e);
+      }
     }
 
     const config = {
@@ -21,14 +34,26 @@ const api = {
       config.body = JSON.stringify(data);
     }
 
+    console.log(`API ${method} ${BASE_URL}${endpoint}`, data ? { data } : '');
+
     try {
       const response = await fetch(`${BASE_URL}${endpoint}`, config);
-      const result = await response.json();
-
+      console.log(`API Response ${response.status}:`, endpoint);
+      
       if (!response.ok) {
-        throw new Error(result.message || "Request failed");
+        const errorData = await response.json().catch(() => ({ message: "Request failed" }));
+        console.error('API Error:', errorData);
+        throw new Error(errorData.error || errorData.message || "Request failed");
       }
       
+      // Handle 204 No Content responses (no body to parse)
+      if (response.status === 204) {
+        console.log('API Success: 204 No Content');
+        return null;
+      }
+      
+      const result = await response.json();
+      console.log('API Success:', result);
       return result;
     }
     catch (error) {

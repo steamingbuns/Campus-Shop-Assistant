@@ -1,56 +1,43 @@
 import { useState, useEffect } from 'react';
+import productDetailsService from '../../services/productDetailsService';
 import './InventoryManagement.css';
 
 function InventoryManagement() {
-  const [items, setItems] = useState([
-    {
-      id: 1,
-      name: 'Laptop Stand',
-      sku: 'LS-001',
-      stock: 5,
-      lowStockThreshold: 10,
-      price: 29.99,
-      category: 'Electronics'
-    },
-    {
-      id: 2,
-      name: 'Notebook Set',
-      sku: 'NB-002',
-      stock: 25,
-      lowStockThreshold: 15,
-      price: 12.99,
-      category: 'Stationery'
-    },
-    {
-      id: 3,
-      name: 'USB Cable',
-      sku: 'UC-003',
-      stock: 0,
-      lowStockThreshold: 20,
-      price: 9.99,
-      category: 'Electronics'
-    },
-    {
-      id: 4,
-      name: 'Coffee Mug',
-      sku: 'CM-004',
-      stock: 15,
-      lowStockThreshold: 10,
-      price: 14.99,
-      category: 'Lifestyle'
-    }
-  ]);
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const [showAddModal, setShowAddModal] = useState(false);
-  const [editingItem, setEditingItem] = useState(null);
   const [newItem, setNewItem] = useState({
     name: '',
-    sku: '',
     stock: 0,
     lowStockThreshold: 10,
     price: 0,
     category: ''
   });
+
+  useEffect(() => {
+    fetchInventory();
+  }, []);
+
+  const fetchInventory = async () => {
+    try {
+      setLoading(true);
+      const response = await productDetailsService.getSellerInventory();
+      // Ensure price is a number
+      const formattedItems = response.map(item => ({
+        ...item,
+        price: parseFloat(item.price)
+      }));
+      setItems(formattedItems);
+      setError(null);
+    } catch (err) {
+      console.error('Error fetching inventory:', err);
+      setError('Failed to load inventory. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const getLowStockItems = () => {
     return items.filter(item => item.stock <= item.lowStockThreshold);
@@ -60,36 +47,70 @@ function InventoryManagement() {
     return items.filter(item => item.stock === 0);
   };
 
-  const handleUpdateStock = (itemId, newStock) => {
+  const handleUpdateStock = async (itemId, newStock) => {
+    const stockValue = parseInt(newStock) || 0;
+    
+    // Optimistic update
+    const oldItems = [...items];
     setItems(items.map(item =>
-      item.id === itemId ? { ...item, stock: parseInt(newStock) || 0 } : item
+      item.id === itemId ? { ...item, stock: stockValue } : item
     ));
+
+    try {
+      await productDetailsService.updateProduct(itemId, { stock: stockValue });
+    } catch (err) {
+      console.error('Error updating stock:', err);
+      // Revert on error
+      setItems(oldItems);
+      alert('Failed to update stock');
+    }
   };
 
-  const handleAddItem = (e) => {
+  const handleAddItem = async (e) => {
     e.preventDefault();
-    const item = {
-      ...newItem,
-      id: Date.now(),
-      stock: parseInt(newItem.stock) || 0,
-      lowStockThreshold: parseInt(newItem.lowStockThreshold) || 10,
-      price: parseFloat(newItem.price) || 0
-    };
-    setItems([...items, item]);
-    setNewItem({
-      name: '',
-      sku: '',
-      stock: 0,
-      lowStockThreshold: 10,
-      price: 0,
-      category: ''
-    });
-    setShowAddModal(false);
+    try {
+      const productData = {
+        ...newItem,
+        stock: parseInt(newItem.stock) || 0,
+        lowStockThreshold: parseInt(newItem.lowStockThreshold) || 10,
+        price: parseFloat(newItem.price) || 0
+      };
+      
+      const createdProduct = await productDetailsService.createProduct(productData);
+      
+      // Add to list with correct format
+      setItems([
+        ...items, 
+        { 
+          ...createdProduct, 
+          price: parseFloat(createdProduct.price) 
+        }
+      ]);
+      
+      setNewItem({
+        name: '',
+        sku: '',
+        stock: 0,
+        lowStockThreshold: 10,
+        price: 0,
+        category: ''
+      });
+      setShowAddModal(false);
+    } catch (err) {
+      console.error('Error adding item:', err);
+      alert('Failed to add item. Please try again.');
+    }
   };
 
-  const handleDeleteItem = (itemId) => {
+  const handleDeleteItem = async (itemId) => {
     if (window.confirm('Are you sure you want to delete this item?')) {
-      setItems(items.filter(item => item.id !== itemId));
+      try {
+        await productDetailsService.deleteProduct(itemId);
+        setItems(items.filter(item => item.id !== itemId));
+      } catch (err) {
+        console.error('Error deleting item:', err);
+        alert('Failed to delete item. Please try again.');
+      }
     }
   };
 
@@ -104,6 +125,9 @@ function InventoryManagement() {
     if (item.stock <= item.lowStockThreshold) return 'Low Stock';
     return 'In Stock';
   };
+
+  if (loading) return <div className="loading">Loading inventory...</div>;
+  if (error) return <div className="error-message">{error}</div>;
 
   return (
     <div className="inventory-management">
@@ -140,7 +164,6 @@ function InventoryManagement() {
         <table className="inventory-table">
           <thead>
             <tr>
-              <th>SKU</th>
               <th>Product Name</th>
               <th>Category</th>
               <th>Price</th>
@@ -152,7 +175,6 @@ function InventoryManagement() {
           <tbody>
             {items.map(item => (
               <tr key={item.id}>
-                <td className="sku-cell">{item.sku}</td>
                 <td className="name-cell">{item.name}</td>
                 <td>{item.category}</td>
                 <td className="price-cell">${item.price.toFixed(2)}</td>
@@ -201,15 +223,6 @@ function InventoryManagement() {
                 />
               </div>
               <div className="form-group">
-                <label>SKU *</label>
-                <input
-                  type="text"
-                  value={newItem.sku}
-                  onChange={(e) => setNewItem({ ...newItem, sku: e.target.value })}
-                  required
-                />
-              </div>
-              <div className="form-group">
                 <label>Category *</label>
                 <select
                   value={newItem.category}
@@ -217,14 +230,11 @@ function InventoryManagement() {
                   required
                 >
                   <option value="">Select a category</option>
-                  <option value="Apparel and Merchandise">Apparel and Merchandise</option>
-                  <option value="School Supplies">School Supplies</option>
-                  <option value="Textbooks and Course Materials">Textbooks and Course Materials</option>
-                  <option value="Technology and Electronics">Technology and Electronics</option>
-                  <option value="Stationery and Art Supplies">Stationery and Art Supplies</option>
-                  <option value="Health and Personal Care">Health and Personal Care</option>
-                  <option value="Snacks and Beverages">Snacks and Beverages</option>
-                  <option value="Dorm Essentials">Dorm Essentials</option>
+                  <option value="Books">Books</option>
+                  <option value="Stationery">Stationery</option>
+                  <option value="Clothing">Clothing</option>
+                  <option value="Electronics">Electronics</option>
+                  <option value="Lifestyle">Lifestyle</option>
                 </select>
               </div>
               <div className="form-group">

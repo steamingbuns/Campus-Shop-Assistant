@@ -287,6 +287,23 @@
   box-shadow: 0 4px 12px rgba(20, 136, 216, 0.3);
 }
 
+.loading {
+  text-align: center;
+  padding: 2rem;
+  font-size: 1.2rem;
+  color: #666;
+}
+
+.error-message {
+  text-align: center;
+  padding: 1rem;
+  margin: 1rem 0;
+  background-color: #fee;
+  color: #c62828;
+  border-radius: 8px;
+  border: 1px solid #ef9a9a;
+}
+
 @media (max-width: 768px) {
   .inventory-header {
     flex-direction: column;

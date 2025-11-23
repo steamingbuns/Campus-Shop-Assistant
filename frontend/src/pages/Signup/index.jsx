@@ -1,20 +1,24 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
+import authService from '../../services/authService';
 import './Signup.css';
 
 function Signup() {
-  const [username, setUsername] = useState('');
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
     // Basic validation
-    if (!username || !email || !password) {
+    if (!name || !email || !password) {
       setError('Please fill in all fields');
       return;
     }
@@ -32,13 +36,30 @@ function Signup() {
       return;
     }
 
-    // For demo purposes, simulate successful signup
-    // In real app, this would be an API call to create user
-    console.log('Creating user:', { username, email, password });
+    try {
+      setLoading(true);
+      console.log('Attempting registration for:', { name, email });
+      const response = await authService.register({ name, email, password });
+      console.log('Registration response:', response);
+      
+      // Save user data with token (auto-login after registration)
+      const userData = {
+        userId: response.user.userId,
+        name: response.user.name,
+        email: response.user.email,
+        role: response.user.role,
+        token: response.token
+      };
 
-    // Simulate successful signup
-    alert('Account created successfully! Please log in.');
-    navigate('/login'); // Redirect to login page after successful signup
+      console.log('Saving user data:', userData);
+      login(userData);
+      navigate('/marketplace');
+    } catch (err) {
+      console.error('Registration error:', err);
+      setError(err.message || 'Failed to create account. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
   
   return (
@@ -51,13 +72,14 @@ function Signup() {
         
         <form className="signup-form" onSubmit={handleSubmit}>
           <div className="form-group">
-            <label className="form-label">Username</label>
+            <label className="form-label">Name</label>
             <input 
               type="text" 
               className="form-input" 
-              placeholder="Enter your username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              placeholder="Enter your name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              disabled={loading}
             />
           </div>
           
@@ -69,6 +91,7 @@ function Signup() {
               placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              disabled={loading}
             />
           </div>
           
@@ -77,13 +100,16 @@ function Signup() {
             <input 
               type="password" 
               className="form-input" 
-              placeholder="Create a password"
+              placeholder="Create a password (min 6 characters)"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              disabled={loading}
             />
           </div>
           
-          <button type="submit" className="signup-button">Sign Up</button>
+          <button type="submit" className="signup-button" disabled={loading}>
+            {loading ? 'Creating Account...' : 'Sign Up'}
+          </button>
         </form>
         
         <div className="login-link">

@@ -10,7 +10,7 @@ const STATUS_ORDER = {
 
 const INVALID_STATUS = 99;
 
-const ReportCard = ({ report, handleStatusChange, renderActionButton }) => {
+const ReportCard = ({ report, renderActionButton, onDelete }) => {
     let statusText;
     switch (report.status) {
         case "open":
@@ -26,8 +26,17 @@ const ReportCard = ({ report, handleStatusChange, renderActionButton }) => {
             statusText = "Invalid State";
             break;
     }
+
+    const handleDeleteClick = () => {
+        // Always be skeptical and double-check with the user (confirmation box)
+        if (window.confirm(`Are you absolutely sure you want to permanently delete Report ID ${report.report_id}? This action cannot be undone.`)) {
+            // Call the handler passed down from the parent
+            onDelete(report.report_id);
+        }
+    };
+
     return (
-        <div className={`report-card`} key={report.id} style={{
+        <div className={`report-card`} key={report.report_id} style={{
             border: '1px solid #e5e7eb',
             borderRadius: '12px',
             padding: '16px',
@@ -36,7 +45,7 @@ const ReportCard = ({ report, handleStatusChange, renderActionButton }) => {
         }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                 <h3 style={{ fontSize: '16px', fontWeight: '700', margin: 0 }}>
-                    <strong>Report ID:</strong> {report.id}
+                    <strong>Report ID:</strong> {report.report_id}
                 </h3>
                 <span style={{
                     padding: '4px 12px',
@@ -52,54 +61,31 @@ const ReportCard = ({ report, handleStatusChange, renderActionButton }) => {
                 </span>
             </div>
             <div style={{ marginBottom: '12px', color: '#4b5563' }}>
-                <p style={{ margin: '4px 0' }}><strong>Reported by:</strong> {report.reporterUser}</p>
+                <p style={{ margin: '4px 0' }}><strong>Reported by:</strong> {report.reporter_id}</p>
                 <div>
-                    <p style={{ margin: '4px 0' }}><strong>Product ID:</strong> {report.productID}</p>
+                    <p style={{ margin: '4px 0' }}><strong>Product ID:</strong> {report.item_id}</p>
                     <p style={{ margin: '4px 0' }}><strong>Details:</strong> {report.details}</p>
                 </div>
             </div>
-            <div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                 {renderActionButton(report)}
+                <button
+                    onClick={handleDeleteClick}
+                >
+                    Delete 🗑️
+                </button>
             </div>
         </div>
     );
 };
 
-const MockReports = [
-    {
-        report_id: 1,
-        reporter_id: 1,
-        product_id: 2,
-        reported_id: 2,
-        details: "Product description doesn't match actual item",
-        status: "resolved",
-        createdAt: "2025-10-01T10:00:00Z",
-    },
-    {
-        report_id: 3,
-        reporter_id: 2,
-        product_id: 5,
-        reported_id: 1,
-        details: "Torn pages",
-        status: "resolved",
-        createdAt: "2025-10-01T10:00:00Z",
-    },
-    {
-        report_id: 5,
-        reporter_id: 2,
-        productID: 6,
-        reported_id: 1,
-        details: "Scam only 16GB",
-        status: "open",
-    }
-];
-
 export default function ReportsPanel() {
     const { isLoggedIn, user, token } = useAuth();
     const [searchQuery, setSearchQuery] = useState('');
-    const [reportsList, setReportsList] = useState(MockReports);
+    const [reportsList, setReportsList] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [filterStatus, setFilterStatus] = useState('all');
 
     if (!isLoggedIn || user.role !== 'admin') {
         return <div>You do not have permission to view this page.</div>;
@@ -112,22 +98,31 @@ export default function ReportsPanel() {
         try {
             let fetchedReports;
             if (query) {
-                fetchedReports = await reportService.filterReportsBySearchQuery({ query }, token);
+                // Priority 1: Search query takes precedence and fetches across all reports
+                fetchedReports = await reportService.filterReportsBySearchQuery({ searchQuery: query }, token);
+
+                // Defaults to 'all' if using query to search
+                setFilterStatus('all');
+            }
+            else if (filterStatus !== 'all') {
+                // Priority 2: Filter by specific status
+                fetchedReports = await reportService.getReportsByStatus(filterStatus, token);
             }
             else {
+                // Default: Fetch all reports
                 fetchedReports = await reportService.getAllReports(token);
             }
+
             const sorted = fetchedReports.sort((a, b) => {
                 const statusA = STATUS_ORDER[a.status] || INVALID_STATUS;
                 const statusB = STATUS_ORDER[b.status] || INVALID_STATUS;
                 if (statusA !== statusB) {
                     return statusA - statusB;
-
                 }
                 return a.report_id - b.report_id;
             });
 
-            return sorted;
+            setReportsList(sorted);
         }
         catch (err) {
             setError('Failed to fetch reports. Please try again later.');
@@ -136,7 +131,7 @@ export default function ReportsPanel() {
         finally {
             setIsLoading(false);
         };
-    }, [token]);
+    }, [token, filterStatus]);
 
     useEffect(() => {
         const handler = setTimeout(() => {
@@ -144,19 +139,19 @@ export default function ReportsPanel() {
         }, 300);
 
         return () => clearTimeout(handler);
-    }, [searchQuery, fetchReports]);
+    }, [searchQuery, fetchReports, filterStatus]);
 
     const updateReportStatus = useCallback(async (reportId, newStatus) => {
         try {
-            await reportService.updateReportStatus(reportId, { status: newStatus }, token);
+            await reportService.updateReportStatus(reportId, { newStatus: newStatus }, token);
 
-            fetchReports(searchQuery);
+            fetchReports(searchQuery, filterStatus);
         }
         catch (err) {
             setError('Failed to update report status. Please try again later.');
             console.error(err);
         }
-    }, [token, fetchReports, searchQuery]);
+    }, [token, fetchReports, searchQuery, filterStatus]);
 
     const handleStatusChange = useCallback((reportId, currStatus) => {
         let newStatus;
@@ -191,7 +186,7 @@ export default function ReportsPanel() {
                     cursor: 'pointer',
                     transition: 'all 0.15s ease'
                 }}
-                onClick={() => handleStatusChange(report.id, report.status)}
+                onClick={() => handleStatusChange(report.report_id, report.status)}
                 onMouseOver={(e) => e.target.style.opacity = '0.9'}
                 onMouseOut={(e) => e.target.style.opacity = '1'}
             >
@@ -200,11 +195,66 @@ export default function ReportsPanel() {
         );
     }, [handleStatusChange]);
 
+    const statusOptions = [
+        { label: 'All', value: 'all', color: '#6b7280' },
+        { label: 'Open', value: 'open', color: '#991b1b' },
+        { label: 'In Review', value: 'in-review', color: '#92400e' },
+        { label: 'Resolved', value: 'resolved', color: '#166534' },
+    ];
+
+    const handleFilterClick = (status) => {
+        setSearchQuery(''); // Clear search query when changing filters
+        setFilterStatus(status);
+    }
+
+    const handleDeleteReport = useCallback(async (reportId) => {
+        setError(null);
+        try {
+            await reportService.deleteReportById(reportId, token);
+            fetchReports(searchQuery);
+        } catch (err) {
+            setError(`Failed to delete Report ID ${reportId}.`);
+            console.error(err);
+        }
+    }, [token, fetchReports, searchQuery]);
+
     return (
         <div>
             <h2 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '16px', marginTop: 0 }}>
                 View Reports
             </h2>
+
+            <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap' }}>
+                {statusOptions.map(option => (
+                    <button
+                        key={option.value}
+                        onClick={() => handleFilterClick(option.value)}
+                        style={{
+                            padding: '10px 18px',
+                            borderRadius: '8px',
+                            border: `2px solid ${filterStatus === option.value ? option.color : '#d1d5db'}`,
+                            backgroundColor: filterStatus === option.value ? option.color : '#ffffff',
+                            color: filterStatus === option.value ? '#ffffff' : option.color,
+                            fontWeight: '700',
+                            cursor: 'pointer',
+                            transition: 'all 0.15s ease',
+                            flexShrink: 0
+                        }}
+                        onMouseOver={(e) => {
+                            if (filterStatus !== option.value) {
+                                e.target.style.backgroundColor = '#f3f4f6';
+                            }
+                        }}
+                        onMouseOut={(e) => {
+                            if (filterStatus !== option.value) {
+                                e.target.style.backgroundColor = '#ffffff';
+                            }
+                        }}
+                    >
+                        {option.label}
+                    </button>
+                ))}
+            </div>
 
             <div style={{ marginBottom: '20px' }}>
                 <input
@@ -232,10 +282,10 @@ export default function ReportsPanel() {
                     {reportsList.length > 0 ? (
                         reportsList.map(report => (
                             <ReportCard
-                                key={report.id}
+                                key={report.report_id}
                                 report={report}
-                                handleStatusChange={handleStatusChange}
                                 renderActionButton={renderActionButton}
+                                onDelete={handleDeleteReport}
                             />
                         ))
                     ) : (

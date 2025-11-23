@@ -48,7 +48,7 @@ export const updateReportStatus = async (report_id, newStatus) => {
 // Seach reports by report ID or details content
 export const filterReportsBySearchQuery = async (searchQuery) => {
     try {
-        const query = `%${searchQuery.toLowerCase()}%`;
+        const query = `%${searchQuery.trim().toLowerCase()}%`;
         const results = await sql
             `SELECT * FROM "Report"
          WHERE LOWER(details) LIKE ${query}

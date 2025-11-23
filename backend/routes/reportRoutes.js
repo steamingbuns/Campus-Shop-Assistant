@@ -14,7 +14,7 @@ router.get('/status/:status', authenticate, authorize(['staff', 'admin']), repor
 router.put('/:report_id', authenticate, authorize(['staff', 'admin']), reportController.updateReportStatus);
 
 // GET /api/report/search         -> Search reports by query (staff/admin only)
-router.get('/search', authenticate, authorize(['staff', 'admin']), reportController.filterReportsBySearchQuery);
+router.post('/search', authenticate, authorize(['staff', 'admin']), reportController.filterReportsBySearchQuery);
 
 // GET /api/report                -> Get all reports (staff/admin only)
 router.get('/', authenticate, authorize(['staff', 'admin']), reportController.getAllReports);

@@ -13,12 +13,13 @@ const reportService = {
 
     // Update report status (requires staff/admin role),
     async updateReportStatus(reportId, statusData, token) {
+        console.log(statusData);
         return api.put(`/report/${reportId}`, statusData, token);
     },
 
     // Search reports by query (requires staff/admin role)
     async filterReportsBySearchQuery(queryParams, token) {
-        return api.get('/report/search', token, queryParams);
+        return api.post('/report/search', queryParams, token);
     },
 
     // Get all reports (requires staff/admin role)

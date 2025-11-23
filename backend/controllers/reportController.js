@@ -65,7 +65,7 @@ export const updateReportStatus = async (req, res) => {
 
 export const filterReportsBySearchQuery = async (req, res) => {
     try {
-        const { searchQuery } = req.query;
+        const searchQuery = req.body.searchQuery;
         const reports = await reportModel.filterReportsBySearchQuery(searchQuery);
         res.json(reports);
     }

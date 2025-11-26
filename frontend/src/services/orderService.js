@@ -1,15 +1,14 @@
-import api from './api.js';
+import api from './api';
 
 const orderService = {
-  // Create a new order (requires authentication).
-  async createOrder(orderData, token) {
-    return api.post('/orders', orderData, token);
-  },
+  // Buyer: get own orders
+  getUserOrders: (token) => api.get('/orders', token),
 
-  // Get all orders for the authenticated user (requires authentication).
-  async getUserOrders(token) {
-    return api.get('/orders', { token });
-  },
+  // Buyer: create order
+  createOrder: (payload, token) => api.post('/orders', payload, token),
+
+  // Seller: complete order by code
+  completeOrder: (payload, token) => api.put('/orders/complete', payload, token),
 };
 
 export default orderService;

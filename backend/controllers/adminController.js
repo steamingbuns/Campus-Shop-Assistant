@@ -1,5 +1,6 @@
 import * as U from '../models/adminUserModel.js';
 import * as L from '../models/adminListingModel.js';
+import * as O from '../models/adminOrderModel.js';
 
 /* ===== Users ===== */
 export async function getUsers(req, res) {
@@ -72,6 +73,16 @@ export async function deleteListing(req, res) {
   }
 }
 
+/* ===== Transactions ===== */
+export async function getTransactions(req, res) {
+  try {
+    const rows = await O.listAllTransactions();
+    res.json(rows);
+  } catch (e) {
+    res.status(500).json({ ok: false, error: e.message });
+  }
+}
+
 // ---- Alias exports để khớp với adminRoutes.js ----
 export {
   getUsers as listUsers,
@@ -81,5 +92,6 @@ export {
   getListings as listListings,
   postApproveListing as approveListing,
   putEditListing as updateListing,
+  getTransactions as listTransactions,
   //deleteListing as deleteListing, // giữ tên giống nhau cho rõ ràng
 };

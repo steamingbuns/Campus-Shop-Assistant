@@ -88,7 +88,20 @@ export const getProductsBySellerId = async (sellerId) => {
 };
 
 export const createProduct = async (productData) => {
-  const { name, sku, stock, lowStockThreshold, price, category, sellerId } = productData;
+  const {
+    name,
+    sku = null,
+    stock = 0,
+    lowStockThreshold = 10,
+    price = 0,
+    category,
+    sellerId
+  } = productData;
+
+  if (!name || !sellerId) {
+    throw new Error('Missing required fields: name and sellerId');
+  }
+
   const categoryId = await getCategoryId(category);
 
   // Default category if not provided or failed

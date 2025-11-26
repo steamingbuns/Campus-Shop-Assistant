@@ -12,12 +12,15 @@ export async function listListings(status) {
   const q = `
     SELECT
       product_id AS id,
+      name,
       description AS title,   -- DB không có cột 'title', dùng description để hiển thị
       description,
       price,
       status,
-      create_at AS created_at
-    FROM "Product"
+      create_at AS created_at,
+      COALESCE(u.name, u.email) AS seller_name
+    FROM "Product" p
+    LEFT JOIN "User" u ON p.seller_id = u.user_id
     ${where}
     ORDER BY product_id DESC
     LIMIT 200;

@@ -1,8 +1,13 @@
 import { getOrdersBySellerId, updateOrderStatus as updateOrderStatusModel } from '../models/ordersInventoryModel.js';
+import * as userModel from '../models/userModel.js';
 
 export const getSellerOrders = async (req, res) => {
   try {
     const sellerId = req.user.userId;
+    const user = await userModel.findUserById(sellerId);
+    if (!user || user.role !== 'seller') {
+      return res.status(403).json({ message: 'Only sellers can view orders' });
+    }
     if (!sellerId) {
       console.error('Seller ID missing in request user');
       return res.status(400).json({ message: 'User ID missing' });

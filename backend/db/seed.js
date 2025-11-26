@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 import postgres from 'postgres';
+import bcrypt from 'bcrypt';
 
 dotenv.config();
 
@@ -11,20 +12,33 @@ if (!connectionString) {
 
 const sql = postgres(connectionString, { max: 1 });
 
+const seedUsers = [
+    { name: 'John Doe', email: 'john.doe@example.com', password: 'password123', address: '123 Campus Dr', phone: '555-0101', role: 'seller' },
+    { name: 'Jane Smith', email: 'jane.smith@example.com', password: 'password456', address: '456 Dorm Hall', phone: '555-0102', role: 'seller' },
+    { name: 'Bob Wilson', email: 'bob.wilson@example.com', password: 'password789', address: '789 Library Ln', phone: '555-0103', role: 'seller' },
+    { name: 'Alice Brown', email: 'alice.brown@example.com', password: 'password101', address: '321 Science Ct', phone: '555-0104', role: 'seller' },
+    { name: 'Mike Davis', email: 'mike.davis@example.com', password: 'password202', address: '654 Arts Blvd', phone: '555-0105', role: 'seller' },
+];
+
+async function insertUsers() {
+    console.log('Inserting users (hashed passwords)...');
+    for (const user of seedUsers) {
+        const hash = await bcrypt.hash(user.password, 10);
+        await sql`
+            INSERT INTO "User" (name, email, password_hash, address, phone_number, role, status)
+            VALUES (${user.name}, ${user.email}, ${hash}, ${user.address}, ${user.phone}, ${user.role}, 'active')
+            ON CONFLICT (email) DO NOTHING
+        `;
+    }
+    console.log('✓ Users inserted');
+}
+
 async function main() {
     try {
         console.log('Seeding database...');
 
-        // 1. Insert Users
-        console.log('Inserting users...');
-        await sql`
-      INSERT INTO "User" (name, email, password_hash, address, phone_number, role, status) VALUES
-      ('John Doe', 'john.doe@example.com', 'hash123', '123 Campus Dr', '555-0101', 'user', 'active'),
-      ('Jane Smith', 'jane.smith@example.com', 'hash456', '456 Dorm Hall', '555-0102', 'user', 'active'),
-      ('Bob Wilson', 'bob.wilson@example.com', 'hash789', '789 Library Ln', '555-0103', 'user', 'active'),
-      ('Alice Brown', 'alice.brown@example.com', 'hash101', '321 Science Ct', '555-0104', 'user', 'active'),
-      ('Mike Davis', 'mike.davis@example.com', 'hash202', '654 Arts Blvd', '555-0105', 'user', 'active')
-    `;
+        // 1. Insert Users (via hashing like register)
+        await insertUsers();
 
         // 2. Insert Categories
         console.log('Inserting categories...');

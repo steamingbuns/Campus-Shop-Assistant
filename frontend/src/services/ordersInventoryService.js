@@ -1,8 +1,8 @@
 import api from './api';
 
 const ordersInventoryService = {
-  getSellerOrders: () => api.get('/orders-inventory/seller'),
-  updateOrderStatus: (id, status) => api.patch(`/orders-inventory/${id}/status`, { status }),
+  getSellerOrders: (token) => api.get('/orders-inventory/seller', token),
+  updateOrderStatus: (id, status, token) => api.patch(`/orders-inventory/${id}/status`, { status }, token),
 };
 
 export default ordersInventoryService;

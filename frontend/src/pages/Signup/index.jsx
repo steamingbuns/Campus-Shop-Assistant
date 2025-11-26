@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { ArrowRight, Mail, Lock, UserRound, Shield } from 'lucide-react';
 import authService from '../../services/authService';
-import './Signup.css';
 
 function Signup() {
   const [username, setUsername] = useState('');
@@ -27,7 +27,7 @@ function Signup() {
     }
 
     // Email validation (basic)
-    const emailRegex = /^[^S@]+@[^S@]+\.[^S@]+$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       setError('Please enter a valid email address');
       return;
@@ -44,52 +44,90 @@ function Signup() {
   };
   
   return (
-    <div className="signup-container">
-      <div className="signup-form-wrapper">
-        <h1 className="signup-title">Create Account</h1>
-        <p className="signup-subtitle">Join the campus marketplace</p>
-        
-        {error && <div className="error-message">{error}</div>}
-        
-        <form className="signup-form" onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label className="form-label">Username</label>
-            <input 
-              type="text" 
-              className="form-input" 
-              placeholder="Enter your username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-            />
+    <div className="relative isolate mx-auto flex min-h-[75vh] max-w-4xl flex-col rounded-3xl bg-white/80 px-6 py-10 shadow-2xl shadow-indigo-100 ring-1 ring-white/60 backdrop-blur lg:flex-row lg:px-10">
+      <div className="lg:w-1/2">
+        <div className="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-indigo-600">
+          <Shield className="h-4 w-4" />
+          Verified campus sellers
+        </div>
+        <h1 className="mt-4 text-3xl font-bold text-slate-900 sm:text-4xl">Create your account</h1>
+        <p className="mt-2 text-base text-slate-600">
+          Join the marketplace, list items fast, and connect with trusted students nearby.
+        </p>
+        <div className="mt-6 rounded-2xl bg-gradient-to-r from-indigo-600 to-blue-500 p-4 text-white shadow-lg shadow-blue-200">
+          <p className="text-sm font-semibold opacity-90">Perks for sellers</p>
+          <ul className="mt-2 space-y-2 text-sm opacity-90">
+            <li>• Instant listing creation</li>
+            <li>• Smart chat assistant for buyers</li>
+            <li>• Pickup scheduling on campus</li>
+          </ul>
+        </div>
+      </div>
+
+      <div className="mt-8 lg:mt-0 lg:w-1/2">
+        {error && (
+          <div className="mb-4 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+            {error}
           </div>
-          
-          <div className="form-group">
-            <label className="form-label">Email</label>
-            <input 
-              type="email" 
-              className="form-input" 
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4 rounded-2xl bg-white/80 p-6 shadow-sm shadow-indigo-50 ring-1 ring-indigo-50">
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-slate-800">Username</label>
+            <div className="flex items-center gap-2 rounded-xl border border-indigo-100 bg-white/70 px-3 py-2 ring-indigo-100 focus-within:ring-2 focus-within:ring-indigo-500">
+              <UserRound className="h-4 w-4 text-slate-400" />
+              <input
+                type="text"
+                className="w-full border-none bg-transparent text-sm text-slate-800 outline-none placeholder:text-slate-400"
+                placeholder="Choose a display name"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+              />
+            </div>
           </div>
-          
-          <div className="form-group">
-            <label className="form-label">Password</label>
-            <input 
-              type="password" 
-              className="form-input" 
-              placeholder="Create a password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-slate-800">Email</label>
+            <div className="flex items-center gap-2 rounded-xl border border-indigo-100 bg-white/70 px-3 py-2 ring-indigo-100 focus-within:ring-2 focus-within:ring-indigo-500">
+              <Mail className="h-4 w-4 text-slate-400" />
+              <input
+                type="email"
+                className="w-full border-none bg-transparent text-sm text-slate-800 outline-none placeholder:text-slate-400"
+                placeholder="your.name@campus.edu"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
           </div>
-          
-          <button type="submit" className="signup-button">Sign Up</button>
+
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-slate-800">Password</label>
+            <div className="flex items-center gap-2 rounded-xl border border-indigo-100 bg-white/70 px-3 py-2 ring-indigo-100 focus-within:ring-2 focus-within:ring-indigo-500">
+              <Lock className="h-4 w-4 text-slate-400" />
+              <input
+                type="password"
+                className="w-full border-none bg-transparent text-sm text-slate-800 outline-none placeholder:text-slate-400"
+                placeholder="At least 6 characters"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-500 px-4 py-3 text-sm font-semibold text-white shadow-md shadow-blue-200 transition hover:translate-y-[-1px] hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+          >
+            Sign up
+            <ArrowRight className="h-4 w-4" />
+          </button>
         </form>
-        
-        <div className="login-link">
-          Already have an account? <Link to="/login">Login here</Link>
+
+        <div className="mt-4 text-sm text-slate-700">
+          Already have an account?{' '}
+          <Link to="/login" className="font-semibold text-indigo-600 hover:text-indigo-700">
+            Login here
+          </Link>
         </div>
       </div>
     </div>

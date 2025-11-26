@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import "./admin-ui.css";
+import { CheckCircle2, Trash2, Edit3 } from "lucide-react";
 
 export default function ListingsPanel() {
   const [items, setItems] = useState([]);
@@ -57,10 +57,9 @@ export default function ListingsPanel() {
   }
 
   const statusChip = (s) => {
-    if (s === "approved") return "chip chip--approved";
-    if (s === "removed")  return "chip chip--removed";
-    return "chip chip--pending"; // default pending
-    // (nếu backend còn trạng thái khác, thêm case tương ứng)
+    if (s === "approved") return "bg-green-50 text-green-700";
+    if (s === "removed") return "bg-red-50 text-red-700";
+    return "bg-amber-50 text-amber-700";
   };
 
   if (loading) return <div>Loading listings…</div>;
@@ -72,7 +71,7 @@ export default function ListingsPanel() {
         <select
           value={status}
           onChange={(e) => setStatus(e.target.value)}
-          className="border rounded px-2 py-1"
+          className="rounded-lg border border-indigo-100 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm shadow-indigo-50"
         >
           <option value="all">All</option>
           <option value="pending">Pending</option>
@@ -80,30 +79,35 @@ export default function ListingsPanel() {
         </select>
       </div>
 
-      <div className="overflow-x-auto border rounded-2xl">
+      <div className="overflow-x-auto rounded-2xl border border-indigo-50 bg-white/80 shadow-sm shadow-indigo-50">
         <table className="min-w-full text-sm">
-          <thead className="bg-gray-100">
+          <thead className="bg-indigo-50/60 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">
             <tr>
-              <th className="p-2 text-left">ID</th>
-              <th className="p-2 text-left">Title</th>
-              <th className="p-2 text-left">Status</th>
-              <th className="p-2 text-left">Actions</th>
+              <th className="p-3">ID</th>
+              <th className="p-3">Title</th>
+              <th className="p-3">Seller</th>
+              <th className="p-3">Status</th>
+              <th className="p-3">Actions</th>
             </tr>
           </thead>
           <tbody>
             {items.map((it) => (
-              <tr key={it.id} className="border-t">
-                <td className="p-2">{it.id}</td>
-                <td className="p-2">{it.title}</td>
-                <td className="p-2">
-                  <span className={statusChip(it.status)}>{it.status}</span>
+              <tr key={it.id} className="border-t border-indigo-50 hover:bg-indigo-50/40">
+                <td className="p-3 font-semibold text-slate-900">{it.id}</td>
+                <td className="p-3 text-slate-700">{it.title}</td>
+                <td className="p-3 text-slate-700">{it.seller_name || '—'}</td>
+                <td className="p-3">
+                  <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold ${statusChip(it.status)}`}>
+                    {it.status}
+                  </span>
                 </td>
-                <td className="p-2">
-                  <div className="actions">
+                <td className="p-3">
+                  <div className="flex flex-wrap gap-2">
                     <button
                       onClick={() => approve(it.id)}
-                      className="btn btn-approve"
+                      className="inline-flex items-center gap-1 rounded-lg bg-green-50 px-3 py-1.5 text-xs font-semibold text-green-700 shadow-sm shadow-green-100"
                     >
+                      <CheckCircle2 className="h-4 w-4" />
                       Approve
                     </button>
                     <button
@@ -115,14 +119,16 @@ export default function ListingsPanel() {
                             it.description
                         )
                       }
-                      className="btn btn-edit"
+                      className="inline-flex items-center gap-1 rounded-lg bg-indigo-50 px-3 py-1.5 text-xs font-semibold text-indigo-700 shadow-sm shadow-indigo-100"
                     >
+                      <Edit3 className="h-4 w-4" />
                       Edit
                     </button>
                     <button
                       onClick={() => removeItem(it.id)}
-                      className="btn btn-remove"
+                      className="inline-flex items-center gap-1 rounded-lg bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700 shadow-sm shadow-red-100"
                     >
+                      <Trash2 className="h-4 w-4" />
                       Remove
                     </button>
                   </div>

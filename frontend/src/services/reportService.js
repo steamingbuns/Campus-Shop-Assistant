@@ -31,6 +31,11 @@ const reportService = {
     async deleteReportById(reportId, token) {
         return api.delete(`/report/${reportId}`, token);
     }, 
+
+    // Admin: fetch sales & transaction history
+    async getAdminTransactions(token) {
+        return api.get('/admin/transactions', token);
+    },
 };
 
 export default reportService;

@@ -8,7 +8,7 @@ export async function createUser(userData) {
     password,
     address,
     phone_number,
-    role = 'user',
+    role = 'seller',
     status = 'active'
   } = userData;
 

@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
+import { Boxes, ClipboardList } from 'lucide-react';
 import InventoryManagement from './InventoryManagement';
 import OrderManagement from './OrderManagement';
-import './SellerDashboard.css';
 
 function SellerDashboard() {
   const { isLoggedIn } = useAuth();
@@ -25,31 +25,40 @@ function SellerDashboard() {
   };
 
   return (
-    <div className="seller-dashboard">
-      <div className="dashboard-container">
-        <h1 className="dashboard-title">Seller Dashboard</h1>
-        <p className="dashboard-subtitle">Manage your products, orders, and sales</p>
+    <div className="space-y-6">
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-indigo-600">Seller</p>
+        <h1 className="mt-2 text-3xl font-bold text-slate-900">Seller Dashboard</h1>
+        <p className="text-sm text-slate-600">Manage your products, orders, and sales.</p>
+      </div>
 
-        <div className="dashboard-tabs">
-          <button
-            className={`tab-button ${activeTab === 'inventory' ? 'active' : ''}`}
-            onClick={() => setActiveTab('inventory')}
-          >
-            <span className="tab-icon">📦</span>
-            Inventory
-          </button>
-          <button
-            className={`tab-button ${activeTab === 'orders' ? 'active' : ''}`}
-            onClick={() => setActiveTab('orders')}
-          >
-            <span className="tab-icon">📋</span>
-            Orders
-          </button>
-        </div>
+      <div className="flex flex-wrap gap-3 rounded-2xl bg-white/80 p-3 shadow-sm shadow-indigo-50 ring-1 ring-indigo-50">
+        <button
+          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition ${
+            activeTab === 'inventory'
+              ? 'bg-gradient-to-r from-indigo-600 to-blue-500 text-white shadow-md shadow-blue-200'
+              : 'bg-white text-slate-700 ring-1 ring-indigo-100 hover:text-indigo-700'
+          }`}
+          onClick={() => setActiveTab('inventory')}
+        >
+          <Boxes className="h-4 w-4" />
+          Inventory
+        </button>
+        <button
+          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition ${
+            activeTab === 'orders'
+              ? 'bg-gradient-to-r from-indigo-600 to-blue-500 text-white shadow-md shadow-blue-200'
+              : 'bg-white text-slate-700 ring-1 ring-indigo-100 hover:text-indigo-700'
+          }`}
+          onClick={() => setActiveTab('orders')}
+        >
+          <ClipboardList className="h-4 w-4" />
+          Orders
+        </button>
+      </div>
 
-        <div className="tab-content">
-          {renderTabContent()}
-        </div>
+      <div className="rounded-3xl bg-white/80 p-4 shadow-lg shadow-indigo-100 ring-1 ring-indigo-50">
+        {renderTabContent()}
       </div>
     </div>
   );

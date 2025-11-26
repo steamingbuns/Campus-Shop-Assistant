@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
-import "./SearchBox.css";
+import { Loader2, Search } from "lucide-react";
 
 // Example product data (replace with API call in production)
 const PRODUCTS = [
@@ -282,13 +282,17 @@ const SearchBox = ({
   }, []);
 
   return (
-    <div className="searchbox-container" ref={containerRef}>
-      {/* Search Input Field */}
-      <div className={`searchbox-field${focused ? " focused" : ""}${isSearching ? " searching" : ""}`}>
+    <div className="relative w-full" ref={containerRef}>
+      <div
+        className={`flex items-center gap-2 rounded-xl border bg-white/80 px-3 py-2 shadow-sm shadow-indigo-50 transition ${
+          focused ? 'border-indigo-200 ring-2 ring-indigo-200' : 'border-indigo-100'
+        } ${isSearching ? 'opacity-80' : ''}`}
+      >
+        <Search className="h-4 w-4 text-slate-400" />
         <input
           ref={inputRef}
           type="text"
-          className="searchbox-input"
+          className="w-full border-none bg-transparent text-sm text-slate-800 outline-none placeholder:text-slate-400"
           placeholder={placeholder}
           value={query}
           onChange={handleInputChange}
@@ -304,100 +308,49 @@ const SearchBox = ({
             selectedIndex >= 0 ? `suggestion-${selectedIndex}` : undefined
           }
         />
-        
-        {/* Search Icon Button */}
         <button
           type="button"
-          className="searchbox-icon"
+          className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-r from-indigo-600 to-blue-500 text-white shadow-sm shadow-blue-200 transition hover:translate-y-[-1px] hover:shadow-md disabled:opacity-60"
           onClick={() => executeSearch()}
           disabled={isSearching || !query.trim()}
           aria-label="Search"
           tabIndex={-1}
         >
-          {isSearching ? (
-            // Loading spinner
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              className="searchbox-spinner"
-            >
-              <circle
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="#3B82F6"
-                strokeWidth="3"
-                fill="none"
-                strokeDasharray="31.4 31.4"
-                strokeLinecap="round"
-              />
-            </svg>
-          ) : (
-            // Search icon
-            <svg
-              width="24"
-              height="24"
-              fill="none"
-              viewBox="0 0 24 24"
-              style={{ display: "block" }}
-            >
-              <circle
-                cx="11"
-                cy="11"
-                r="8"
-                stroke="#3B82F6"
-                strokeWidth="2"
-              />
-              <line
-                x1="21"
-                y1="21"
-                x2="16.65"
-                y2="16.65"
-                stroke="#3B82F6"
-                strokeWidth="2"
-                strokeLinecap="round"
-              />
-            </svg>
-          )}
+          {isSearching ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
         </button>
       </div>
 
-      {/* Suggestions Dropdown */}
       {showDropdown && (
-        <div 
-          className="searchbox-dropdown" 
+        <div
+          className="absolute z-30 mt-2 w-full overflow-hidden rounded-xl border border-indigo-50 bg-white/90 shadow-lg shadow-indigo-100 backdrop-blur"
           id="searchbox-suggestions"
           role="listbox"
         >
           {suggestions.length > 0 ? (
             suggestions.map((item, index) => (
-              <div
+              <button
                 key={item.id || index}
                 ref={(el) => (suggestionRefs.current[index] = el)}
                 id={`suggestion-${index}`}
-                className={`searchbox-suggestion${selectedIndex === index ? " selected" : ""}`}
+                className={`flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm transition ${
+                  selectedIndex === index ? 'bg-indigo-50' : 'hover:bg-indigo-50/60'
+                }`}
                 role="option"
                 aria-selected={selectedIndex === index}
                 tabIndex={0}
                 onMouseDown={() => handleSuggestionClick(item, index)}
                 onMouseEnter={() => setSelectedIndex(index)}
               >
-                <div className="suggestion-left">
-                  <div className="suggestion-name">{item.name}</div>
-                  <div className="suggestion-category">{item.category}</div>
+                <div>
+                  <div className="font-semibold text-slate-900">{item.name}</div>
+                  <div className="text-xs text-slate-500">{item.category}</div>
                 </div>
-                <div className="suggestion-right">
-                  <span className="suggestion-price">
-                    {item.price}đ
-                  </span>
-                </div>
-              </div>
+                <span className="text-sm font-semibold text-indigo-700">{item.price}đ</span>
+              </button>
             ))
           ) : (
-            // Empty state - no suggestions found
-            <div className="searchbox-empty" role="status">
-              No products found matching '{query}'
+            <div className="px-3 py-2 text-sm text-slate-600" role="status">
+              No products found matching &apos;{query}&apos;
             </div>
           )}
         </div>

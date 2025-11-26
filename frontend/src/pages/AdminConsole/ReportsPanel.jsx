@@ -1,300 +1,116 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext.jsx';
 import reportService from '../../services/reportService.js';
 
-const STATUS_ORDER = {
-    'open': 1,
-    'in-review': 2,
-    'resolved': 3,
-};
-
-const INVALID_STATUS = 99;
-
-const ReportCard = ({ report, renderActionButton, onDelete }) => {
-    let statusText;
-    switch (report.status) {
-        case "open":
-            statusText = "Open";
-            break;
-        case "in-review":
-            statusText = "In Review";
-            break;
-        case "resolved":
-            statusText = "Resolved";
-            break;
-        default:
-            statusText = "Invalid State";
-            break;
-    }
-
-    const handleDeleteClick = () => {
-        // Always be skeptical and double-check with the user (confirmation box)
-        if (window.confirm(`Are you absolutely sure you want to permanently delete Report ID ${report.report_id}? This action cannot be undone.`)) {
-            // Call the handler passed down from the parent
-            onDelete(report.report_id);
-        }
-    };
-
-    return (
-        <div className={`report-card`} key={report.report_id} style={{
-            border: '1px solid #e5e7eb',
-            borderRadius: '12px',
-            padding: '16px',
-            marginBottom: '16px',
-            backgroundColor: '#ffffff'
-        }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                <h3 style={{ fontSize: '16px', fontWeight: '700', margin: 0 }}>
-                    <strong>Report ID:</strong> {report.report_id}
-                </h3>
-                <span style={{
-                    padding: '4px 12px',
-                    borderRadius: '12px',
-                    fontSize: '12px',
-                    fontWeight: '700',
-                    backgroundColor: report.status === 'open' ? '#fee2e2' :
-                        report.status === 'in-review' ? '#fef3c7' : '#dcfce7',
-                    color: report.status === 'open' ? '#991b1b' :
-                        report.status === 'in-review' ? '#92400e' : '#166534'
-                }}>
-                    {statusText}
-                </span>
-            </div>
-            <div style={{ marginBottom: '12px', color: '#4b5563' }}>
-                <p style={{ margin: '4px 0' }}><strong>Reported by:</strong> {report.reporter_id}</p>
-                <div>
-                    <p style={{ margin: '4px 0' }}><strong>Product ID:</strong> {report.item_id}</p>
-                    <p style={{ margin: '4px 0' }}><strong>Details:</strong> {report.details}</p>
-                </div>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                {renderActionButton(report)}
-                <button
-                    onClick={handleDeleteClick}
-                >
-                    Delete 🗑️
-                </button>
-            </div>
-        </div>
-    );
-};
-
 export default function ReportsPanel() {
-    const { isLoggedIn, user, token } = useAuth();
-    const [searchQuery, setSearchQuery] = useState('');
-    const [reportsList, setReportsList] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState(null);
-    const [filterStatus, setFilterStatus] = useState('all');
+  const { isLoggedIn, user, token } = useAuth();
+  const [transactions, setTransactions] = useState([]);
+  const [search, setSearch] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-    if (!isLoggedIn || user.role !== 'admin') {
-        return <div>You do not have permission to view this page.</div>;
-    }
+  const hasAccess = isLoggedIn && ['admin', 'staff'].includes(user?.role);
 
-    const fetchReports = useCallback(async (query = '') => {
-        setIsLoading(true);
-        setError(null);
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      if (!hasAccess) return;
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await reportService.getAdminTransactions(token);
+        setTransactions(Array.isArray(data) ? data : []);
+      } catch (err) {
+        setError(err.message || 'Failed to load transactions.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchTransactions();
+  }, [hasAccess, token]);
 
-        try {
-            let fetchedReports;
-            if (query) {
-                // Priority 1: Search query takes precedence and fetches across all reports
-                fetchedReports = await reportService.filterReportsBySearchQuery({ searchQuery: query }, token);
-
-                // Defaults to 'all' if using query to search
-                setFilterStatus('all');
-            }
-            else if (filterStatus !== 'all') {
-                // Priority 2: Filter by specific status
-                fetchedReports = await reportService.getReportsByStatus(filterStatus, token);
-            }
-            else {
-                // Default: Fetch all reports
-                fetchedReports = await reportService.getAllReports(token);
-            }
-
-            const sorted = fetchedReports.sort((a, b) => {
-                const statusA = STATUS_ORDER[a.status] || INVALID_STATUS;
-                const statusB = STATUS_ORDER[b.status] || INVALID_STATUS;
-                if (statusA !== statusB) {
-                    return statusA - statusB;
-                }
-                return a.report_id - b.report_id;
-            });
-
-            setReportsList(sorted);
-        }
-        catch (err) {
-            setError('Failed to fetch reports. Please try again later.');
-            console.error(err);
-        }
-        finally {
-            setIsLoading(false);
-        };
-    }, [token, filterStatus]);
-
-    useEffect(() => {
-        const handler = setTimeout(() => {
-            fetchReports(searchQuery);
-        }, 300);
-
-        return () => clearTimeout(handler);
-    }, [searchQuery, fetchReports, filterStatus]);
-
-    const updateReportStatus = useCallback(async (reportId, newStatus) => {
-        try {
-            await reportService.updateReportStatus(reportId, { newStatus: newStatus }, token);
-
-            fetchReports(searchQuery, filterStatus);
-        }
-        catch (err) {
-            setError('Failed to update report status. Please try again later.');
-            console.error(err);
-        }
-    }, [token, fetchReports, searchQuery, filterStatus]);
-
-    const handleStatusChange = useCallback((reportId, currStatus) => {
-        let newStatus;
-        switch (currStatus) {
-            case 'open':
-                newStatus = 'in-review';
-                break;
-            case 'in-review':
-                newStatus = 'resolved';
-                break;
-            default:
-                return;
-        }
-        updateReportStatus(reportId, newStatus);
-    }, [updateReportStatus]);
-
-    const renderActionButton = useCallback((report) => {
-        if (report.status === 'resolved') return null;
-
-        const buttonText = report.status === 'open' ? 'Start Review' : 'Mark as Resolved';
-        const buttonColor = report.status === 'open' ? '#2563eb' : '#16a34a';
-
-        return (
-            <button
-                style={{
-                    padding: '8px 16px',
-                    borderRadius: '8px',
-                    border: 'none',
-                    backgroundColor: buttonColor,
-                    color: '#ffffff',
-                    fontWeight: '700',
-                    cursor: 'pointer',
-                    transition: 'all 0.15s ease'
-                }}
-                onClick={() => handleStatusChange(report.report_id, report.status)}
-                onMouseOver={(e) => e.target.style.opacity = '0.9'}
-                onMouseOut={(e) => e.target.style.opacity = '1'}
-            >
-                {buttonText}
-            </button>
-        );
-    }, [handleStatusChange]);
-
-    const statusOptions = [
-        { label: 'All', value: 'all', color: '#6b7280' },
-        { label: 'Open', value: 'open', color: '#991b1b' },
-        { label: 'In Review', value: 'in-review', color: '#92400e' },
-        { label: 'Resolved', value: 'resolved', color: '#166534' },
-    ];
-
-    const handleFilterClick = (status) => {
-        setSearchQuery(''); // Clear search query when changing filters
-        setFilterStatus(status);
-    }
-
-    const handleDeleteReport = useCallback(async (reportId) => {
-        setError(null);
-        try {
-            await reportService.deleteReportById(reportId, token);
-            fetchReports(searchQuery);
-        } catch (err) {
-            setError(`Failed to delete Report ID ${reportId}.`);
-            console.error(err);
-        }
-    }, [token, fetchReports, searchQuery]);
-
-    return (
-        <div>
-            <h2 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '16px', marginTop: 0 }}>
-                View Reports
-            </h2>
-
-            <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap' }}>
-                {statusOptions.map(option => (
-                    <button
-                        key={option.value}
-                        onClick={() => handleFilterClick(option.value)}
-                        style={{
-                            padding: '10px 18px',
-                            borderRadius: '8px',
-                            border: `2px solid ${filterStatus === option.value ? option.color : '#d1d5db'}`,
-                            backgroundColor: filterStatus === option.value ? option.color : '#ffffff',
-                            color: filterStatus === option.value ? '#ffffff' : option.color,
-                            fontWeight: '700',
-                            cursor: 'pointer',
-                            transition: 'all 0.15s ease',
-                            flexShrink: 0
-                        }}
-                        onMouseOver={(e) => {
-                            if (filterStatus !== option.value) {
-                                e.target.style.backgroundColor = '#f3f4f6';
-                            }
-                        }}
-                        onMouseOut={(e) => {
-                            if (filterStatus !== option.value) {
-                                e.target.style.backgroundColor = '#ffffff';
-                            }
-                        }}
-                    >
-                        {option.label}
-                    </button>
-                ))}
-            </div>
-
-            <div style={{ marginBottom: '20px' }}>
-                <input
-                    type='text'
-                    style={{
-                        width: '100%',
-                        padding: '12px 16px',
-                        borderRadius: '8px',
-                        border: '1px solid #d1d5db',
-                        fontSize: '14px',
-                        outline: 'none'
-                    }}
-                    placeholder='Search by report ID or details...'
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onFocus={(e) => e.target.style.borderColor = '#2563eb'}
-                    onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
-                />
-            </div>
-            {isLoading && <p style={{ textAlign: 'center', color: '#6b7280', padding: '20px' }}>Loading reports...</p>}
-            {error && <p style={{ textAlign: 'center', color: '#dc2626', padding: '20px' }}>Error: {error}</p>}
-
-            {!isLoading && !error && (
-                <div>
-                    {reportsList.length > 0 ? (
-                        reportsList.map(report => (
-                            <ReportCard
-                                key={report.report_id}
-                                report={report}
-                                renderActionButton={renderActionButton}
-                                onDelete={handleDeleteReport}
-                            />
-                        ))
-                    ) : (
-                        <p style={{ textAlign: 'center', color: '#6b7280', padding: '20px' }}>
-                            No reports found
-                        </p>
-                    )}
-                </div>
-            )}
-        </div>
+  const filtered = useMemo(() => {
+    if (!search.trim()) return transactions;
+    const q = search.toLowerCase();
+    return transactions.filter((t) =>
+      [t.order_id, t.product_title, t.buyer_name, t.seller_name]
+        .join(' ')
+        .toLowerCase()
+        .includes(q)
     );
+  }, [transactions, search]);
+
+  if (!hasAccess) {
+    return <div className="text-sm text-slate-600">You do not have permission to view this page. Please sign in with an admin or staff account.</div>;
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-indigo-600">Admin</p>
+          <h2 className="text-2xl font-bold text-slate-900">Sales & Transaction History</h2>
+          <p className="text-sm text-slate-600">Buyer/seller breakdown for recent orders.</p>
+        </div>
+      </div>
+
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search by order, item, buyer, or seller..."
+          className="w-full rounded-xl border border-indigo-100 bg-white/80 px-3 py-2 text-sm text-slate-800 outline-none ring-indigo-100 transition focus:ring-2 focus:ring-indigo-500 sm:max-w-sm"
+        />
+      </div>
+
+      {loading && <p className="text-sm text-slate-600">Loading transactions...</p>}
+      {error && <p className="text-sm font-semibold text-red-600">{error}</p>}
+
+      {!loading && !error && (
+        <div className="overflow-x-auto rounded-2xl border border-indigo-50 bg-white/80 shadow-sm shadow-indigo-50">
+          <table className="min-w-full text-sm">
+            <thead className="bg-indigo-50/60 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">
+              <tr>
+                <th className="p-3">Order ID</th>
+                <th className="p-3">Item</th>
+                <th className="p-3">Buyer</th>
+                <th className="p-3">Seller</th>
+                <th className="p-3">Amount</th>
+                <th className="p-3">Date</th>
+                <th className="p-3">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((t) => (
+                <tr key={t.order_id} className="border-t border-indigo-50 hover:bg-indigo-50/40">
+                  <td className="p-3 font-semibold text-slate-900">#{t.order_id}</td>
+                  <td className="p-3 text-slate-700">{t.product_title || '—'}</td>
+                  <td className="p-3 text-slate-700">{t.buyer_name || '—'}</td>
+                  <td className="p-3 text-slate-700">{t.seller_name || '—'}</td>
+                  <td className="p-3 font-semibold text-slate-900">
+                    {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', maximumFractionDigits: 0 }).format(t.amount || 0)}
+                  </td>
+                  <td className="p-3 text-slate-600">
+                    {t.created_at ? new Date(t.created_at).toLocaleString() : '—'}
+                  </td>
+                  <td className="p-3">
+                    <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                      {t.status || 'unknown'}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+              {filtered.length === 0 && (
+                <tr>
+                  <td colSpan={7} className="p-4 text-center text-sm text-slate-600">
+                    No transactions found.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
 }

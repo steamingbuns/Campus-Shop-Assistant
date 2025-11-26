@@ -5,16 +5,19 @@ const productDetailsService = {
   getProductById: (id) => api.get(`/product-details/${id}`),
   
   // Get seller's inventory (protected)
-  getSellerInventory: () => api.get('/product-details/seller/inventory'),
+  getSellerInventory: (options) => api.get('/product-details/seller/inventory', options),
   
   // Create a new product (protected)
-  createProduct: (productData) => api.post('/product-details', productData),
+  createProduct: (productData, options) => api.post('/product-details', productData, options),
   
   // Update a product (protected)
-  updateProduct: (id, productData) => api.patch(`/product-details/${id}`, productData),
+  updateProduct: (id, productData, options) => api.patch(`/product-details/${id}`, productData, options),
   
   // Delete a product (protected)
-  deleteProduct: (id) => api.delete(`/product-details/${id}`),
+  deleteProduct: (id, options) => api.delete(`/product-details/${id}`, options),
+
+  // Categories (protected or public depending on backend)
+  getCategories: (options) => api.get('/product/categories', options),
 };
 
 export default productDetailsService;

@@ -8,7 +8,8 @@ import {
   getListings,
   postApproveListing,
   putEditListing,
-  deleteListing
+  deleteListing,
+  getTransactions
 } from '../controllers/adminController.js';
 
 const router = express.Router();
@@ -56,5 +57,8 @@ router.get('/listings', requireAdminFromBearer, getListings);
 router.post('/listings/:id/approve', requireAdminFromBearer, postApproveListing);
 router.put('/listings/:id', requireAdminFromBearer, putEditListing);
 router.delete('/listings/:id', requireAdminFromBearer, deleteListing);
+
+// ===== Transactions =====
+router.get('/transactions', requireAdminFromBearer, getTransactions);
 
 export default router;

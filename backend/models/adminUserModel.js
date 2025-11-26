@@ -8,9 +8,8 @@ const pool = new Pool({
 
 export async function listNonAdminUsers() {
   const q = `
-    SELECT user_id AS id, name, email, status, warnings
+    SELECT user_id AS id, name, email, role, status, warnings
     FROM "User"
-    WHERE role <> 'admin'
     ORDER BY user_id ASC
     LIMIT 200;
   `;

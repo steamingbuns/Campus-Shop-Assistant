@@ -1,91 +1,43 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import ordersInventoryService from '../../services/ordersInventoryService';
 import './OrderManagement.css';
 
 function OrderManagement() {
-  const [orders, setOrders] = useState([
-    {
-      id: 'ORD-001',
-      customer: 'John Doe',
-      email: 'john@example.com',
-      items: [
-        { name: 'Laptop Stand', quantity: 2, price: 29.99 }
-      ],
-      total: 59.98,
-      status: 'pending',
-      date: '2025-10-08',
-      completionCode: 'A7K9X2'
-    },
-    {
-      id: 'ORD-002',
-      customer: 'Jane Smith',
-      email: 'jane@example.com',
-      items: [
-        { name: 'Notebook Set', quantity: 3, price: 12.99 },
-        { name: 'Coffee Mug', quantity: 1, price: 14.99 }
-      ],
-      total: 53.96,
-      status: 'done',
-      date: '2025-10-07',
-      completionCode: 'B3M5N8'
-    },
-    {
-      id: 'ORD-003',
-      customer: 'Mike Johnson',
-      email: 'mike@example.com',
-      items: [
-        { name: 'USB Cable', quantity: 5, price: 9.99 }
-      ],
-      total: 49.95,
-      status: 'pending',
-      date: '2025-10-09',
-      completionCode: 'P4T7W1'
-    },
-    {
-      id: 'ORD-004',
-      customer: 'Sarah Williams',
-      email: 'sarah@example.com',
-      items: [
-        { name: 'Laptop Stand', quantity: 1, price: 29.99 },
-        { name: 'USB Cable', quantity: 2, price: 9.99 }
-      ],
-      total: 49.97,
-      status: 'done',
-      date: '2025-10-05',
-      completionCode: 'Q8R2L5'
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    fetchOrders();
+  }, []);
+
+  const fetchOrders = async () => {
+    try {
+      setLoading(true);
+      const data = await ordersInventoryService.getSellerOrders();
+      setOrders(data);
+      setError(null);
+    } catch (err) {
+      console.error('Error fetching orders:', err);
+      setError('Failed to load orders');
+    } finally {
+      setLoading(false);
     }
-  ]);
-
-  const [selectedOrder, setSelectedOrder] = useState(null);
-  const [showCompletionModal, setShowCompletionModal] = useState(false);
-  const [enteredCode, setEnteredCode] = useState('');
-  const [codeError, setCodeError] = useState('');
-
-  const handleMarkAsDone = (orderId) => {
-    setSelectedOrder(orders.find(o => o.id === orderId));
-    setShowCompletionModal(true);
-    setCodeError('');
   };
 
-  const handleSubmitCompletion = (e) => {
-    e.preventDefault();
-    
-    // Verify the completion code
-    if (enteredCode.trim().toUpperCase() !== selectedOrder.completionCode.toUpperCase()) {
-      setCodeError('Invalid completion code. Please ask the customer for their code.');
-      return;
+  const handleMarkAsDone = async (orderId) => {
+    try {
+      await ordersInventoryService.updateOrderStatus(orderId, 'done');
+      // Update local state
+      setOrders(orders.map(order =>
+        order.id === orderId
+          ? { ...order, status: 'done' }
+          : order
+      ));
+    } catch (err) {
+      console.error('Error updating order status:', err);
+      alert('Failed to update order status');
     }
-
-    // Mark order as done
-    setOrders(orders.map(order =>
-      order.id === selectedOrder.id
-        ? { ...order, status: 'done' }
-        : order
-    ));
-    
-    setShowCompletionModal(false);
-    setEnteredCode('');
-    setCodeError('');
-    setSelectedOrder(null);
   };
 
   const getStatusColor = (status) => {
@@ -139,111 +91,68 @@ function OrderManagement() {
 
       {/* Orders Table */}
       <div className="orders-table-container">
-        <table className="orders-table">
-          <thead>
-            <tr>
-              <th>Order ID</th>
-              <th>Customer</th>
-              <th>Date</th>
-              <th>Items</th>
-              <th>Total</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {orders.map(order => (
-              <tr key={order.id}>
-                <td className="order-id-cell">{order.id}</td>
-                <td>
-                  <div className="customer-info">
-                    <strong>{order.customer}</strong>
-                    <small>{order.email}</small>
-                  </div>
-                </td>
-                <td>{new Date(order.date).toLocaleDateString()}</td>
-                <td>
-                  <div className="items-list">
-                    {order.items.map((item, idx) => (
-                      <div key={idx} className="item-detail">
-                        {item.name} x{item.quantity}
-                      </div>
-                    ))}
-                  </div>
-                </td>
-                <td className="total-cell">${order.total.toFixed(2)}</td>
-                <td>
-                  <span className={`status-badge ${getStatusColor(order.status)}`}>
-                    {getStatusText(order.status)}
-                  </span>
-                </td>
-                <td className="actions-cell">
-                  {order.status === 'pending' && (
-                    <button
-                      className="btn-complete"
-                      onClick={() => handleMarkAsDone(order.id)}
-                    >
-                      Mark as Done
-                    </button>
-                  )}
-                  {order.status === 'done' && (
-                    <span className="done-label">✓ Completed</span>
-                  )}
-                </td>
+        {loading ? (
+          <div className="loading-state">Loading orders...</div>
+        ) : error ? (
+          <div className="error-state">{error}</div>
+        ) : (
+          <table className="orders-table">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Customer</th>
+                <th>Date</th>
+                <th>Items</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {orders.map(order => (
+                <tr key={order.id}>
+                  <td className="order-id-cell">{order.id}</td>
+                  <td>
+                    <div className="customer-info">
+                      <strong>{order.customer}</strong>
+                      <small>{order.email}</small>
+                    </div>
+                  </td>
+                  <td>{new Date(order.date).toLocaleDateString()}</td>
+                  <td>
+                    <div className="items-list">
+                      {order.items.map((item, idx) => (
+                        <div key={idx} className="item-detail">
+                          {item.name} x{item.quantity}
+                        </div>
+                      ))}
+                    </div>
+                  </td>
+                  <td className="total-cell">${Number(order.total).toFixed(2)}</td>
+                  <td>
+                    <span className={`status-badge ${getStatusColor(order.status)}`}>
+                      {getStatusText(order.status)}
+                    </span>
+                  </td>
+                  <td className="actions-cell">
+                    {order.status === 'pending' && (
+                      <button
+                        className="btn-complete"
+                        onClick={() => handleMarkAsDone(order.id)}
+                      >
+                        Mark as Done
+                      </button>
+                    )}
+                    {order.status === 'done' && (
+                      <span className="done-label">✓ Completed</span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
-
-      {/* Completion Modal */}
-      {showCompletionModal && (
-        <div className="modal-overlay" onClick={() => setShowCompletionModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <h3>Complete Order</h3>
-            <p className="order-id-modal">Order: {selectedOrder?.id}</p>
-            <p className="modal-instruction">
-              Ask the customer for their completion code to verify the handover.
-            </p>
-            <form onSubmit={handleSubmitCompletion}>
-              <div className="form-group">
-                <label>Completion Code *</label>
-                <input
-                  type="text"
-                  value={enteredCode}
-                  onChange={(e) => {
-                    setEnteredCode(e.target.value);
-                    setCodeError('');
-                  }}
-                  placeholder="Enter 6-character code"
-                  maxLength="6"
-                  required
-                  className={codeError ? 'error' : ''}
-                  style={{ textTransform: 'uppercase', letterSpacing: '2px', fontWeight: '600' }}
-                />
-                {codeError && <small className="error-message">{codeError}</small>}
-                {!codeError && <small>The customer should have received this code with their order</small>}
-              </div>
-              <div className="modal-actions">
-                <button
-                  type="button"
-                  className="btn-cancel"
-                  onClick={() => {
-                    setShowCompletionModal(false);
-                    setEnteredCode('');
-                    setCodeError('');
-                  }}
-                >
-                  Cancel
-                </button>
-                <button type="submit" className="btn-submit">
-                  Complete Order
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

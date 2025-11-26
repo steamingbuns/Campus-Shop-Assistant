@@ -4,6 +4,7 @@ import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
 import productService from '../../services/productService';
 import userService from '../../services/userService';
+import reportService from '../../services/reportService';
 import './ItemView.css';
 
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=800&q=80';
@@ -13,7 +14,7 @@ function ItemView() {
   const navigate = useNavigate();
   const location = useLocation();
   const { addToCart } = useCart();
-  const { isLoggedIn, token } = useAuth();
+  const { isLoggedIn, token, user } = useAuth();
 
   const [product, setProduct] = useState(null);
   const [reviews, setReviews] = useState([]);
@@ -22,6 +23,11 @@ function ItemView() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [canReview, setCanReview] = useState(false);
+
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [reportDetails, setReportDetails] = useState('');
+  const [reportError, setReportError] = useState(null);
+  const [isSubmittingReport, setIsSubmittingReport] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -157,11 +163,11 @@ function ItemView() {
 
   const productPayload = product
     ? {
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        image: productImages[0],
-      }
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: productImages[0],
+    }
     : null;
 
   const handleAddToCart = () =>
@@ -201,6 +207,45 @@ function ItemView() {
     setQuantity((current) =>
       Math.min(product?.stock ?? current + 1, current + 1)
     );
+  };
+
+  const handleReportSubmit = async (e) => {
+    e.preventDefault();
+    setReportError(null);
+
+    if (!isLoggedIn) {
+      navigate('/login');
+      return;
+    }
+    if (!reportDetails.trim()) {
+      setReportError('Please provide details for the report.');
+      return;
+    }
+    if (!user || !user.userId || !productId) {
+      setReportError('Missing user or product ID for reporting.');
+      return;
+    }
+
+    setIsSubmittingReport(true);
+    try {
+      const parameters = {
+        reporter_id: user.userId,
+        item_id: productId,
+        details: reportDetails
+      };
+
+      await reportService.createReport(parameters, token);
+      alert('Your report has been submitted for review. Thank you for helping us keeping the Campus Shop a safer place!');
+      setIsReportModalOpen(false);
+      setReportDetails('');
+    }
+    catch (err) {
+      console.error('Report submission failed:', err);
+      setReportError(err.message || 'Failed to submit report. Please try again.');
+    }
+    finally {
+      setIsSubmittingReport(false);
+    }
   };
 
   if (loading) {
@@ -276,9 +321,8 @@ function ItemView() {
               {productImages.map((image, index) => (
                 <div
                   key={image}
-                  className={`thumbnail ${
-                    activeImage === index ? 'active' : ''
-                  }`}
+                  className={`thumbnail ${activeImage === index ? 'active' : ''
+                    }`}
                   onClick={() => setActiveImage(index)}
                 >
                   <img src={image} alt={`${product.name} view ${index + 1}`} />
@@ -337,9 +381,9 @@ function ItemView() {
                     <span className="stat-value">
                       {product.seller.joinDate
                         ? new Date(product.seller.joinDate).toLocaleDateString(
-                            'en-US',
-                            { year: 'numeric', month: 'short' }
-                          )
+                          'en-US',
+                          { year: 'numeric', month: 'short' }
+                        )
                         : '—'}
                     </span>
                   </div>
@@ -411,6 +455,16 @@ function ItemView() {
               >
                 Buy Now
               </button>
+              {
+                isLoggedIn && (
+                  <button
+                    type='button'
+                    className='report-btn'
+                    onClick={() => setIsReportModalOpen(true)}
+                  >
+                    Report
+                  </button>
+                )}
               {canReview && (
                 <button
                   type="button"
@@ -482,7 +536,46 @@ function ItemView() {
           </div>
         </div>
       </div>
-    </div>
+      {isReportModalOpen && (
+        < div className="report-modal-overlay" onClick={() => setIsReportModalOpen(false)}>
+          <div className="report-modal-content" onClick={(e) => e.stopPropagation()}>
+            <h3>Report Product: {product.description}</h3>
+            <p>Please provide details regarding why you are reporting this item (e.g., policy violation, inappropriate content, misleading listing).</p>
+
+            <form onSubmit={handleReportSubmit}>
+              <textarea
+                value={reportDetails}
+                onChange={(e) => setReportDetails(e.target.value)}
+                placeholder="Enter detailed reasons here..."
+                rows="5"
+                required
+                disabled={isSubmittingReport}
+              />
+
+              {reportError && <p className="report-error">{reportError}</p>}
+
+              <div className="modal-actions">
+                <button
+                  type="button"
+                  className="btn-cancel"
+                  onClick={() => setIsReportModalOpen(false)}
+                  disabled={isSubmittingReport}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn-submit"
+                  disabled={isSubmittingReport || !reportDetails.trim()}
+                >
+                  {isSubmittingReport ? 'Submitting...' : 'Submit Report'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div >
   );
 }
 

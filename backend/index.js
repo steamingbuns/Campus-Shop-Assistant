@@ -8,6 +8,7 @@ import orderRoutes from './routes/orderRoutes.js';
 import productDetailsRoutes from './routes/productDetailsRoutes.js';
 import ordersInventoryRoutes from './routes/ordersInventoryRoutes.js';
 import healthRoutes from './routes/healthRoutes.js';
+import reportRoutes from './routes/reportRoutes.js';
 
 const PORT = Number.parseInt(process.env.PORT, 10) || 5000;
 const DEFAULT_ALLOWED_ORIGINS = [
@@ -15,6 +16,8 @@ const DEFAULT_ALLOWED_ORIGINS = [
   'http://127.0.0.1:5173',
   'http://localhost:4173',
   'http://127.0.0.1:4173',
+  'http://localhost:5432',
+  'http://127.0.0.1:5432',
 ];
 
 const configuredOrigins = (process.env.ALLOWED_ORIGINS || '')
@@ -62,6 +65,7 @@ app.use(cookieParser());
 app.use("/api/users", userRoutes);
 app.use("/api/product", productRoutes);
 app.use("/api/orders", orderRoutes);
+app.use("/api/report", reportRoutes);
 app.use('/api/product-details', productDetailsRoutes);
 app.use('/api/orders-inventory', ordersInventoryRoutes);
 app.use('/api/health', healthRoutes);

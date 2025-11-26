@@ -1,5 +1,9 @@
 -- Campus Shop Assistant Database Schema
 
+-- Create schema if not exists
+DROP SCHEMA IF EXISTS "public" CASCADE;
+CREATE SCHEMA IF NOT EXISTS "public";
+
 -- User table
 CREATE TABLE public."User" (
     user_id SERIAL PRIMARY KEY,
@@ -109,7 +113,7 @@ CREATE TABLE public."Report" (
     report_id SERIAL PRIMARY KEY,
     reporter_id integer NOT NULL,
     item_id integer NOT NULL,
-    reported_id integer NOT NULL,
+    details text,
     status character varying(20),
     create_at timestamp with time zone DEFAULT NOW()
 );
@@ -199,10 +203,6 @@ ALTER TABLE public."Message"
 ALTER TABLE public."Report"
   ADD CONSTRAINT fk_report_reporter
     FOREIGN KEY (reporter_id) REFERENCES public."User"(user_id)
-    ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE public."Report"
-  ADD CONSTRAINT fk_report_reported
-    FOREIGN KEY (reported_id) REFERENCES public."User"(user_id)
     ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE public."Report"
   ADD CONSTRAINT fk_report_product

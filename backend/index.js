@@ -1,7 +1,14 @@
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import swaggerUi from 'swagger-ui-express';
+import YAML from 'yamljs';
 
+import adminRoutes from './routes/adminRoutes.js';
+import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import productRoutes from './routes/productRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
@@ -57,11 +64,17 @@ app.use(
   })
 );
 app.options('*', cors());
-// Middleware
 app.use(express.json());
 app.use(cookieParser());
 
+// Swagger
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const swaggerDoc = YAML.load(path.join(__dirname, 'docs', 'openapi.yml'));
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDoc));
+
 // Routes
+app.use('/api', authRoutes);
+app.use('/api/admin', adminRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/product", productRoutes);
 app.use("/api/orders", orderRoutes);
@@ -69,6 +82,7 @@ app.use("/api/report", reportRoutes);
 app.use('/api/product-details', productDetailsRoutes);
 app.use('/api/orders-inventory', ordersInventoryRoutes);
 app.use('/api/health', healthRoutes);
+app.get('/api/healthz', (_req, res) => res.send('ok'));
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

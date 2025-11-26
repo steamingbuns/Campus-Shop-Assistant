@@ -5,8 +5,8 @@ import { findUserById } from '../models/userModel.js';
 export const createReport = async (req, res) => {
     try {
         const { reporter_id, item_id, details } = req.body;
-        if (!item_id) {
-            return res.status(400).json({ error: 'item_id and reported_id are required' });
+        if (!item_id || !reporter_id) {
+            return res.status(400).json({ error: 'reporter_id and item_id are required' });
         }
 
         const reporter = await findUserById(reporter_id);

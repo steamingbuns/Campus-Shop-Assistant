@@ -17,7 +17,8 @@ function InventoryManagement() {
     stock: 0,
     lowStockThreshold: 10,
     price: 0,
-    category: ''
+    category: '',
+    image: ''
   });
 
   useEffect(() => {
@@ -120,7 +121,8 @@ function InventoryManagement() {
         stock: 0,
         lowStockThreshold: 10,
         price: 0,
-        category: ''
+        category: '',
+        image: ''
       });
       setShowAddModal(false);
     } catch (err) {
@@ -164,7 +166,7 @@ function InventoryManagement() {
           <p className="text-sm text-slate-600">Track and manage your product stock levels</p>
         </div>
         <button
-          className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-blue-200 transition hover:translate-y-[-1px] hover:shadow-lg"
+          className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-blue-200 transition hover:translate-y-[-1px] hover:shadow-lg"
           onClick={() => setShowAddModal(true)}
         >
           <Plus className="h-4 w-4" />
@@ -189,9 +191,9 @@ function InventoryManagement() {
         </div>
       )}
 
-      <div className="overflow-hidden rounded-2xl border border-indigo-50 bg-white/80 shadow-sm shadow-indigo-50">
+      <div className="overflow-hidden rounded-2xl border border-blue-50 bg-white/80 shadow-sm shadow-blue-50">
         <table className="min-w-full border-collapse text-sm">
-          <thead className="bg-indigo-50/70 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">
+          <thead className="bg-blue-50/70 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">
             <tr>
               <th className="px-4 py-3">Product</th>
               <th className="px-4 py-3">Category</th>
@@ -204,7 +206,7 @@ function InventoryManagement() {
           </thead>
           <tbody>
             {items.map((item) => (
-              <tr key={item.id} className="border-t border-indigo-50 hover:bg-indigo-50/50">
+              <tr key={item.id} className="border-t border-blue-50 hover:bg-blue-50/50">
                 <td className="px-4 py-3 font-semibold text-slate-900">{item.name}</td>
                 <td className="px-4 py-3 text-slate-600">{item.category}</td>
                 <td className="px-4 py-3 text-slate-600">{item.description || '—'}</td>
@@ -214,7 +216,7 @@ function InventoryManagement() {
                     type="number"
                     value={item.stock}
                     onChange={(e) => handleUpdateStock(item.id, e.target.value)}
-                    className="w-24 rounded-lg border border-indigo-100 bg-white/80 px-2 py-1 text-sm font-semibold text-slate-900 outline-none ring-indigo-100 transition focus:ring-2 focus:ring-indigo-500"
+                    className="w-24 rounded-lg border border-blue-100 bg-white/80 px-2 py-1 text-sm font-semibold text-slate-900 outline-none ring-blue-100 transition focus:ring-2 focus:ring-blue-500"
                     min="0"
                   />
                 </td>
@@ -248,10 +250,10 @@ function InventoryManagement() {
 
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 px-4 backdrop-blur">
-          <div className="w-full max-w-xl rounded-2xl bg-white p-6 shadow-2xl shadow-indigo-200">
+          <div className="w-full max-w-xl rounded-2xl bg-white p-6 shadow-2xl shadow-blue-200">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Package className="h-5 w-5 text-indigo-600" />
+                <Package className="h-5 w-5 text-blue-500" />
                 <h3 className="text-lg font-bold text-slate-900">Add New Item</h3>
               </div>
               <button
@@ -271,7 +273,7 @@ function InventoryManagement() {
                   value={newItem.name}
                   onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
                   required
-                  className="mt-1 w-full rounded-xl border border-indigo-100 bg-white/80 px-3 py-2 text-sm text-slate-800 outline-none ring-indigo-100 transition focus:ring-2 focus:ring-indigo-500"
+                  className="mt-1 w-full rounded-xl border border-blue-100 bg-white/80 px-3 py-2 text-sm text-slate-800 outline-none ring-blue-100 transition focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <div>
@@ -280,7 +282,7 @@ function InventoryManagement() {
                   value={newItem.category}
                   onChange={(e) => setNewItem({ ...newItem, category: e.target.value })}
                   required
-                  className="mt-1 w-full rounded-xl border border-indigo-100 bg-white/80 px-3 py-2 text-sm text-slate-800 outline-none ring-indigo-100 transition focus:ring-2 focus:ring-indigo-500"
+                  className="mt-1 w-full rounded-xl border border-blue-100 bg-white/80 px-3 py-2 text-sm text-slate-800 outline-none ring-blue-100 transition focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Select a category</option>
                   {categories.length > 0 ? (
@@ -301,15 +303,28 @@ function InventoryManagement() {
                 </select>
               </div>
               <div>
-                <label className="text-sm font-semibold text-slate-800">Price ($) *</label>
+                <label className="text-sm font-semibold text-slate-800">Price (VND) *</label>
                 <input
                   type="number"
-                  step="0.01"
+                  step="1000"
+                  min="0"
                   value={newItem.price}
                   onChange={(e) => setNewItem({ ...newItem, price: e.target.value })}
                   required
-                  className="mt-1 w-full rounded-xl border border-indigo-100 bg-white/80 px-3 py-2 text-sm text-slate-800 outline-none ring-indigo-100 transition focus:ring-2 focus:ring-indigo-500"
+                  placeholder="e.g., 50000"
+                  className="mt-1 w-full rounded-xl border border-blue-100 bg-white/80 px-3 py-2 text-sm text-slate-800 outline-none ring-blue-100 transition focus:ring-2 focus:ring-blue-500"
                 />
+              </div>
+              <div>
+                <label className="text-sm font-semibold text-slate-800">Product Image URL</label>
+                <input
+                  type="url"
+                  value={newItem.image}
+                  onChange={(e) => setNewItem({ ...newItem, image: e.target.value })}
+                  placeholder="https://example.com/image.jpg"
+                  className="mt-1 w-full rounded-xl border border-blue-100 bg-white/80 px-3 py-2 text-sm text-slate-800 outline-none ring-blue-100 transition focus:ring-2 focus:ring-blue-500"
+                />
+                <p className="mt-1 text-xs text-slate-500">Optional: Paste an image URL from Unsplash, Imgur, etc.</p>
               </div>
               <div>
                 <label className="text-sm font-semibold text-slate-800">Initial Stock *</label>
@@ -319,7 +334,7 @@ function InventoryManagement() {
                   onChange={(e) => setNewItem({ ...newItem, stock: e.target.value })}
                   required
                   min="0"
-                  className="mt-1 w-full rounded-xl border border-indigo-100 bg-white/80 px-3 py-2 text-sm text-slate-800 outline-none ring-indigo-100 transition focus:ring-2 focus:ring-indigo-500"
+                  className="mt-1 w-full rounded-xl border border-blue-100 bg-white/80 px-3 py-2 text-sm text-slate-800 outline-none ring-blue-100 transition focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <div>
@@ -330,7 +345,7 @@ function InventoryManagement() {
                   onChange={(e) => setNewItem({ ...newItem, lowStockThreshold: e.target.value })}
                   required
                   min="0"
-                  className="mt-1 w-full rounded-xl border border-indigo-100 bg-white/80 px-3 py-2 text-sm text-slate-800 outline-none ring-indigo-100 transition focus:ring-2 focus:ring-indigo-500"
+                  className="mt-1 w-full rounded-xl border border-blue-100 bg-white/80 px-3 py-2 text-sm text-slate-800 outline-none ring-blue-100 transition focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <div className="sm:col-span-2">
@@ -340,21 +355,21 @@ function InventoryManagement() {
                   onChange={(e) => setNewItem({ ...newItem, description: e.target.value })}
                   rows="3"
                   placeholder="Add product details to help buyers"
-                  className="mt-1 w-full rounded-xl border border-indigo-100 bg-white/80 px-3 py-2 text-sm text-slate-800 outline-none ring-indigo-100 transition focus:ring-2 focus:ring-indigo-500"
+                  className="mt-1 w-full rounded-xl border border-blue-100 bg-white/80 px-3 py-2 text-sm text-slate-800 outline-none ring-blue-100 transition focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div className="sm:col-span-2 flex justify-end gap-3 pt-2">
                 <button
                   type="button"
-                  className="rounded-xl border border-indigo-100 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm shadow-indigo-50 transition hover:border-indigo-200"
+                  className="rounded-xl border border-blue-100 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm shadow-blue-50 transition hover:border-blue-200"
                   onClick={() => setShowAddModal(false)}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-blue-200 transition hover:translate-y-[-1px] hover:shadow-lg"
+                  className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-blue-200 transition hover:translate-y-[-1px] hover:shadow-lg"
                 >
                   <Plus className="h-4 w-4" />
                   Add Item

@@ -62,9 +62,9 @@ export default function UsersPanel() {
           <p className="text-sm text-slate-600">All customers & sellers (admins included for visibility)</p>
         </div>
       </div>
-      <div className="overflow-x-auto rounded-2xl border border-indigo-50 bg-white/80 shadow-sm shadow-indigo-50">
+      <div className="overflow-x-auto rounded-2xl border border-blue-50 bg-white/80 shadow-sm shadow-blue-50">
         <table className="min-w-full text-sm">
-          <thead className="bg-indigo-50/60 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">
+          <thead className="bg-blue-50/60 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">
             <tr>
               <th className="p-3">ID</th>
               <th className="p-3">Name</th>
@@ -77,7 +77,7 @@ export default function UsersPanel() {
           </thead>
           <tbody>
             {users.map(u => (
-              <tr key={u.id} className="border-t border-indigo-50 hover:bg-indigo-50/40">
+              <tr key={u.id} className="border-t border-blue-50 hover:bg-blue-50/40">
                 <td className="p-3 font-semibold text-slate-900">{u.id}</td>
                 <td className="p-3 text-slate-700">{u.name}</td>
                 <td className="p-3 text-slate-700">{u.email}</td>

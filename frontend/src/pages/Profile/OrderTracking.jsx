@@ -44,11 +44,11 @@ function OrderTracking() {
         orders.map((order) => (
           <div
             key={order.order_id}
-            className="rounded-2xl border border-indigo-50 bg-white/80 p-4 shadow-sm shadow-indigo-50"
+            className="rounded-2xl border border-blue-50 bg-white/80 p-4 shadow-sm shadow-blue-50"
           >
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-2">
-                <Package2 className="h-5 w-5 text-indigo-600" />
+                <Package2 className="h-5 w-5 text-blue-500" />
                 <h3 className="text-sm font-semibold text-slate-900">
                   Order Code: {order.order_code}
                 </h3>
@@ -65,10 +65,10 @@ function OrderTracking() {
             </div>
 
             <div className="mt-3 space-y-2 text-sm text-slate-700">
-              <p className="flex items-center gap-2 text-indigo-700">
+              <p className="flex items-center gap-2 text-blue-600">
                 <CheckCircle2 className="h-4 w-4" />
                 <span className="font-semibold">Completion Code:</span>
-                <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700">
+                <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-600">
                   {order.completion_code}
                 </span>
               </p>

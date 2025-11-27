@@ -105,7 +105,7 @@ function Profile() {
   };
 
   const renderPersonalInfo = () => (
-    <div className="space-y-4 rounded-2xl border border-indigo-50 bg-white/80 p-4 shadow-sm shadow-indigo-50">
+    <div className="space-y-4 rounded-2xl border border-blue-50 bg-white/80 p-4 shadow-sm shadow-blue-50">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="text-lg font-bold text-slate-900">Personal Information</h2>
@@ -114,7 +114,7 @@ function Profile() {
         {saveError && <p className="text-sm font-semibold text-red-600">{saveError}</p>}
         {!isEditing ? (
           <button
-            className="rounded-xl bg-gradient-to-r from-indigo-600 to-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-blue-200 transition hover:translate-y-[-1px] hover:shadow-md"
+            className="rounded-xl bg-gradient-to-r from-blue-500 to-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-blue-200 transition hover:translate-y-[-1px] hover:shadow-md"
             onClick={() => setIsEditing(true)}
           >
             Edit Profile
@@ -122,13 +122,13 @@ function Profile() {
         ) : (
           <div className="flex items-center gap-2">
             <button
-              className="rounded-xl border border-indigo-100 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm shadow-indigo-50 transition hover:border-indigo-200"
+              className="rounded-xl border border-blue-100 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm shadow-blue-50 transition hover:border-blue-200"
               onClick={handleCancelEdit}
             >
               Cancel
             </button>
             <button
-              className="rounded-xl bg-gradient-to-r from-indigo-600 to-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-blue-200 transition hover:translate-y-[-1px] hover:shadow-md disabled:opacity-70"
+              className="rounded-xl bg-gradient-to-r from-blue-500 to-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-blue-200 transition hover:translate-y-[-1px] hover:shadow-md disabled:opacity-70"
               onClick={handleSaveProfile}
               disabled={isSaving}
             >
@@ -147,7 +147,7 @@ function Profile() {
               name="name"
               value={editedUser.name}
               onChange={handleInputChange}
-              className="w-full rounded-xl border border-indigo-100 bg-white/70 px-3 py-2 text-sm text-slate-800 outline-none ring-indigo-100 transition focus:ring-2 focus:ring-indigo-500"
+              className="w-full rounded-xl border border-blue-100 bg-white/70 px-3 py-2 text-sm text-slate-800 outline-none ring-blue-100 transition focus:ring-2 focus:ring-blue-500"
             />
           ) : (
             <p className="rounded-xl bg-slate-50 px-3 py-2 text-sm text-slate-700">{user?.name || 'Not provided'}</p>
@@ -162,7 +162,7 @@ function Profile() {
               name="email"
               value={editedUser.email}
               onChange={handleInputChange}
-              className="w-full rounded-xl border border-indigo-100 bg-white/70 px-3 py-2 text-sm text-slate-800 outline-none ring-indigo-100 transition focus:ring-2 focus:ring-indigo-500"
+              className="w-full rounded-xl border border-blue-100 bg-white/70 px-3 py-2 text-sm text-slate-800 outline-none ring-blue-100 transition focus:ring-2 focus:ring-blue-500"
             />
           ) : (
             <p className="rounded-xl bg-slate-50 px-3 py-2 text-sm text-slate-700">{user?.email || 'Not provided'}</p>
@@ -177,7 +177,7 @@ function Profile() {
               name="phone"
               value={editedUser.phone}
               onChange={handleInputChange}
-              className="w-full rounded-xl border border-indigo-100 bg-white/70 px-3 py-2 text-sm text-slate-800 outline-none ring-indigo-100 transition focus:ring-2 focus:ring-indigo-500"
+              className="w-full rounded-xl border border-blue-100 bg-white/70 px-3 py-2 text-sm text-slate-800 outline-none ring-blue-100 transition focus:ring-2 focus:ring-blue-500"
               placeholder="Enter phone number"
             />
           ) : (
@@ -192,7 +192,7 @@ function Profile() {
               name="address"
               value={editedUser.address}
               onChange={handleInputChange}
-              className="w-full rounded-xl border border-indigo-100 bg-white/70 px-3 py-2 text-sm text-slate-800 outline-none ring-indigo-100 transition focus:ring-2 focus:ring-indigo-500"
+              className="w-full rounded-xl border border-blue-100 bg-white/70 px-3 py-2 text-sm text-slate-800 outline-none ring-blue-100 transition focus:ring-2 focus:ring-blue-500"
               placeholder="Enter your address"
               rows="3"
             />
@@ -205,7 +205,7 @@ function Profile() {
   );
 
   const renderSecurity = () => (
-    <div className="space-y-4 rounded-2xl border border-indigo-50 bg-white/80 p-4 shadow-sm shadow-indigo-50">
+    <div className="space-y-4 rounded-2xl border border-blue-50 bg-white/80 p-4 shadow-sm shadow-blue-50">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg font-bold text-slate-900">Account Security</h2>
@@ -216,11 +216,11 @@ function Profile() {
       <div className="rounded-xl bg-slate-50 px-3 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Lock className="h-4 w-4 text-indigo-600" />
+            <Lock className="h-4 w-4 text-blue-500" />
             <p className="text-sm font-semibold text-slate-800">Password</p>
           </div>
           <button
-            className="text-sm font-semibold text-indigo-600 hover:text-indigo-700"
+            className="text-sm font-semibold text-blue-500 hover:text-blue-600"
             onClick={() => setShowPasswordModal(true)}
           >
             Change Password
@@ -248,15 +248,15 @@ function Profile() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3 rounded-2xl bg-white/80 p-4 shadow-sm shadow-indigo-50 ring-1 ring-indigo-50">
-        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-600 to-blue-500 text-lg font-bold text-white shadow-lg shadow-blue-200">
+      <div className="flex items-center gap-3 rounded-2xl bg-white/80 p-4 shadow-sm shadow-blue-50 ring-1 ring-blue-50">
+        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-blue-500 text-lg font-bold text-white shadow-lg shadow-blue-200">
           {displayName.charAt(0).toUpperCase()}
         </div>
         <div>
           <h1 className="text-2xl font-bold text-slate-900">{displayName}</h1>
           <p className="text-sm text-slate-600">{displayEmail}</p>
         </div>
-        <div className="ml-auto hidden items-center gap-2 rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-indigo-600 sm:inline-flex">
+        <div className="ml-auto hidden items-center gap-2 rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-blue-500 sm:inline-flex">
           <ShieldCheck className="h-4 w-4" />
           Verified
         </div>
@@ -266,8 +266,8 @@ function Profile() {
         <button
           className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition ${
             activeTab === 'personal'
-              ? 'bg-gradient-to-r from-indigo-600 to-blue-500 text-white shadow-md shadow-blue-200'
-              : 'bg-white/80 text-slate-700 ring-1 ring-indigo-100 hover:text-indigo-700'
+              ? 'bg-gradient-to-r from-blue-500 to-blue-500 text-white shadow-md shadow-blue-200'
+              : 'bg-white/80 text-slate-700 ring-1 ring-blue-100 hover:text-blue-600'
           }`}
           onClick={() => setActiveTab('personal')}
         >
@@ -277,8 +277,8 @@ function Profile() {
         <button
           className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition ${
             activeTab === 'security'
-              ? 'bg-gradient-to-r from-indigo-600 to-blue-500 text-white shadow-md shadow-blue-200'
-              : 'bg-white/80 text-slate-700 ring-1 ring-indigo-100 hover:text-indigo-700'
+              ? 'bg-gradient-to-r from-blue-500 to-blue-500 text-white shadow-md shadow-blue-200'
+              : 'bg-white/80 text-slate-700 ring-1 ring-blue-100 hover:text-blue-600'
           }`}
           onClick={() => setActiveTab('security')}
         >
@@ -288,8 +288,8 @@ function Profile() {
         <button
           className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition ${
             activeTab === 'tracking'
-              ? 'bg-gradient-to-r from-indigo-600 to-blue-500 text-white shadow-md shadow-blue-200'
-              : 'bg-white/80 text-slate-700 ring-1 ring-indigo-100 hover:text-indigo-700'
+              ? 'bg-gradient-to-r from-blue-500 to-blue-500 text-white shadow-md shadow-blue-200'
+              : 'bg-white/80 text-slate-700 ring-1 ring-blue-100 hover:text-blue-600'
           }`}
           onClick={() => setActiveTab('tracking')}
         >
@@ -305,10 +305,10 @@ function Profile() {
           className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 px-4 backdrop-blur"
           onClick={() => setShowPasswordModal(false)}
         >
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl shadow-indigo-200" onClick={(e) => e.stopPropagation()}>
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl shadow-blue-200" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Lock className="h-5 w-5 text-indigo-600" />
+                <Lock className="h-5 w-5 text-blue-500" />
                 <h3 className="text-lg font-bold text-slate-900">Change Password</h3>
               </div>
               <button
@@ -327,7 +327,7 @@ function Profile() {
                   value={passwordData.currentPassword}
                   onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
                   required
-                  className="w-full rounded-xl border border-indigo-100 bg-white/70 px-3 py-2 text-sm text-slate-800 outline-none ring-indigo-100 transition focus:ring-2 focus:ring-indigo-500"
+                  className="w-full rounded-xl border border-blue-100 bg-white/70 px-3 py-2 text-sm text-slate-800 outline-none ring-blue-100 transition focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <div className="space-y-1">
@@ -338,7 +338,7 @@ function Profile() {
                   onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
                   required
                   minLength="6"
-                  className="w-full rounded-xl border border-indigo-100 bg-white/70 px-3 py-2 text-sm text-slate-800 outline-none ring-indigo-100 transition focus:ring-2 focus:ring-indigo-500"
+                  className="w-full rounded-xl border border-blue-100 bg-white/70 px-3 py-2 text-sm text-slate-800 outline-none ring-blue-100 transition focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <div className="space-y-1">
@@ -349,20 +349,20 @@ function Profile() {
                   onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
                   required
                   minLength="6"
-                  className="w-full rounded-xl border border-indigo-100 bg-white/70 px-3 py-2 text-sm text-slate-800 outline-none ring-indigo-100 transition focus:ring-2 focus:ring-indigo-500"
+                  className="w-full rounded-xl border border-blue-100 bg-white/70 px-3 py-2 text-sm text-slate-800 outline-none ring-blue-100 transition focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <div className="flex justify-end gap-2 pt-1">
                 <button
                   type="button"
-                  className="rounded-xl border border-indigo-100 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm shadow-indigo-50 transition hover:border-indigo-200"
+                  className="rounded-xl border border-blue-100 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm shadow-blue-50 transition hover:border-blue-200"
                   onClick={() => setShowPasswordModal(false)}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="rounded-xl bg-gradient-to-r from-indigo-600 to-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-blue-200 transition hover:translate-y-[-1px] hover:shadow-md"
+                  className="rounded-xl bg-gradient-to-r from-blue-500 to-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-blue-200 transition hover:translate-y-[-1px] hover:shadow-md"
                 >
                   Update Password
                 </button>

@@ -28,8 +28,11 @@ function ItemView() {
   const [reportDetails, setReportDetails] = useState('');
   const [reportError, setReportError] = useState(null);
   const [isSubmittingReport, setIsSubmittingReport] = useState(false);
+  const [relatedProducts, setRelatedProducts] = useState([]);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+
     let isMounted = true;
 
     async function loadProduct() {
@@ -69,6 +72,29 @@ function ItemView() {
         setReviews(reviewData?.reviews || []);
         setQuantity(1);
         setActiveImage(0);
+
+        // Fetch related products from same category
+        if (normalizedProduct.category) {
+          try {
+            const response = await productService.listProducts();
+            const allProducts = response.items || [];
+            const filtered = allProducts
+              .filter(p => 
+                (p.categoryName === normalizedProduct.category || p.category === normalizedProduct.category) && 
+                p.id !== normalizedProduct.id
+              )
+              .slice(0, 6)
+              .map(p => ({
+                ...p,
+                images: p.image ? [p.image] : [],
+                category: p.categoryName || p.category
+              }));
+            setRelatedProducts(filtered);
+          } catch (error) {
+            console.error('Failed to load related products', error);
+            setRelatedProducts([]);
+          }
+        }
       } catch (err) {
         console.error('Failed to load product', err);
         if (isMounted) {
@@ -239,13 +265,13 @@ function ItemView() {
 
   if (error) {
     return (
-      <div className="rounded-3xl bg-white/80 px-6 py-10 text-center shadow-2xl shadow-indigo-100 ring-1 ring-white/60">
+      <div className="rounded-3xl bg-white/80 px-6 py-10 text-center shadow-2xl shadow-blue-100 ring-1 ring-white/60">
         <p className="text-lg font-bold text-slate-900">Unable to load product</p>
         <p className="text-sm text-slate-600">{error}</p>
         <button
           type="button"
           onClick={() => navigate('/marketplace')}
-          className="mt-4 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-blue-200"
+          className="mt-4 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-blue-200"
         >
           Return to Marketplace
         </button>
@@ -255,13 +281,13 @@ function ItemView() {
 
   if (!product) {
     return (
-      <div className="rounded-3xl bg-white/80 px-6 py-10 text-center shadow-2xl shadow-indigo-100 ring-1 ring-white/60">
+      <div className="rounded-3xl bg-white/80 px-6 py-10 text-center shadow-2xl shadow-blue-100 ring-1 ring-white/60">
         <p className="text-lg font-bold text-slate-900">Product Not Found</p>
         <p className="text-sm text-slate-600">Sorry, we could not find the product you were looking for.</p>
         <button
           type="button"
           onClick={() => navigate('/marketplace')}
-          className="mt-4 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-blue-200"
+          className="mt-4 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-blue-200"
         >
           Return to Marketplace
         </button>
@@ -270,250 +296,284 @@ function ItemView() {
   }
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-wrap items-center gap-2 text-sm text-slate-600">
-        <button className="text-indigo-600 hover:underline" onClick={() => navigate('/')}>Home</button>
+    <div className="space-y-6">
+      {/* Breadcrumb */}
+      <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
+        <button className="hover:text-blue-500" onClick={() => navigate('/')}>Home</button>
         <span>/</span>
-        <button className="text-indigo-600 hover:underline" onClick={() => navigate('/marketplace')}>Marketplace</button>
+        <button className="hover:text-blue-500" onClick={() => navigate('/marketplace')}>Marketplace</button>
         <span>/</span>
-        <button
-          className="text-indigo-600 hover:underline"
-          onClick={() => navigate(`/marketplace?category=${encodeURIComponent(product.category)}`)}
-        >
-          {product.category.charAt(0).toUpperCase() + product.category.slice(1)}
-        </button>
-        <span>/</span>
-        <span className="font-semibold text-slate-900">{product.name}</span>
+        <span className="text-slate-900">{product.name}</span>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[1.2fr,1fr]">
-        <div className="space-y-4">
-          <div className="overflow-hidden rounded-3xl bg-white/80 p-4 shadow-lg shadow-indigo-100 ring-1 ring-indigo-50">
-            <div className="relative h-80 w-full overflow-hidden rounded-2xl bg-slate-100">
-              <img
-                src={productImages[activeImage]}
-                alt={product.name}
-                className="h-full w-full object-cover"
-              />
-              <div className="absolute right-4 top-4 rounded-full bg-white/80 px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm shadow-indigo-50">
-                Verified
-              </div>
-            </div>
-            <div className="mt-3 grid grid-cols-4 gap-3">
-              {productImages.map((image, index) => (
+      {/* Main Product Section */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-[480px,1fr]">
+        {/* Left: Image Gallery */}
+        <div className="space-y-3">
+          <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-slate-100">
+            <img
+              src={productImages[activeImage]}
+              alt={product.name}
+              className="h-full w-full object-contain"
+            />
+          </div>
+          {productImages.length > 1 && (
+            <div className="grid grid-cols-5 gap-2">
+              {productImages.slice(0, 5).map((image, index) => (
                 <button
                   key={image}
                   type="button"
                   onClick={() => setActiveImage(index)}
-                  className={`overflow-hidden rounded-xl border transition ${
-                    activeImage === index ? 'border-indigo-400 ring-2 ring-indigo-200' : 'border-indigo-50'
+                  className={`overflow-hidden rounded-lg border-2 transition ${
+                    activeImage === index ? 'border-blue-500' : 'border-slate-200 hover:border-slate-300'
                   }`}
                 >
-                  <img src={image} alt={`${product.name} view ${index + 1}`} className="h-20 w-full object-cover" />
+                  <img src={image} alt={`View ${index + 1}`} className="aspect-square w-full object-cover" />
                 </button>
               ))}
             </div>
-          </div>
-
-          <div className="rounded-3xl bg-white/80 p-4 shadow-sm shadow-indigo-50 ring-1 ring-indigo-50">
-            <h3 className="text-lg font-bold text-slate-900">Seller Information</h3>
-            <div className="mt-3 flex items-start gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 to-blue-500 text-lg font-bold text-white shadow-md shadow-blue-200">
-                {product.seller.name.charAt(0).toUpperCase()}
-              </div>
-              <div className="flex-1 space-y-2">
-                <div className="flex items-center gap-2">
-                  <h4 className="text-base font-semibold text-slate-900">{product.seller.name}</h4>
-                  <div className="inline-flex items-center gap-1 rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700">
-                    <ShieldCheck className="h-4 w-4" />
-                    Verified
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-slate-600">
-                  {renderStars(product.seller.rating)}
-                  <span className="font-semibold text-slate-800">{Number(product.seller.rating).toFixed(1)}</span>
-                </div>
-                <div className="grid grid-cols-2 gap-3 text-sm text-slate-700">
-                  <div className="rounded-xl bg-slate-50 px-3 py-2">
-                    <p className="text-xs text-slate-500">Total Sales</p>
-                    <p className="font-semibold text-slate-900">
-                      {product.seller.totalSales ? product.seller.totalSales.toLocaleString() : '—'}
-                    </p>
-                  </div>
-                  <div className="rounded-xl bg-slate-50 px-3 py-2">
-                    <p className="text-xs text-slate-500">Member Since</p>
-                    <p className="font-semibold text-slate-900">
-                      {product.seller.joinDate
-                        ? new Date(product.seller.joinDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })
-                        : '—'}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex flex-wrap gap-3 text-sm text-slate-700">
-                  <span className="inline-flex items-center gap-1 rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700">
-                    📧 {product.seller.email}
-                  </span>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700">
-                    📞 {product.seller.phoneNumber}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
+          )}
         </div>
 
+        {/* Right: Product Details */}
         <div className="space-y-4">
-          <div className="rounded-3xl bg-white/80 p-5 shadow-lg shadow-indigo-100 ring-1 ring-indigo-50">
+          {/* Product Title & Rating */}
+          <div>
             <h1 className="text-2xl font-bold text-slate-900">{product.name}</h1>
-            <div className="mt-2 flex items-center gap-3">
-              {renderStars(product.rating)}
-              <span className="text-sm font-semibold text-slate-700">
-                {product.rating.toFixed(1)} ({product.ratingCount} reviews)
+            <div className="mt-2 flex flex-wrap items-center gap-3 text-sm">
+              <div className="flex items-center gap-1">
+                {renderStars(product.rating)}
+                <span className="ml-1 font-semibold text-slate-700">{product.rating.toFixed(1)}</span>
+              </div>
+              <span className="text-slate-500">|</span>
+              <span className="text-slate-600">{product.ratingCount} Reviews</span>
+              <span className="text-slate-500">|</span>
+              <span className="text-slate-600">{product.stock > 0 ? `Stock: ${product.stock}` : 'Out of Stock'}</span>
+            </div>
+          </div>
+
+          {/* Price Section */}
+          <div className="rounded-2xl bg-slate-50 p-4">
+            <div className="flex items-baseline gap-3">
+              <span className="text-3xl font-bold text-blue-500">{formatPrice(product.price)}</span>
+            </div>
+          </div>
+
+          {/* Product Info */}
+          <div className="space-y-3 text-sm">
+            <div className="flex gap-2">
+              <span className="w-32 text-slate-600">Category:</span>
+              <span className="font-semibold text-slate-900">{product.category}</span>
+            </div>
+            <div className="flex gap-2">
+              <span className="w-32 text-slate-600">Condition:</span>
+              <span className="font-semibold text-slate-900">Good</span>
+            </div>
+            <div className="flex gap-2">
+              <span className="w-32 text-slate-600">Stock:</span>
+              <span className={`font-semibold ${product.stock > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                {product.stock > 0 ? `${product.stock} available` : 'Out of Stock'}
               </span>
             </div>
-            <div className="mt-4 text-3xl font-extrabold text-indigo-600">{formatPrice(product.price)}</div>
-            <div className="mt-2 text-sm text-slate-600">
-              {product.description || 'Product description is coming soon.'}
-            </div>
+          </div>
 
-            <div className="mt-4 flex items-center gap-3">
-              <span
-                className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold ${
-                  product.stock > 0 ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
-                }`}
+          {/* Quantity Selector */}
+          <div className="flex items-center gap-4">
+            <span className="text-sm font-semibold text-slate-700">Quantity:</span>
+            <div className="flex items-center rounded-lg border border-slate-200">
+              <button
+                type="button"
+                className="px-3 py-2 hover:bg-slate-50"
+                onClick={decreaseQuantity}
+                disabled={quantity <= 1}
               >
-                <AlertTriangle className="h-4 w-4" />
-                {product.stock > 0 ? `In Stock (${product.stock} available)` : 'Out of Stock'}
-              </span>
-              <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
-                Category: {product.category}
-              </span>
+                -
+              </button>
+              <input
+                type="number"
+                value={quantity}
+                onChange={handleQuantityChange}
+                min="1"
+                max={product.stock}
+                className="w-16 border-x border-slate-200 bg-transparent px-2 py-2 text-center text-sm font-semibold outline-none"
+              />
+              <button
+                type="button"
+                className="px-3 py-2 hover:bg-slate-50"
+                onClick={increaseQuantity}
+                disabled={quantity >= product.stock}
+              >
+                +
+              </button>
             </div>
+          </div>
 
-            <div className="mt-4 flex flex-col gap-3">
-              <div className="flex items-center gap-2 text-sm font-semibold text-slate-800">
-                Quantity:
-                <div className="inline-flex items-center gap-2 rounded-xl border border-indigo-100 bg-white px-2 py-1">
-                  <button
-                    type="button"
-                    className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-700 transition hover:bg-slate-200"
-                    onClick={decreaseQuantity}
-                    disabled={quantity <= 1}
-                  >
-                    -
-                  </button>
-                  <input
-                    type="number"
-                    value={quantity}
-                    onChange={handleQuantityChange}
-                    min="1"
-                    max={product.stock}
-                    className="w-14 border-none bg-transparent text-center text-sm font-semibold text-slate-800 outline-none"
-                  />
-                  <button
-                    type="button"
-                    className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-700 transition hover:bg-slate-200"
-                    onClick={increaseQuantity}
-                    disabled={quantity >= product.stock}
-                  >
-                    +
-                  </button>
+          {/* Action Buttons */}
+          <div className="flex gap-3">
+            <button
+              type="button"
+              className="flex-1 rounded-lg border-2 border-blue-500 bg-blue-50 px-6 py-3 text-sm font-semibold text-blue-600 transition hover:bg-blue-100 disabled:opacity-50"
+              onClick={handleAddToCart}
+              disabled={product.stock <= 0}
+            >
+              <ShoppingCart className="mx-auto h-5 w-5" />
+              <span className="mt-1 block text-xs">Add to Cart</span>
+            </button>
+            <button
+              type="button"
+              className="flex-1 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-3 text-sm font-semibold text-white transition hover:shadow-lg disabled:opacity-50"
+              onClick={handleBuyNow}
+              disabled={product.stock <= 0}
+            >
+              <span className="block">Buy Now</span>
+              <span className="mt-1 block text-xs font-normal">{formatPrice(product.price * quantity)}</span>
+            </button>
+          </div>
+
+          {/* Additional Actions */}
+          <div className="flex gap-2 border-t border-slate-100 pt-4">
+            {isLoggedIn && (
+              <button
+                type="button"
+                className="inline-flex items-center gap-1 text-xs text-slate-600 hover:text-red-600"
+                onClick={() => setIsReportModalOpen(true)}
+              >
+                <Flag className="h-3 w-3" />
+                Report
+              </button>
+            )}
+            {canReview && (
+              <button
+                type="button"
+                className="inline-flex items-center gap-1 text-xs text-slate-600 hover:text-blue-600"
+                onClick={handleWriteReview}
+              >
+                <PenSquare className="h-3 w-3" />
+                Write Review
+              </button>
+            )}
+          </div>
+
+          {/* Seller Info - Compact */}
+          <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+            <h3 className="mb-3 text-sm font-semibold text-slate-700">Safe Shopping on Campus</h3>
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500 text-sm font-bold text-white">
+                {product.seller.name.charAt(0).toUpperCase()}
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <p className="font-semibold text-slate-900">{product.seller.name}</p>
+                  <ShieldCheck className="h-4 w-4 text-green-600" />
+                </div>
+                <div className="mt-1 flex items-center gap-2 text-xs text-slate-600">
+                  {renderStars(product.seller.rating)}
+                  <span>{Number(product.seller.rating).toFixed(1)}</span>
                 </div>
               </div>
-
-              <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-500 px-4 py-3 text-sm font-semibold text-white shadow-md shadow-blue-200 transition hover:translate-y-[-1px] hover:shadow-lg disabled:opacity-60"
-                  onClick={handleAddToCart}
-                  disabled={product.stock <= 0}
-                >
-                  <ShoppingCart className="h-4 w-4" />
-                  Add to Cart
-                </button>
-                <button
-                  type="button"
-                  className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-indigo-100 bg-white px-4 py-3 text-sm font-semibold text-indigo-700 shadow-sm shadow-indigo-50 transition hover:border-indigo-200 disabled:opacity-60"
-                  onClick={handleBuyNow}
-                  disabled={product.stock <= 0}
-                >
-                  Buy Now
-                </button>
+            </div>
+            <div className="mt-3 flex gap-4 text-xs text-slate-600">
+              <div>
+                <span className="text-slate-500">Sales:</span> <span className="font-semibold">{product.seller.totalSales || 0}</span>
               </div>
-
-              <div className="flex flex-wrap gap-2">
-                {isLoggedIn && (
-                  <button
-                    type="button"
-                    className="inline-flex items-center gap-2 rounded-xl border border-red-100 bg-red-50 px-4 py-2 text-xs font-semibold text-red-700 shadow-sm shadow-red-100"
-                    onClick={() => setIsReportModalOpen(true)}
-                  >
-                    <Flag className="h-4 w-4" />
-                    Report
-                  </button>
-                )}
-                {canReview && (
-                  <button
-                    type="button"
-                    className="inline-flex items-center gap-2 rounded-xl border border-indigo-100 bg-white px-4 py-2 text-xs font-semibold text-indigo-700 shadow-sm shadow-indigo-50"
-                    onClick={handleWriteReview}
-                  >
-                    <PenSquare className="h-4 w-4" />
-                    Write a Review
-                  </button>
-                )}
+              <div>
+                <span className="text-slate-500">Contact:</span> <span className="font-semibold">{product.seller.phoneNumber}</span>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="rounded-3xl bg-white/80 p-5 shadow-lg shadow-indigo-100 ring-1 ring-indigo-50">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-xl font-bold text-slate-900">Customer Reviews</h2>
-          <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700">
-            {product.ratingCount} reviews
-          </span>
+      {/* Product Description */}
+      <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
+        <h2 className="text-lg font-bold text-slate-900">Product Description</h2>
+        <div className="mt-3 text-sm leading-relaxed text-slate-700">
+          {product.description || 'No detailed description available for this product.'}
         </div>
+      </div>
 
-        <div className="mt-4 grid gap-4 lg:grid-cols-[1fr,2fr]">
-          <div className="rounded-2xl bg-indigo-50/70 p-4 text-center ring-1 ring-indigo-100">
-            <p className="text-4xl font-extrabold text-slate-900">{product.rating.toFixed(1)}</p>
-            <div className="mt-2 flex justify-center">{renderStars(product.rating)}</div>
-            <p className="text-xs text-slate-600">{product.ratingCount} verified ratings</p>
-          </div>
-
-          <div className="space-y-2">
-            {[5, 4, 3, 2, 1].map((star) => {
-              const count = reviews.filter((review) => review.rating === star).length;
-              const percentage = product.ratingCount ? Math.round((count / product.ratingCount) * 100) : 0;
-              return (
-                <div key={star} className="flex items-center gap-2 text-sm text-slate-700">
-                  <span className="w-10 font-semibold">{star} ★</span>
-                  <div className="h-2 flex-1 rounded-full bg-slate-100">
-                    <div className="h-full rounded-full bg-gradient-to-r from-indigo-600 to-blue-500" style={{ width: `${percentage}%` }} />
-                  </div>
-                  <span className="w-12 text-right text-xs font-semibold text-slate-600">{count}</span>
+      {/* Other Items Section */}
+      <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
+        <h2 className="text-lg font-bold text-slate-900">Other Items</h2>
+        <p className="mt-1 text-sm text-slate-600">More products from this category</p>
+        <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+          {relatedProducts.length > 0 ? (
+            relatedProducts.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => navigate(`/product/${item.id}`)}
+                className="group cursor-pointer rounded-xl border border-slate-200 bg-white p-3 text-left transition hover:shadow-md"
+              >
+                <div className="aspect-square w-full overflow-hidden rounded-lg bg-slate-100">
+                  {item.images?.[0] && (
+                    <img 
+                      src={item.images[0]} 
+                      alt={item.name}
+                      className="h-full w-full object-cover transition group-hover:scale-105"
+                    />
+                  )}
                 </div>
-              );
-            })}
+                <p className="mt-2 line-clamp-2 text-xs text-slate-700">{item.name}</p>
+                <p className="mt-1 text-sm font-bold text-blue-600">{formatPrice(item.price)}</p>
+              </button>
+            ))
+          ) : (
+            <p className="col-span-full py-4 text-center text-sm text-slate-500">No related products available</p>
+          )}
+        </div>
+      </div>
+
+      {/* Customer Reviews Section */}
+      <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-bold text-slate-900">Customer Reviews</h2>
+          <span className="text-sm text-slate-600">{product.ratingCount} reviews</span>
+        </div>
+
+        <div className="mt-4 border-b border-slate-200 pb-4">
+          <div className="flex items-center gap-6">
+            <div className="text-center">
+              <p className="text-3xl font-bold text-blue-600">{product.rating.toFixed(1)}</p>
+              <div className="mt-1 flex justify-center">{renderStars(product.rating)}</div>
+              <p className="mt-1 text-xs text-slate-500">out of 5</p>
+            </div>
+            <div className="flex-1 space-y-1">
+              {[5, 4, 3, 2, 1].map((star) => {
+                const count = reviews.filter((review) => review.rating === star).length;
+                const percentage = product.ratingCount ? Math.round((count / product.ratingCount) * 100) : 0;
+                return (
+                  <div key={star} className="flex items-center gap-2 text-xs">
+                    <span className="w-12">{star} stars</span>
+                    <div className="h-2 flex-1 rounded-full bg-slate-100">
+                      <div className="h-full rounded-full bg-blue-500" style={{ width: `${percentage}%` }} />
+                    </div>
+                    <span className="w-8 text-right text-slate-500">{count}</span>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
 
-        <div className="mt-4 space-y-3">
+        <div className="mt-4 space-y-4">
           {reviews.length === 0 ? (
-            <p className="text-sm text-slate-600">No reviews yet. Be the first to share your thoughts!</p>
+            <p className="py-8 text-center text-sm text-slate-500">No reviews yet. Be the first to review this product!</p>
           ) : (
             reviews.map((review) => (
-              <div key={review.id} className="rounded-2xl border border-indigo-50 bg-white/80 p-4 shadow-sm shadow-indigo-50">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div className="text-sm font-semibold text-slate-900">
-                    {review.userName || `User #${review.userId}`}
-                  </div>
+              <div key={review.id} className="border-b border-slate-100 pb-4 last:border-0">
+                <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-2">
-                    {renderStars(review.rating)}
-                    <span className="text-xs text-slate-500">{new Date(review.createdAt).toLocaleDateString()}</span>
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-200 text-xs font-bold text-slate-700">
+                      {(review.userName || 'U')[0].toUpperCase()}
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-slate-900">{review.userName || `User #${review.userId}`}</p>
+                      <div className="mt-0.5 flex items-center gap-1">
+                        {renderStars(review.rating)}
+                      </div>
+                    </div>
                   </div>
+                  <span className="text-xs text-slate-500">{new Date(review.createdAt).toLocaleDateString()}</span>
                 </div>
                 <p className="mt-2 text-sm text-slate-700">{review.comment || 'No comment provided.'}</p>
               </div>
@@ -528,7 +588,7 @@ function ItemView() {
           onClick={() => setIsReportModalOpen(false)}
         >
           <div
-            className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl shadow-indigo-200"
+            className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl shadow-blue-200"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between">
@@ -557,7 +617,7 @@ function ItemView() {
                 rows="5"
                 required
                 disabled={isSubmittingReport}
-                className="w-full rounded-xl border border-indigo-100 bg-white/80 px-3 py-2 text-sm text-slate-800 outline-none ring-indigo-100 transition focus:ring-2 focus:ring-indigo-500 disabled:opacity-60"
+                className="w-full rounded-xl border border-blue-100 bg-white/80 px-3 py-2 text-sm text-slate-800 outline-none ring-blue-100 transition focus:ring-2 focus:ring-blue-500 disabled:opacity-60"
               />
 
               {reportError && <p className="text-xs font-semibold text-red-600">{reportError}</p>}
@@ -565,7 +625,7 @@ function ItemView() {
               <div className="flex justify-end gap-2">
                 <button
                   type="button"
-                  className="rounded-xl border border-indigo-100 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm shadow-indigo-50 transition hover:border-indigo-200"
+                  className="rounded-xl border border-blue-100 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm shadow-blue-50 transition hover:border-blue-200"
                   onClick={() => setIsReportModalOpen(false)}
                   disabled={isSubmittingReport}
                 >
@@ -573,7 +633,7 @@ function ItemView() {
                 </button>
                 <button
                   type="submit"
-                  className="rounded-xl bg-gradient-to-r from-indigo-600 to-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-blue-200 transition hover:translate-y-[-1px] hover:shadow-md disabled:opacity-60"
+                  className="rounded-xl bg-gradient-to-r from-blue-500 to-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-blue-200 transition hover:translate-y-[-1px] hover:shadow-md disabled:opacity-60"
                   disabled={isSubmittingReport || !reportDetails.trim()}
                 >
                   {isSubmittingReport ? 'Submitting...' : 'Submit Report'}

@@ -95,7 +95,8 @@ export const createProduct = async (productData) => {
     lowStockThreshold = 10,
     price = 0,
     category,
-    sellerId
+    sellerId,
+    image = null
   } = productData;
 
   if (!name || !sellerId) {
@@ -116,7 +117,15 @@ export const createProduct = async (productData) => {
     RETURNING product_id as id, name, sku, stock, low_stock_threshold as "lowStockThreshold", price, status
   `;
   
-  return { ...newProduct[0], category };
+  // If image URL provided, insert into Product_Image table
+  if (image && newProduct[0]?.id) {
+    await sql`
+      INSERT INTO public."Product_Image" (item_id, image_url)
+      VALUES (${newProduct[0].id}, ${image})
+    `;
+  }
+  
+  return { ...newProduct[0], category, image };
 };
 
 export const updateProduct = async (productId, updates) => {

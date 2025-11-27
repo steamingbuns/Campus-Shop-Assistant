@@ -100,8 +100,8 @@ function OrderManagement() {
       </div>
 
       <div className="grid gap-3 sm:grid-cols-3">
-        <div className="flex items-center gap-3 rounded-2xl border border-indigo-50 bg-white/80 p-3 shadow-sm shadow-indigo-50">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+        <div className="flex items-center gap-3 rounded-2xl border border-blue-50 bg-white/80 p-3 shadow-sm shadow-blue-50">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-500">
             <PackageOpen className="h-5 w-5" />
           </div>
           <div>
@@ -109,7 +109,7 @@ function OrderManagement() {
             <p className="text-lg font-bold text-slate-900">{pendingOrders.length}</p>
           </div>
         </div>
-        <div className="flex items-center gap-3 rounded-2xl border border-indigo-50 bg-white/80 p-3 shadow-sm shadow-indigo-50">
+        <div className="flex items-center gap-3 rounded-2xl border border-blue-50 bg-white/80 p-3 shadow-sm shadow-blue-50">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-50 text-green-600">
             <CheckCircle2 className="h-5 w-5" />
           </div>
@@ -118,7 +118,7 @@ function OrderManagement() {
             <p className="text-lg font-bold text-slate-900">{completedOrders.length}</p>
           </div>
         </div>
-        <div className="flex items-center gap-3 rounded-2xl border border-indigo-50 bg-white/80 p-3 shadow-sm shadow-indigo-50">
+        <div className="flex items-center gap-3 rounded-2xl border border-blue-50 bg-white/80 p-3 shadow-sm shadow-blue-50">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
             <ClipboardList className="h-5 w-5" />
           </div>
@@ -129,14 +129,14 @@ function OrderManagement() {
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-indigo-50 bg-white/80 shadow-sm shadow-indigo-50">
+      <div className="overflow-hidden rounded-2xl border border-blue-50 bg-white/80 shadow-sm shadow-blue-50">
         {loading ? (
           <div className="p-6 text-sm text-slate-600">Loading orders...</div>
         ) : error ? (
           <div className="p-6 text-sm font-semibold text-red-600">{error}</div>
         ) : (
           <table className="min-w-full border-collapse text-sm">
-            <thead className="bg-indigo-50/70 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">
+            <thead className="bg-blue-50/70 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">
               <tr>
                 <th className="px-4 py-3">Order ID</th>
                 <th className="px-4 py-3">Customer</th>
@@ -149,7 +149,7 @@ function OrderManagement() {
             </thead>
             <tbody>
               {orders.map((order) => (
-                <tr key={order.id} className="border-t border-indigo-50 hover:bg-indigo-50/50">
+                <tr key={order.id} className="border-t border-blue-50 hover:bg-blue-50/50">
                   <td className="px-4 py-3 font-semibold text-slate-900">{order.id}</td>
                   <td className="px-4 py-3">
                     <div className="space-y-0.5">
@@ -182,7 +182,7 @@ function OrderManagement() {
                   <td className="px-4 py-3">
                     {order.status === 'pending' ? (
                       <button
-                        className="rounded-lg bg-gradient-to-r from-indigo-600 to-blue-500 px-3 py-1.5 text-xs font-semibold text-white shadow-sm shadow-blue-200 transition hover:translate-y-[-1px] hover:shadow-md"
+                        className="rounded-lg bg-gradient-to-r from-blue-500 to-blue-500 px-3 py-1.5 text-xs font-semibold text-white shadow-sm shadow-blue-200 transition hover:translate-y-[-1px] hover:shadow-md"
                         disabled={completingId === order.id}
                         onClick={() => openCodeModal(order.id)}
                       >
@@ -201,10 +201,10 @@ function OrderManagement() {
 
       {showCodeModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 px-4 backdrop-blur">
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl shadow-indigo-200">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl shadow-blue-200">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="h-5 w-5 text-indigo-600" />
+                <CheckCircle2 className="h-5 w-5 text-blue-500" />
                 <h3 className="text-lg font-bold text-slate-900">Enter Completion Code</h3>
               </div>
               <button
@@ -222,19 +222,19 @@ function OrderManagement() {
               type="text"
               value={codeInput}
               onChange={(e) => setCodeInput(e.target.value)}
-              className="mt-3 w-full rounded-xl border border-indigo-100 bg-white/80 px-3 py-2 text-sm text-slate-800 outline-none ring-indigo-100 transition focus:ring-2 focus:ring-indigo-500"
+              className="mt-3 w-full rounded-xl border border-blue-100 bg-white/80 px-3 py-2 text-sm text-slate-800 outline-none ring-blue-100 transition focus:ring-2 focus:ring-blue-500"
               placeholder="Completion code"
               autoFocus
             />
             <div className="mt-4 flex justify-end gap-2">
               <button
-                className="rounded-xl border border-indigo-100 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm shadow-indigo-50 transition hover:border-indigo-200"
+                className="rounded-xl border border-blue-100 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm shadow-blue-50 transition hover:border-blue-200"
                 onClick={closeCodeModal}
               >
                 Cancel
               </button>
               <button
-                className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-blue-200 transition hover:translate-y-[-1px] hover:shadow-lg disabled:opacity-70"
+                className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-blue-200 transition hover:translate-y-[-1px] hover:shadow-lg disabled:opacity-70"
                 disabled={completingId === selectedOrderId}
                 onClick={handleCompleteWithPrompt}
               >

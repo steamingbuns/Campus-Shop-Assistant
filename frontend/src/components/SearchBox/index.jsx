@@ -284,8 +284,8 @@ const SearchBox = ({
   return (
     <div className="relative w-full" ref={containerRef}>
       <div
-        className={`flex items-center gap-2 rounded-xl border bg-white/80 px-3 py-2 shadow-sm shadow-indigo-50 transition ${
-          focused ? 'border-indigo-200 ring-2 ring-indigo-200' : 'border-indigo-100'
+        className={`flex items-center gap-2 rounded-xl border bg-white/80 px-3 py-2 shadow-sm shadow-blue-50 transition ${
+          focused ? 'border-blue-200 ring-2 ring-blue-200' : 'border-blue-100'
         } ${isSearching ? 'opacity-80' : ''}`}
       >
         <Search className="h-4 w-4 text-slate-400" />
@@ -310,7 +310,7 @@ const SearchBox = ({
         />
         <button
           type="button"
-          className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-r from-indigo-600 to-blue-500 text-white shadow-sm shadow-blue-200 transition hover:translate-y-[-1px] hover:shadow-md disabled:opacity-60"
+          className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-r from-blue-500 to-blue-500 text-white shadow-sm shadow-blue-200 transition hover:translate-y-[-1px] hover:shadow-md disabled:opacity-60"
           onClick={() => executeSearch()}
           disabled={isSearching || !query.trim()}
           aria-label="Search"
@@ -322,7 +322,7 @@ const SearchBox = ({
 
       {showDropdown && (
         <div
-          className="absolute z-30 mt-2 w-full overflow-hidden rounded-xl border border-indigo-50 bg-white/90 shadow-lg shadow-indigo-100 backdrop-blur"
+          className="absolute z-30 mt-2 w-full overflow-hidden rounded-xl border border-blue-50 bg-white/90 shadow-lg shadow-blue-100 backdrop-blur"
           id="searchbox-suggestions"
           role="listbox"
         >
@@ -333,7 +333,7 @@ const SearchBox = ({
                 ref={(el) => (suggestionRefs.current[index] = el)}
                 id={`suggestion-${index}`}
                 className={`flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm transition ${
-                  selectedIndex === index ? 'bg-indigo-50' : 'hover:bg-indigo-50/60'
+                  selectedIndex === index ? 'bg-blue-50' : 'hover:bg-blue-50/60'
                 }`}
                 role="option"
                 aria-selected={selectedIndex === index}
@@ -345,7 +345,7 @@ const SearchBox = ({
                   <div className="font-semibold text-slate-900">{item.name}</div>
                   <div className="text-xs text-slate-500">{item.category}</div>
                 </div>
-                <span className="text-sm font-semibold text-indigo-700">{item.price}đ</span>
+                <span className="text-sm font-semibold text-blue-600">{item.price}đ</span>
               </button>
             ))
           ) : (

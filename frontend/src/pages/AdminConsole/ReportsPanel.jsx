@@ -47,7 +47,7 @@ export default function ReportsPanel() {
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-indigo-600">Admin</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-500">Admin</p>
           <h2 className="text-2xl font-bold text-slate-900">Sales & Transaction History</h2>
           <p className="text-sm text-slate-600">Buyer/seller breakdown for recent orders.</p>
         </div>
@@ -59,7 +59,7 @@ export default function ReportsPanel() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search by order, item, buyer, or seller..."
-          className="w-full rounded-xl border border-indigo-100 bg-white/80 px-3 py-2 text-sm text-slate-800 outline-none ring-indigo-100 transition focus:ring-2 focus:ring-indigo-500 sm:max-w-sm"
+          className="w-full rounded-xl border border-blue-100 bg-white/80 px-3 py-2 text-sm text-slate-800 outline-none ring-blue-100 transition focus:ring-2 focus:ring-blue-500 sm:max-w-sm"
         />
       </div>
 
@@ -67,9 +67,9 @@ export default function ReportsPanel() {
       {error && <p className="text-sm font-semibold text-red-600">{error}</p>}
 
       {!loading && !error && (
-        <div className="overflow-x-auto rounded-2xl border border-indigo-50 bg-white/80 shadow-sm shadow-indigo-50">
+        <div className="overflow-x-auto rounded-2xl border border-blue-50 bg-white/80 shadow-sm shadow-blue-50">
           <table className="min-w-full text-sm">
-            <thead className="bg-indigo-50/60 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">
+            <thead className="bg-blue-50/60 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">
               <tr>
                 <th className="p-3">Order ID</th>
                 <th className="p-3">Item</th>
@@ -82,7 +82,7 @@ export default function ReportsPanel() {
             </thead>
             <tbody>
               {filtered.map((t) => (
-                <tr key={t.order_id} className="border-t border-indigo-50 hover:bg-indigo-50/40">
+                <tr key={t.order_id} className="border-t border-blue-50 hover:bg-blue-50/40">
                   <td className="p-3 font-semibold text-slate-900">#{t.order_id}</td>
                   <td className="p-3 text-slate-700">{t.product_title || '—'}</td>
                   <td className="p-3 text-slate-700">{t.buyer_name || '—'}</td>

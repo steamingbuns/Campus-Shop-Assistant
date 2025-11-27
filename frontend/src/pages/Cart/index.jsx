@@ -25,14 +25,14 @@ const Cart = () => {
 
   if (cartItems.length === 0) {
     return (
-      <div className="rounded-3xl bg-white/80 px-6 py-12 text-center shadow-2xl shadow-indigo-100 ring-1 ring-white/60">
-        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-indigo-50 text-indigo-600 shadow-sm shadow-indigo-100">
+      <div className="rounded-3xl bg-white/80 px-6 py-12 text-center shadow-2xl shadow-blue-100 ring-1 ring-white/60">
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-blue-50 text-blue-500 shadow-sm shadow-blue-100">
           <ShoppingCart className="h-7 w-7" />
         </div>
         <h1 className="mt-4 text-3xl font-bold text-slate-900">Your cart is empty</h1>
         <p className="mt-2 text-sm text-slate-600">Add some products from the marketplace to get started.</p>
         <button
-          className="mt-6 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-500 px-5 py-3 text-sm font-semibold text-white shadow-md shadow-blue-200 transition hover:translate-y-[-1px] hover:shadow-lg"
+          className="mt-6 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-blue-500 px-5 py-3 text-sm font-semibold text-white shadow-md shadow-blue-200 transition hover:translate-y-[-1px] hover:shadow-lg"
           onClick={() => navigate('/marketplace')}
         >
           Continue shopping
@@ -47,7 +47,7 @@ const Cart = () => {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-indigo-600">
+            <div className="inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-blue-500">
               <Sparkles className="h-4 w-4" />
               In your cart
             </div>
@@ -61,11 +61,11 @@ const Cart = () => {
           </button>
         </div>
 
-        <div className="space-y-4 rounded-2xl bg-white/80 p-4 shadow-sm shadow-indigo-50 ring-1 ring-indigo-50">
+        <div className="space-y-4 rounded-2xl bg-white/80 p-4 shadow-sm shadow-blue-50 ring-1 ring-blue-50">
           {cartItems.map((item) => (
             <div
               key={item.id}
-              className="grid gap-4 rounded-xl border border-indigo-50 bg-white/60 p-3 shadow-sm sm:grid-cols-[auto,1fr,auto]"
+              className="grid gap-4 rounded-xl border border-blue-50 bg-white/60 p-3 shadow-sm sm:grid-cols-[auto,1fr,auto]"
             >
               <img
                 src={item.image}
@@ -74,13 +74,13 @@ const Cart = () => {
               />
               <div className="space-y-2">
                 <h3 className="text-lg font-semibold text-slate-900">{item.name}</h3>
-                <p className="text-sm font-semibold text-indigo-600">{formatPrice(item.price)}</p>
-                <div className="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700">
+                <p className="text-sm font-semibold text-blue-500">{formatPrice(item.price)}</p>
+                <div className="inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-600">
                   Campus pickup
                 </div>
               </div>
               <div className="flex flex-col items-end justify-between gap-3">
-                <div className="inline-flex items-center gap-2 rounded-lg border border-indigo-100 bg-white px-2 py-1 text-sm font-semibold text-slate-800">
+                <div className="inline-flex items-center gap-2 rounded-lg border border-blue-100 bg-white px-2 py-1 text-sm font-semibold text-slate-800">
                   <button
                     className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-700 transition hover:bg-slate-200"
                     onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
@@ -111,7 +111,7 @@ const Cart = () => {
         </div>
       </div>
 
-      <div className="rounded-2xl bg-white/80 p-5 shadow-lg shadow-indigo-100 ring-1 ring-indigo-50">
+      <div className="rounded-2xl bg-white/80 p-5 shadow-lg shadow-blue-100 ring-1 ring-blue-50">
         <h3 className="text-lg font-bold text-slate-900">Order Summary</h3>
         <div className="mt-4 space-y-3 text-sm text-slate-700">
           <div className="flex items-center justify-between">
@@ -122,14 +122,14 @@ const Cart = () => {
             <span>Shipping</span>
             <span className="rounded-full bg-green-50 px-3 py-1 text-xs font-semibold text-green-600">Free</span>
           </div>
-          <div className="flex items-center justify-between border-t border-indigo-50 pt-3 text-base font-bold text-slate-900">
+          <div className="flex items-center justify-between border-t border-blue-50 pt-3 text-base font-bold text-slate-900">
             <span>Total</span>
             <span>{formatPrice(getCartTotal())}</span>
           </div>
         </div>
 
         <button
-          className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-500 px-4 py-3 text-sm font-semibold text-white shadow-md shadow-blue-200 transition hover:translate-y-[-1px] hover:shadow-lg"
+          className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-blue-500 px-4 py-3 text-sm font-semibold text-white shadow-md shadow-blue-200 transition hover:translate-y-[-1px] hover:shadow-lg"
           onClick={() => navigate('/checkout')}
         >
           Proceed to Checkout
@@ -137,7 +137,7 @@ const Cart = () => {
         </button>
 
         <button
-          className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-indigo-100 bg-white px-4 py-3 text-sm font-semibold text-indigo-700 shadow-sm shadow-indigo-50 transition hover:border-indigo-200"
+          className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-blue-100 bg-white px-4 py-3 text-sm font-semibold text-blue-600 shadow-sm shadow-blue-50 transition hover:border-blue-200"
           onClick={() => navigate('/marketplace')}
         >
           <ArrowLeft className="h-4 w-4" />

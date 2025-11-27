@@ -89,7 +89,7 @@ const Chatbot = () => {
   if (!isOpen) {
     return (
       <button
-        className="fixed bottom-6 right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-indigo-600 to-blue-500 text-white shadow-xl shadow-blue-200 transition hover:scale-105"
+        className="fixed bottom-6 right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-500 text-white shadow-xl shadow-blue-200 transition hover:scale-105"
         onClick={() => setIsOpen(true)}
       >
         <MessageCircle className="h-6 w-6" />
@@ -98,8 +98,8 @@ const Chatbot = () => {
   }
 
   return (
-    <div className="fixed bottom-4 right-4 z-40 w-full max-w-sm rounded-2xl bg-white/90 shadow-2xl shadow-indigo-200 ring-1 ring-indigo-100 backdrop-blur">
-      <div className="flex items-center justify-between border-b border-indigo-50 bg-gradient-to-r from-indigo-600 to-blue-500 px-4 py-3 text-white">
+    <div className="fixed bottom-4 right-4 z-40 w-full max-w-sm rounded-2xl bg-white/90 shadow-2xl shadow-blue-200 ring-1 ring-blue-100 backdrop-blur">
+      <div className="flex items-center justify-between border-b border-blue-50 bg-gradient-to-r from-blue-500 to-blue-500 px-4 py-3 text-white">
         <div className="flex items-center gap-3">
           <div className="h-10 w-10 overflow-hidden rounded-full border border-white/40">
             <img src={avatarImg} alt="Bot Avatar" className="h-full w-full object-cover" />
@@ -127,7 +127,7 @@ const Chatbot = () => {
             <div
               className={`max-w-[80%] whitespace-pre-line rounded-2xl px-3 py-2 text-sm shadow-sm ${
                 message.sender === 'user'
-                  ? 'bg-gradient-to-r from-indigo-600 to-blue-500 text-white shadow-blue-200'
+                  ? 'bg-gradient-to-r from-blue-500 to-blue-500 text-white shadow-blue-200'
                   : 'bg-slate-100 text-slate-800'
               }`}
             >
@@ -141,7 +141,7 @@ const Chatbot = () => {
             {quickActions.map((action) => (
               <button
                 key={action.id}
-                className="inline-flex items-center gap-1 rounded-full border border-indigo-100 bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700 transition hover:border-indigo-200"
+                className="inline-flex items-center gap-1 rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-600 transition hover:border-blue-200"
                 onClick={() => handleQuickAction(action.id, action.text)}
               >
                 <Sparkles className="h-3 w-3" />
@@ -154,17 +154,17 @@ const Chatbot = () => {
         <div ref={messagesEndRef} />
       </div>
 
-      <form onSubmit={handleSend} className="flex items-center gap-2 border-t border-indigo-50 px-3 py-3">
+      <form onSubmit={handleSend} className="flex items-center gap-2 border-t border-blue-50 px-3 py-3">
         <input
           type="text"
           placeholder="Enter your message..."
-          className="h-11 flex-1 rounded-xl border border-indigo-100 bg-white/80 px-3 text-sm text-slate-800 outline-none ring-indigo-100 transition focus:ring-2 focus:ring-indigo-500"
+          className="h-11 flex-1 rounded-xl border border-blue-100 bg-white/80 px-3 text-sm text-slate-800 outline-none ring-blue-100 transition focus:ring-2 focus:ring-blue-500"
           value={inputMessage}
           onChange={(e) => setInputMessage(e.target.value)}
         />
         <button
           type="submit"
-          className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-r from-indigo-600 to-blue-500 text-white shadow-sm shadow-blue-200 transition hover:translate-y-[-1px] hover:shadow-md"
+          className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-r from-blue-500 to-blue-500 text-white shadow-sm shadow-blue-200 transition hover:translate-y-[-1px] hover:shadow-md"
         >
           <Send className="h-4 w-4" />
         </button>

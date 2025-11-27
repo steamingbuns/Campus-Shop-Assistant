@@ -156,7 +156,7 @@ function Checkout() {
   return (
     <div className="space-y-6">
       <div>
-        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-indigo-600">Checkout</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-500">Checkout</p>
         <h1 className="mt-2 text-3xl font-bold text-slate-900">Complete your pickup</h1>
         <p className="text-sm text-slate-600">
           Confirm your details, choose a campus meetup, and place your order securely.
@@ -166,7 +166,7 @@ function Checkout() {
       <div className="grid gap-6 lg:grid-cols-[1.4fr,1fr]">
         <form
           onSubmit={handleSubmit}
-          className="space-y-5 rounded-3xl bg-white/80 p-5 shadow-lg shadow-indigo-100 ring-1 ring-indigo-50"
+          className="space-y-5 rounded-3xl bg-white/80 p-5 shadow-lg shadow-blue-100 ring-1 ring-blue-50"
         >
           <div className="space-y-3">
             <div className="flex items-center justify-between">
@@ -188,7 +188,7 @@ function Checkout() {
                   className={`mt-1 w-full rounded-xl border px-3 py-2 text-sm text-slate-800 outline-none transition ${
                     formSubmitted && errors.fullName
                       ? 'border-red-300 ring-2 ring-red-100'
-                      : 'border-indigo-100 bg-white/70 ring-indigo-100 focus:ring-2 focus:ring-indigo-500'
+                      : 'border-blue-100 bg-white/70 ring-blue-100 focus:ring-2 focus:ring-blue-500'
                   }`}
                 />
                 {formSubmitted && errors.fullName && (
@@ -207,7 +207,7 @@ function Checkout() {
                   className={`mt-1 w-full rounded-xl border px-3 py-2 text-sm text-slate-800 outline-none transition ${
                     formSubmitted && errors.email
                       ? 'border-red-300 ring-2 ring-red-100'
-                      : 'border-indigo-100 bg-white/70 ring-indigo-100 focus:ring-2 focus:ring-indigo-500'
+                      : 'border-blue-100 bg-white/70 ring-blue-100 focus:ring-2 focus:ring-blue-500'
                   }`}
                 />
                 {formSubmitted && errors.email && (
@@ -226,7 +226,7 @@ function Checkout() {
                   className={`mt-1 w-full rounded-xl border px-3 py-2 text-sm text-slate-800 outline-none transition ${
                     formSubmitted && errors.phone
                       ? 'border-red-300 ring-2 ring-red-100'
-                      : 'border-indigo-100 bg-white/70 ring-indigo-100 focus:ring-2 focus:ring-indigo-500'
+                      : 'border-blue-100 bg-white/70 ring-blue-100 focus:ring-2 focus:ring-blue-500'
                   }`}
                 />
                 {formSubmitted && errors.phone && (
@@ -236,10 +236,10 @@ function Checkout() {
             </div>
           </div>
 
-          <div className="space-y-3 rounded-2xl bg-indigo-50/60 p-4 ring-1 ring-indigo-100">
+          <div className="space-y-3 rounded-2xl bg-blue-50/60 p-4 ring-1 ring-blue-100">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-bold text-slate-900">📍 Meeting Location & Time</h2>
-              <p className="text-xs font-semibold text-indigo-600">Campus pickup only</p>
+              <p className="text-xs font-semibold text-blue-500">Campus pickup only</p>
             </div>
             <p className="text-sm text-slate-600">
               Choose where and when to meet on campus for item pickup.
@@ -255,7 +255,7 @@ function Checkout() {
                   className={`mt-1 w-full rounded-xl border px-3 py-2 text-sm text-slate-800 outline-none transition ${
                     formSubmitted && errors.meetingTower
                       ? 'border-red-300 ring-2 ring-red-100'
-                      : 'border-indigo-100 bg-white ring-indigo-100 focus:ring-2 focus:ring-indigo-500'
+                      : 'border-blue-100 bg-white ring-blue-100 focus:ring-2 focus:ring-blue-500'
                   }`}
                 >
                   <option value="">Select a location</option>
@@ -285,7 +285,7 @@ function Checkout() {
                   className={`mt-1 w-full rounded-xl border px-3 py-2 text-sm text-slate-800 outline-none transition ${
                     formSubmitted && errors.meetingLocation
                       ? 'border-red-300 ring-2 ring-red-100'
-                      : 'border-indigo-100 bg-white ring-indigo-100 focus:ring-2 focus:ring-indigo-500'
+                      : 'border-blue-100 bg-white ring-blue-100 focus:ring-2 focus:ring-blue-500'
                   }`}
                 />
                 {formSubmitted && errors.meetingLocation && (
@@ -305,7 +305,7 @@ function Checkout() {
                   className={`mt-1 w-full rounded-xl border px-3 py-2 text-sm text-slate-800 outline-none transition ${
                     formSubmitted && errors.meetingDate
                       ? 'border-red-300 ring-2 ring-red-100'
-                      : 'border-indigo-100 bg-white ring-indigo-100 focus:ring-2 focus:ring-indigo-500'
+                      : 'border-blue-100 bg-white ring-blue-100 focus:ring-2 focus:ring-blue-500'
                   }`}
                 />
                 {formSubmitted && errors.meetingDate && (
@@ -323,7 +323,7 @@ function Checkout() {
                   className={`mt-1 w-full rounded-xl border px-3 py-2 text-sm text-slate-800 outline-none transition ${
                     formSubmitted && errors.meetingTime
                       ? 'border-red-300 ring-2 ring-red-100'
-                      : 'border-indigo-100 bg-white ring-indigo-100 focus:ring-2 focus:ring-indigo-500'
+                      : 'border-blue-100 bg-white ring-blue-100 focus:ring-2 focus:ring-blue-500'
                   }`}
                 >
                   <option value="">Select a time</option>
@@ -349,7 +349,7 @@ function Checkout() {
           <div className="space-y-3">
             <h2 className="text-lg font-bold text-slate-900">Payment Method</h2>
             <div className="grid gap-3 sm:grid-cols-2">
-              <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-indigo-100 bg-white/70 p-4 shadow-sm shadow-indigo-50 ring-indigo-100 transition hover:ring-2 hover:ring-indigo-500">
+              <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-blue-100 bg-white/70 p-4 shadow-sm shadow-blue-50 ring-blue-100 transition hover:ring-2 hover:ring-blue-500">
                 <input
                   type="radio"
                   name="paymentMethod"
@@ -363,7 +363,7 @@ function Checkout() {
                   <p className="text-xs text-slate-600">Pay when you receive your order</p>
                 </div>
               </label>
-              <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-indigo-100 bg-white/70 p-4 shadow-sm shadow-indigo-50 ring-indigo-100 transition hover:ring-2 hover:ring-indigo-500">
+              <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-blue-100 bg-white/70 p-4 shadow-sm shadow-blue-50 ring-blue-100 transition hover:ring-2 hover:ring-blue-500">
                 <input
                   type="radio"
                   name="paymentMethod"
@@ -388,16 +388,16 @@ function Checkout() {
               onChange={handleInputChange}
               placeholder="Any special instructions for your order..."
               rows="4"
-              className="w-full rounded-xl border border-indigo-100 bg-white/70 px-3 py-2 text-sm text-slate-800 outline-none ring-indigo-100 transition focus:ring-2 focus:ring-indigo-500"
+              className="w-full rounded-xl border border-blue-100 bg-white/70 px-3 py-2 text-sm text-slate-800 outline-none ring-blue-100 transition focus:ring-2 focus:ring-blue-500"
             />
           </div>
         </form>
 
-        <div className="space-y-4 rounded-3xl bg-white/80 p-5 shadow-lg shadow-indigo-100 ring-1 ring-indigo-50">
+        <div className="space-y-4 rounded-3xl bg-white/80 p-5 shadow-lg shadow-blue-100 ring-1 ring-blue-50">
           <h2 className="text-lg font-bold text-slate-900">Order Summary</h2>
           <div className="space-y-3">
             {cartItems.map((item) => (
-              <div key={item.id} className="flex items-center gap-3 rounded-2xl border border-indigo-50 bg-white/60 p-3">
+              <div key={item.id} className="flex items-center gap-3 rounded-2xl border border-blue-50 bg-white/60 p-3">
                 <img src={item.image} alt={item.name} className="h-14 w-14 rounded-lg object-cover" />
                 <div className="flex-1">
                   <h4 className="text-sm font-semibold text-slate-900">{item.name}</h4>
@@ -410,7 +410,7 @@ function Checkout() {
             ))}
           </div>
 
-          <div className="space-y-2 rounded-2xl bg-indigo-50/70 p-4 text-sm text-slate-700 ring-1 ring-indigo-100">
+          <div className="space-y-2 rounded-2xl bg-blue-50/70 p-4 text-sm text-slate-700 ring-1 ring-blue-100">
             <div className="flex items-center justify-between">
               <span>Subtotal</span>
               <span className="font-semibold text-slate-900">{formatPrice(subtotal)}</span>
@@ -419,7 +419,7 @@ function Checkout() {
               <span>Campus Pickup</span>
               <span className="rounded-full bg-green-50 px-3 py-1 text-xs font-semibold text-green-600">Free</span>
             </div>
-            <div className="flex items-center justify-between border-t border-indigo-100 pt-3 text-base font-bold text-slate-900">
+            <div className="flex items-center justify-between border-t border-blue-100 pt-3 text-base font-bold text-slate-900">
               <span>Total</span>
               <span>{formatPrice(total)}</span>
             </div>
@@ -427,7 +427,7 @@ function Checkout() {
 
           <button
             type="button"
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-500 px-4 py-3 text-sm font-semibold text-white shadow-md shadow-blue-200 transition hover:translate-y-[-1px] hover:shadow-lg disabled:opacity-70"
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-blue-500 px-4 py-3 text-sm font-semibold text-white shadow-md shadow-blue-200 transition hover:translate-y-[-1px] hover:shadow-lg disabled:opacity-70"
             onClick={handleSubmit}
             disabled={isProcessing}
           >
@@ -436,7 +436,7 @@ function Checkout() {
 
           <button
             type="button"
-            className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-indigo-100 bg-white px-4 py-3 text-sm font-semibold text-indigo-700 shadow-sm shadow-indigo-50 transition hover:border-indigo-200"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-blue-100 bg-white px-4 py-3 text-sm font-semibold text-blue-600 shadow-sm shadow-blue-50 transition hover:border-blue-200"
             onClick={() => navigate('/cart')}
           >
             ← Back to Cart

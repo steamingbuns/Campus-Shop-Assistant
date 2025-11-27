@@ -108,7 +108,7 @@ function Review() {
             className={`flex h-10 w-10 items-center justify-center rounded-xl border transition ${
               active
                 ? 'border-yellow-200 bg-yellow-50 text-yellow-500'
-                : 'border-indigo-100 bg-white text-slate-400 hover:border-indigo-200'
+                : 'border-blue-100 bg-white text-slate-400 hover:border-blue-200'
             }`}
             onClick={() => setRating(star)}
             onMouseEnter={() => setHoverRating(star)}
@@ -129,28 +129,28 @@ function Review() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-indigo-600">Review</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-500">Review</p>
           <h1 className="mt-2 text-3xl font-bold text-slate-900">Write a Review</h1>
         </div>
         <button
           type="button"
           onClick={() => navigate(`/product/${productId}`)}
-          className="inline-flex items-center gap-2 rounded-xl border border-indigo-100 bg-white px-3 py-2 text-sm font-semibold text-indigo-700 shadow-sm shadow-indigo-50 transition hover:border-indigo-200"
+          className="inline-flex items-center gap-2 rounded-xl border border-blue-100 bg-white px-3 py-2 text-sm font-semibold text-blue-600 shadow-sm shadow-blue-50 transition hover:border-blue-200"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to product
         </button>
       </div>
 
-      <div className="flex flex-wrap items-center gap-4 rounded-2xl bg-white/80 p-4 shadow-sm shadow-indigo-50 ring-1 ring-indigo-50">
+      <div className="flex flex-wrap items-center gap-4 rounded-2xl bg-white/80 p-4 shadow-sm shadow-blue-50 ring-1 ring-blue-50">
         <img src={productImageSrc} alt={product.name} className="h-20 w-20 rounded-xl object-cover" />
         <div>
           <h2 className="text-lg font-semibold text-slate-900">{product.name}</h2>
-          <p className="text-sm font-semibold text-indigo-600">
+          <p className="text-sm font-semibold text-blue-500">
             {new Intl.NumberFormat('vi-VN').format(product.price)} đ
           </p>
         </div>
-        <div className="ml-auto inline-flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-indigo-600">
+        <div className="ml-auto inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-blue-500">
           <Sparkles className="h-4 w-4" />
           Verified item
         </div>
@@ -158,7 +158,7 @@ function Review() {
 
       <form
         onSubmit={handleSubmit}
-        className="space-y-5 rounded-3xl bg-white/80 p-5 shadow-lg shadow-indigo-100 ring-1 ring-indigo-50"
+        className="space-y-5 rounded-3xl bg-white/80 p-5 shadow-lg shadow-blue-100 ring-1 ring-blue-50"
       >
         <div className="space-y-2">
           <label className="text-sm font-semibold text-slate-800">
@@ -166,7 +166,7 @@ function Review() {
           </label>
           {renderStars()}
           {rating > 0 && (
-            <p className="text-sm font-semibold text-indigo-700">
+            <p className="text-sm font-semibold text-blue-600">
               {rating === 1 && 'Poor'}
               {rating === 2 && 'Fair'}
               {rating === 3 && 'Good'}
@@ -182,7 +182,7 @@ function Review() {
             Your Review <span className="text-red-500">*</span>
           </label>
           <textarea
-            className="w-full rounded-xl border border-indigo-100 bg-white/70 px-3 py-3 text-sm text-slate-800 outline-none ring-indigo-100 transition focus:ring-2 focus:ring-indigo-500"
+            className="w-full rounded-xl border border-blue-100 bg-white/70 px-3 py-3 text-sm text-slate-800 outline-none ring-blue-100 transition focus:ring-2 focus:ring-blue-500"
             placeholder="Share your experience with this product..."
             value={reviewText}
             onChange={(e) => setReviewText(e.target.value)}
@@ -192,7 +192,7 @@ function Review() {
           {errors.reviewText && <span className="text-xs font-semibold text-red-600">{errors.reviewText}</span>}
         </div>
 
-        <div className="rounded-2xl bg-indigo-50/60 p-4 text-sm text-slate-700 ring-1 ring-indigo-100">
+        <div className="rounded-2xl bg-blue-50/60 p-4 text-sm text-slate-700 ring-1 ring-blue-100">
           <h3 className="text-sm font-semibold text-slate-900">Tips for writing a great review:</h3>
           <ul className="mt-2 space-y-1 list-disc list-inside">
             <li>Be specific about what you liked or didn't like</li>
@@ -205,7 +205,7 @@ function Review() {
         <div className="flex flex-wrap justify-end gap-2">
           <button
             type="button"
-            className="rounded-xl border border-indigo-100 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm shadow-indigo-50 transition hover:border-indigo-200"
+            className="rounded-xl border border-blue-100 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm shadow-blue-50 transition hover:border-blue-200"
             onClick={() => navigate(`/product/${productId}`)}
             disabled={isSubmitting}
           >
@@ -213,7 +213,7 @@ function Review() {
           </button>
           <button
             type="submit"
-            className="rounded-xl bg-gradient-to-r from-indigo-600 to-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-blue-200 transition hover:translate-y-[-1px] hover:shadow-md disabled:opacity-70"
+            className="rounded-xl bg-gradient-to-r from-blue-500 to-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-blue-200 transition hover:translate-y-[-1px] hover:shadow-md disabled:opacity-70"
             disabled={isSubmitting}
           >
             {isSubmitting ? 'Submitting...' : 'Submit Review'}

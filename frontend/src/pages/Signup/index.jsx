@@ -44,9 +44,9 @@ function Signup() {
   };
   
   return (
-    <div className="relative isolate mx-auto flex min-h-[75vh] max-w-4xl flex-col rounded-3xl bg-white/80 px-6 py-10 shadow-2xl shadow-indigo-100 ring-1 ring-white/60 backdrop-blur lg:flex-row lg:px-10">
+    <div className="relative isolate mx-auto flex min-h-[75vh] max-w-4xl flex-col rounded-3xl bg-white/80 px-6 py-10 shadow-2xl shadow-blue-100 ring-1 ring-white/60 backdrop-blur lg:flex-row lg:px-10">
       <div className="lg:w-1/2">
-        <div className="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-indigo-600">
+        <div className="inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-blue-500">
           <Shield className="h-4 w-4" />
           Verified campus sellers
         </div>
@@ -54,7 +54,7 @@ function Signup() {
         <p className="mt-2 text-base text-slate-600">
           Join the marketplace, list items fast, and connect with trusted students nearby.
         </p>
-        <div className="mt-6 rounded-2xl bg-gradient-to-r from-indigo-600 to-blue-500 p-4 text-white shadow-lg shadow-blue-200">
+        <div className="mt-6 rounded-2xl bg-gradient-to-r from-blue-500 to-blue-500 p-4 text-white shadow-lg shadow-blue-200">
           <p className="text-sm font-semibold opacity-90">Perks for sellers</p>
           <ul className="mt-2 space-y-2 text-sm opacity-90">
             <li>• Instant listing creation</li>
@@ -71,10 +71,10 @@ function Signup() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4 rounded-2xl bg-white/80 p-6 shadow-sm shadow-indigo-50 ring-1 ring-indigo-50">
+        <form onSubmit={handleSubmit} className="space-y-4 rounded-2xl bg-white/80 p-6 shadow-sm shadow-blue-50 ring-1 ring-blue-50">
           <div className="space-y-2">
             <label className="text-sm font-semibold text-slate-800">Username</label>
-            <div className="flex items-center gap-2 rounded-xl border border-indigo-100 bg-white/70 px-3 py-2 ring-indigo-100 focus-within:ring-2 focus-within:ring-indigo-500">
+            <div className="flex items-center gap-2 rounded-xl border border-blue-100 bg-white/70 px-3 py-2 ring-blue-100 focus-within:ring-2 focus-within:ring-blue-500">
               <UserRound className="h-4 w-4 text-slate-400" />
               <input
                 type="text"
@@ -88,7 +88,7 @@ function Signup() {
 
           <div className="space-y-2">
             <label className="text-sm font-semibold text-slate-800">Email</label>
-            <div className="flex items-center gap-2 rounded-xl border border-indigo-100 bg-white/70 px-3 py-2 ring-indigo-100 focus-within:ring-2 focus-within:ring-indigo-500">
+            <div className="flex items-center gap-2 rounded-xl border border-blue-100 bg-white/70 px-3 py-2 ring-blue-100 focus-within:ring-2 focus-within:ring-blue-500">
               <Mail className="h-4 w-4 text-slate-400" />
               <input
                 type="email"
@@ -102,7 +102,7 @@ function Signup() {
 
           <div className="space-y-2">
             <label className="text-sm font-semibold text-slate-800">Password</label>
-            <div className="flex items-center gap-2 rounded-xl border border-indigo-100 bg-white/70 px-3 py-2 ring-indigo-100 focus-within:ring-2 focus-within:ring-indigo-500">
+            <div className="flex items-center gap-2 rounded-xl border border-blue-100 bg-white/70 px-3 py-2 ring-blue-100 focus-within:ring-2 focus-within:ring-blue-500">
               <Lock className="h-4 w-4 text-slate-400" />
               <input
                 type="password"
@@ -116,7 +116,7 @@ function Signup() {
 
           <button
             type="submit"
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-500 px-4 py-3 text-sm font-semibold text-white shadow-md shadow-blue-200 transition hover:translate-y-[-1px] hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-blue-500 px-4 py-3 text-sm font-semibold text-white shadow-md shadow-blue-200 transition hover:translate-y-[-1px] hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
           >
             Sign up
             <ArrowRight className="h-4 w-4" />
@@ -125,7 +125,7 @@ function Signup() {
 
         <div className="mt-4 text-sm text-slate-700">
           Already have an account?{' '}
-          <Link to="/login" className="font-semibold text-indigo-600 hover:text-indigo-700">
+          <Link to="/login" className="font-semibold text-blue-500 hover:text-blue-600">
             Login here
           </Link>
         </div>

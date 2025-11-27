@@ -13,6 +13,7 @@ import SellerDashboard from './pages/SellerDashboard';
 import Profile from './pages/Profile';
 import AdminDashboard from './pages/AdminConsole/AdminDashboard';
 import Review from './pages/Review';
+import ChatbotPage from './pages/ChatbotPage';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -20,16 +21,17 @@ function App() {
     <AuthProvider>
       <CartProvider>
         <Router>
-          <div className="relative min-h-screen bg-gradient-to-b from-indigo-50 via-slate-50 to-white text-slate-900 antialiased">
+          <div className="relative min-h-screen bg-gradient-to-b from-blue-50 via-zinc-50 to-white text-slate-900 antialiased">
             <div className="pointer-events-none absolute inset-x-0 top-0 z-0 h-64 bg-gradient-to-b from-white/60 via-white/30 to-transparent blur-3xl" />
             <div className="pointer-events-none absolute -left-32 top-32 h-64 w-64 rounded-full bg-blue-200/40 blur-[120px]" />
-            <div className="pointer-events-none absolute -right-16 top-12 h-52 w-52 rounded-full bg-indigo-200/50 blur-[120px]" />
+            <div className="pointer-events-none absolute -right-16 top-12 h-52 w-52 rounded-full bg-blue-300/50 blur-[120px]" />
 
             <Header />
             <main className="relative z-10 mx-auto flex max-w-6xl flex-col px-4 pb-16 pt-28 sm:px-6 lg:px-8">
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/marketplace" element={<MarketPlace />} />
+                <Route path="/chatbot" element={<ChatbotPage />} />
                 <Route path="/product/:productId" element={<ItemView />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />

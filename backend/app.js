@@ -8,6 +8,7 @@ import orderRoutes from './routes/orderRoutes.js';
 import productDetailsRoutes from './routes/productDetailsRoutes.js';
 import ordersInventoryRoutes from './routes/ordersInventoryRoutes.js';
 import healthRoutes from './routes/healthRoutes.js';
+import adminRoutes from './routes/adminRoutes.js';
 
 const PORT = Number.parseInt(process.env.PORT, 10) || 5000;
 const DEFAULT_ALLOWED_ORIGINS = [
@@ -58,6 +59,7 @@ app.use('/api/product', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/product-details', productDetailsRoutes);
 app.use('/api/orders-inventory', ordersInventoryRoutes);
+app.use('/api/admin', adminRoutes);
 
 export function startServer(port = PORT) {
   return app.listen(port, () => {

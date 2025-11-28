@@ -50,14 +50,18 @@ function Profile() {
         phone_number: editedUser.phone?.trim() || null,
         address: editedUser.address?.trim() || null,
       };
-      const updated = await userService.updateProfile(payload, token);
+      const response = await userService.updateProfile(payload, token);
+      const updatedUser = response.user; // Extract the user object from the response
+
       // Refresh auth context with latest user data
       login(
         {
           ...user,
-          ...updated,
-          name: sanitize(updated?.name) || payload.name,
-          email: sanitize(updated?.email) || payload.email,
+          ...updatedUser,
+          name: sanitize(updatedUser?.name) || payload.name,
+          email: sanitize(updatedUser?.email) || payload.email,
+          phone: updatedUser?.phone || updatedUser?.phone_number || payload.phone_number,
+          address: updatedUser?.address || payload.address
         },
         token
       );
@@ -88,20 +92,33 @@ function Profile() {
     }));
   };
 
-  const handlePasswordChange = (e) => {
+  const handlePasswordChange = async (e) => {
     e.preventDefault();
     if (passwordData.newPassword !== passwordData.confirmPassword) {
       alert('New passwords do not match!');
       return;
     }
-    // TODO: API call to change password
-    console.log('Changing password');
-    setShowPasswordModal(false);
-    setPasswordData({
-      currentPassword: '',
-      newPassword: '',
-      confirmPassword: ''
-    });
+    
+    try {
+      // API call to change password
+      await userService.changePassword(
+        {
+          currentPassword: passwordData.currentPassword,
+          newPassword: passwordData.newPassword,
+        },
+        token
+      );
+      alert('Password changed successfully!');
+      setShowPasswordModal(false);
+      setPasswordData({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: ''
+      });
+    } catch (error) {
+      console.error('Password change failed:', error);
+      alert(error.message || 'Failed to change password. Please try again.');
+    }
   };
 
   const renderPersonalInfo = () => (
@@ -161,8 +178,8 @@ function Profile() {
               type="email"
               name="email"
               value={editedUser.email}
-              onChange={handleInputChange}
-              className="w-full rounded-xl border border-blue-100 bg-white/70 px-3 py-2 text-sm text-slate-800 outline-none ring-blue-100 transition focus:ring-2 focus:ring-blue-500"
+              disabled
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500 outline-none cursor-not-allowed"
             />
           ) : (
             <p className="rounded-xl bg-slate-50 px-3 py-2 text-sm text-slate-700">{user?.email || 'Not provided'}</p>

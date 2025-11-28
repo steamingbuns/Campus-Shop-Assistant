@@ -94,6 +94,7 @@ export const createProduct = async (productData) => {
     stock = 0,
     lowStockThreshold = 10,
     price = 0,
+    description = '',
     category,
     sellerId,
     image = null
@@ -110,9 +111,9 @@ export const createProduct = async (productData) => {
 
   const newProduct = await sql`
     INSERT INTO public."Product" (
-      name, sku, stock, low_stock_threshold, price, category_id, seller_id, status
+      name, sku, stock, low_stock_threshold, price, description, category_id, seller_id, status
     ) VALUES (
-      ${name}, ${sku}, ${stock}, ${lowStockThreshold}, ${price}, ${finalCategoryId}, ${sellerId}, 'active'
+      ${name}, ${sku}, ${stock}, ${lowStockThreshold}, ${price}, ${description}, ${finalCategoryId}, ${sellerId}, 'active'
     )
     RETURNING product_id as id, name, sku, stock, low_stock_threshold as "lowStockThreshold", price, status
   `;

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Package, Plus, AlertTriangle, BadgeCheck, X } from 'lucide-react';
+import { Package, Plus, AlertTriangle, BadgeCheck, X, Edit2 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import productDetailsService from '../../services/productDetailsService';
 
@@ -20,6 +20,9 @@ function InventoryManagement() {
     category: '',
     image: ''
   });
+
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editItem, setEditItem] = useState(null); // Item currently being edited
 
   useEffect(() => {
     fetchInventory();
@@ -77,6 +80,7 @@ function InventoryManagement() {
   const handleUpdateStock = async (itemId, newStock) => {
     const stockValue = parseInt(newStock) || 0;
     
+    console.log(`Updating stock for item ${itemId} to: ${stockValue}`); // Debug log
     // Optimistic update
     const oldItems = [...items];
     setItems(items.map(item =>
@@ -128,6 +132,42 @@ function InventoryManagement() {
     } catch (err) {
       console.error('Error adding item:', err);
       alert('Failed to add item. Please try again.');
+    }
+  };
+
+  const handleEditItem = (item) => {
+    setEditItem({ ...item }); // Make a copy to edit
+    setShowEditModal(true);
+  };
+
+  const handleUpdateItem = async (e) => {
+    e.preventDefault();
+    if (!editItem) return;
+
+    try {
+      const productData = {
+        name: editItem.name,
+        description: editItem.description,
+        stock: parseInt(editItem.stock) || 0,
+        lowStockThreshold: parseInt(editItem.lowStockThreshold) || 10,
+        price: parseFloat(editItem.price) || 0,
+        category: editItem.category,
+        image: editItem.image
+      };
+
+      await productDetailsService.updateProduct(editItem.id, productData, { token });
+      
+      setItems(items.map(item =>
+        item.id === editItem.id
+          ? { ...item, ...productData, price: parseFloat(productData.price) }
+          : item
+      ));
+      
+      setShowEditModal(false);
+      setEditItem(null);
+    } catch (err) {
+      console.error('Error updating item:', err);
+      alert('Failed to update item. Please try again.');
     }
   };
 
@@ -210,15 +250,9 @@ function InventoryManagement() {
                 <td className="px-4 py-3 font-semibold text-slate-900">{item.name}</td>
                 <td className="px-4 py-3 text-slate-600">{item.category}</td>
                 <td className="px-4 py-3 text-slate-600">{item.description || '—'}</td>
-                <td className="px-4 py-3 font-semibold text-slate-900">${item.price.toFixed(2)}</td>
-                <td className="px-4 py-3">
-                  <input
-                    type="number"
-                    value={item.stock}
-                    onChange={(e) => handleUpdateStock(item.id, e.target.value)}
-                    className="w-24 rounded-lg border border-blue-100 bg-white/80 px-2 py-1 text-sm font-semibold text-slate-900 outline-none ring-blue-100 transition focus:ring-2 focus:ring-blue-500"
-                    min="0"
-                  />
+                <td className="px-4 py-3 font-semibold text-slate-900">{item.price.toFixed(2)}đ</td>
+                <td className="px-4 py-3 font-semibold text-slate-900">
+                  {item.stock}
                 </td>
                 <td className="px-4 py-3">
                   <span
@@ -235,12 +269,20 @@ function InventoryManagement() {
                   </span>
                 </td>
                 <td className="px-4 py-3">
-                  <button
-                    className="text-sm font-semibold text-red-600 transition hover:text-red-700"
-                    onClick={() => handleDeleteItem(item.id)}
-                  >
-                    Delete
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      className="text-sm font-semibold text-blue-600 transition hover:text-blue-700"
+                      onClick={() => handleEditItem(item)}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className="text-sm font-semibold text-red-600 transition hover:text-red-700"
+                      onClick={() => handleDeleteItem(item.id)}
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -373,6 +415,137 @@ function InventoryManagement() {
                 >
                   <Plus className="h-4 w-4" />
                   Add Item
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+      {showEditModal && editItem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 px-4 backdrop-blur">
+          <div className="w-full max-w-xl rounded-2xl bg-white p-6 shadow-2xl shadow-blue-200">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Edit2 className="h-5 w-5 text-blue-500" />
+                <h3 className="text-lg font-bold text-slate-900">Edit Item</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowEditModal(false)}
+                className="rounded-full p-1 text-slate-500 transition hover:bg-slate-100"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleUpdateItem} className="mt-4 grid gap-3 sm:grid-cols-2">
+              <div className="sm:col-span-2">
+                <label className="text-sm font-semibold text-slate-800">Product Name *</label>
+                <input
+                  type="text"
+                  value={editItem.name}
+                  onChange={(e) => setEditItem({ ...editItem, name: e.target.value })}
+                  required
+                  className="mt-1 w-full rounded-xl border border-blue-100 bg-white/80 px-3 py-2 text-sm text-slate-800 outline-none ring-blue-100 transition focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-semibold text-slate-800">Category *</label>
+                <select
+                  value={editItem.category}
+                  onChange={(e) => setEditItem({ ...editItem, category: e.target.value })}
+                  required
+                  className="mt-1 w-full rounded-xl border border-blue-100 bg-white/80 px-3 py-2 text-sm text-slate-800 outline-none ring-2 ring-blue-100 transition focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Select a category</option>
+                  {categories.length > 0 ? (
+                    categories.map((cat) => (
+                      <option key={cat.category_id || cat.id || cat.name} value={cat.name || cat.category}>
+                        {cat.name || cat.category}
+                      </option>
+                    ))
+                  ) : (
+                    <>
+                      <option value="Books">Books</option>
+                      <option value="Stationery">Stationery</option>
+                      <option value="Clothing">Clothing</option>
+                      <option value="Electronics">Electronics</option>
+                      <option value="Lifestyle">Lifestyle</option>
+                    </>
+                  )}
+                </select>
+              </div>
+              <div>
+                <label className="text-sm font-semibold text-slate-800">Price (VND) *</label>
+                <input
+                  type="number"
+                  step="1000"
+                  min="0"
+                  value={editItem.price}
+                  onChange={(e) => setEditItem({ ...editItem, price: e.target.value })}
+                  required
+                  placeholder="e.g., 50000"
+                  className="mt-1 w-full rounded-xl border border-blue-100 bg-white/80 px-3 py-2 text-sm text-slate-800 outline-none ring-blue-100 transition focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-semibold text-slate-800">Product Image URL</label>
+                <input
+                  type="url"
+                  value={editItem.image}
+                  onChange={(e) => setEditItem({ ...editItem, image: e.target.value })}
+                  placeholder="https://example.com/image.jpg"
+                  className="mt-1 w-full rounded-xl border border-blue-100 bg-white/80 px-3 py-2 text-sm text-slate-800 outline-none ring-blue-100 transition focus:ring-2 focus:ring-blue-500"
+                />
+                <p className="mt-1 text-xs text-slate-500">Optional: Paste an image URL from Unsplash, Imgur, etc.</p>
+              </div>
+              <div>
+                <label className="text-sm font-semibold text-slate-800">Current Stock *</label>
+                <input
+                  type="number"
+                  value={editItem.stock}
+                  onChange={(e) => setEditItem({ ...editItem, stock: e.target.value })}
+                  required
+                  min="0"
+                  className="mt-1 w-full rounded-xl border border-blue-100 bg-white/80 px-3 py-2 text-sm text-slate-800 outline-none ring-blue-100 transition focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-semibold text-slate-800">Low Stock Threshold *</label>
+                <input
+                  type="number"
+                  value={editItem.lowStockThreshold}
+                  onChange={(e) => setEditItem({ ...editItem, lowStockThreshold: e.target.value })}
+                  required
+                  min="0"
+                  className="mt-1 w-full rounded-xl border border-blue-100 bg-white/80 px-3 py-2 text-sm text-slate-800 outline-none ring-blue-100 transition focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <label className="text-sm font-semibold text-slate-800">Description</label>
+                <textarea
+                  value={editItem.description}
+                  onChange={(e) => setEditItem({ ...editItem, description: e.target.value })}
+                  rows="3"
+                  placeholder="Add product details to help buyers"
+                  className="mt-1 w-full rounded-xl border border-blue-100 bg-white/80 px-3 py-2 text-sm text-slate-800 outline-none ring-blue-100 transition focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div className="sm:col-span-2 flex justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  className="rounded-xl border border-blue-100 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm shadow-blue-50 transition hover:border-blue-200"
+                  onClick={() => setShowEditModal(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-blue-200 transition hover:translate-y-[-1px] hover:shadow-lg"
+                >
+                  <Edit2 className="h-4 w-4" />
+                  Update Item
                 </button>
               </div>
             </form>

@@ -102,13 +102,14 @@ export async function findUserByPhoneNumber(phoneNumber) {
 }
 
 export async function updateUser(userId, updates) {
-  const { name, address, phone_number } = updates;
+  const { name, address, phone_number, email } = updates;
   
   // Build update object with only provided fields
   const updateFields = {};
   if (name !== undefined) updateFields.name = name;
   if (address !== undefined) updateFields.address = address;
   if (phone_number !== undefined) updateFields.phone_number = phone_number;
+  if (email !== undefined) updateFields.email = email;
   
   // If no fields to update, return current user
   if (Object.keys(updateFields).length === 0) {

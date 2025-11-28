@@ -229,19 +229,36 @@ export async function getCurrentUser(req, res) {
 export async function updateProfile(req, res) {
   try {
     const userId = req.user.userId;
-    const { name, address, phoneNumber } = req.body;
+    // Accept phone_number (snake_case from frontend) OR phoneNumber (camelCase)
+    const { name, address, phoneNumber, phone_number, email } = req.body;
+    const newPhoneNumber = phone_number || phoneNumber;
 
     // Validate at least one field to update
-    if (!name && !address && !phoneNumber) {
+    if (!name && !address && !newPhoneNumber && !email) {
       return res.status(400).json({
         error: 'Please provide at least one field to update'
       });
     }
 
+    // If email is being updated, check if it's already taken
+    if (email) {
+      // Check if email is different from current user's email
+      const currentUser = await userModel.findUserById(userId);
+      if (email !== currentUser.email) {
+        const existingUser = await userModel.findUserByEmail(email);
+        if (existingUser) {
+          return res.status(400).json({
+            error: 'Email already registered'
+          });
+        }
+      }
+    }
+
     const updatedUser = await userModel.updateUser(userId, {
       name,
       address,
-      phone_number: phoneNumber
+      phone_number: newPhoneNumber,
+      email
     });
 
     res.json({
@@ -251,7 +268,9 @@ export async function updateProfile(req, res) {
         name: updatedUser.name,
         email: updatedUser.email,
         address: updatedUser.address,
-        phoneNumber: updatedUser.phone_number,
+        phone: updatedUser.phone_number, // Normalize response to 'phone' to match frontend expectation if possible, or keep as is
+        phone_number: updatedUser.phone_number, // Include snake_case for consistency
+        phoneNumber: updatedUser.phone_number, // Keep camelCase for legacy/other clients
         role: updatedUser.role
       }
     });

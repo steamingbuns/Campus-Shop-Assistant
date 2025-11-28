@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ClipboardList, CheckCircle2, PackageOpen, X } from 'lucide-react';
+import { ClipboardList, CheckCircle2, PackageOpen, X, Eye } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import ordersInventoryService from '../../services/ordersInventoryService';
 import orderService from '../../services/orderService';
@@ -13,6 +13,9 @@ function OrderManagement() {
   const [codeInput, setCodeInput] = useState('');
   const [showCodeModal, setShowCodeModal] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState(null);
+  
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [selectedOrderForDetails, setSelectedOrderForDetails] = useState(null);
 
   useEffect(() => {
     fetchOrders();
@@ -52,6 +55,16 @@ function OrderManagement() {
     setShowCodeModal(false);
     setCodeInput('');
     setCompletingId(null);
+  };
+  
+  const openDetailsModal = (order) => {
+    setSelectedOrderForDetails(order);
+    setShowDetailsModal(true);
+  };
+
+  const closeDetailsModal = () => {
+    setSelectedOrderForDetails(null);
+    setShowDetailsModal(false);
   };
 
   const handleCompleteWithPrompt = async () => {
@@ -167,7 +180,7 @@ function OrderManagement() {
                       ))}
                     </div>
                   </td>
-                  <td className="px-4 py-3 font-semibold text-slate-900">${Number(order.total).toFixed(2)}</td>
+                  <td className="px-4 py-3 font-semibold text-slate-900">{Number(order.total).toFixed(2)}đ</td>
                   <td className="px-4 py-3">
                     <span
                       className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold ${
@@ -180,17 +193,27 @@ function OrderManagement() {
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    {order.status === 'pending' ? (
+                    <div className="flex items-center gap-2">
                       <button
-                        className="rounded-lg bg-gradient-to-r from-blue-500 to-blue-500 px-3 py-1.5 text-xs font-semibold text-white shadow-sm shadow-blue-200 transition hover:translate-y-[-1px] hover:shadow-md"
-                        disabled={completingId === order.id}
-                        onClick={() => openCodeModal(order.id)}
+                        className="rounded-lg border border-blue-100 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 shadow-sm shadow-blue-50 transition hover:border-blue-200 hover:text-blue-600"
+                        onClick={() => openDetailsModal(order)}
+                        title="View Customer Preference"
                       >
-                        {completingId === order.id ? 'Completing...' : 'Complete with Code'}
+                        <Eye className="h-4 w-4" />
                       </button>
-                    ) : (
-                      <span className="text-xs font-semibold text-green-700">✓ Completed</span>
-                    )}
+                      
+                      {order.status === 'pending' ? (
+                        <button
+                          className="rounded-lg bg-gradient-to-r from-blue-500 to-blue-500 px-3 py-1.5 text-xs font-semibold text-white shadow-sm shadow-blue-200 transition hover:translate-y-[-1px] hover:shadow-md"
+                          disabled={completingId === order.id}
+                          onClick={() => openCodeModal(order.id)}
+                        >
+                          {completingId === order.id ? '...' : 'Complete'}
+                        </button>
+                      ) : (
+                        <span className="text-xs font-semibold text-green-700">Completed</span>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -242,6 +265,73 @@ function OrderManagement() {
               </button>
             </div>
             {error && <p className="mt-2 text-xs font-semibold text-red-600">{error}</p>}
+          </div>
+        </div>
+      )}
+      
+      {showDetailsModal && selectedOrderForDetails && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 px-4 backdrop-blur">
+          <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl shadow-blue-200">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <ClipboardList className="h-5 w-5 text-blue-500" />
+                <h3 className="text-lg font-bold text-slate-900">Customer Preference</h3>
+              </div>
+              <button
+                type="button"
+                onClick={closeDetailsModal}
+                className="rounded-full p-1 text-slate-500 transition hover:bg-slate-100"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            
+            <div className="space-y-4 text-sm">
+              <div className="rounded-xl bg-blue-50/50 p-4 ring-1 ring-blue-100">
+                <h4 className="mb-2 font-semibold text-blue-700">Meeting Details</h4>
+                {selectedOrderForDetails.meeting_details ? (
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-slate-700">
+                    <div>
+                      <p className="text-xs text-slate-500">Date</p>
+                      <p className="font-medium">{selectedOrderForDetails.meeting_details.meetingDate}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-slate-500">Time</p>
+                      <p className="font-medium">{selectedOrderForDetails.meeting_details.meetingTime}</p>
+                    </div>
+                    <div className="col-span-2">
+                      <p className="text-xs text-slate-500">Location</p>
+                      <p className="font-medium">
+                        {selectedOrderForDetails.meeting_details.meetingTower}, {selectedOrderForDetails.meeting_details.meetingLocation}
+                      </p>
+                    </div>
+                    <div className="col-span-2 border-t border-blue-100 pt-2 mt-1">
+                      <p className="text-xs text-slate-500">Contact</p>
+                      <p className="font-medium">{selectedOrderForDetails.meeting_details.fullName}</p>
+                      <p className="text-xs">{selectedOrderForDetails.meeting_details.phone}</p>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-slate-500 italic">No meeting details provided.</p>
+                )}
+              </div>
+              
+              <div className="rounded-xl border border-slate-100 bg-white p-4">
+                <h4 className="mb-2 font-semibold text-slate-800">Order Notes</h4>
+                <p className="text-slate-600 whitespace-pre-wrap">
+                  {selectedOrderForDetails.notes || <span className="italic text-slate-400">No additional notes.</span>}
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-6 flex justify-end">
+              <button
+                className="rounded-xl border border-blue-100 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm shadow-blue-50 transition hover:border-blue-200"
+                onClick={closeDetailsModal}
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}

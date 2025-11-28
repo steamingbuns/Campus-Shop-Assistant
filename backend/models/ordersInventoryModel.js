@@ -10,6 +10,8 @@ export const getOrdersBySellerId = async (sellerId) => {
       SUM(oi.price * oi.quantity) as total,
       o.status as status,
       o.create_at as date,
+      o.meeting_details,
+      o.notes,
       json_agg(json_build_object(
         'name', p.name,
         'quantity', oi.quantity,
@@ -20,7 +22,7 @@ export const getOrdersBySellerId = async (sellerId) => {
     JOIN public."Order_Item" oi ON o.order_id = oi.order_id
     JOIN public."Product" p ON oi.item_id = p.product_id
     WHERE p.seller_id = ${sellerId}
-    GROUP BY o.order_id, u.name, u.email, o.status, o.create_at
+    GROUP BY o.order_id, u.name, u.email, o.status, o.create_at, o.meeting_details, o.notes
     ORDER BY o.create_at DESC
   `;
   

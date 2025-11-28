@@ -5,6 +5,7 @@ import {
   getUsers,
   postWarnUser,
   postSuspendUser,
+  postUnsuspendUser,
   getListings,
   postApproveListing,
   putEditListing,
@@ -51,6 +52,7 @@ router.get('/ping', requireAdminFromBearer, (req, res) => {
 router.get('/users', requireAdminFromBearer, getUsers);
 router.post('/users/:id/warn', requireAdminFromBearer, postWarnUser);
 router.post('/users/:id/suspend', requireAdminFromBearer, postSuspendUser);
+router.post('/users/:id/unsuspend', requireAdminFromBearer, postUnsuspendUser);
 
 // ===== Listings =====
 router.get('/listings', requireAdminFromBearer, getListings);

@@ -1,55 +1,59 @@
 import { useEffect, useState } from "react";
-import { AlertTriangle, Ban } from "lucide-react";
+import { AlertTriangle, Ban, CheckCircle2 } from "lucide-react";
+import { useAuth } from "../../contexts/AuthContext";
+import adminService from "../../services/adminService";
 
 export default function UsersPanel() {
+  const { token } = useAuth();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const API = import.meta.env.VITE_API_URL || "http://localhost:3000";
-
-  // 3 account mặc định để test thao tác (khi API lỗi/đang trống)
-  const SEEDS = [
-    { id: "u1", name: "Alice", email: "alice@campus.edu", status: "active", warnings: 0, role: "user" },
-    { id: "u2", name: "Bob",   email: "bob@campus.edu",   status: "active", warnings: 1, role: "user" },
-    { id: "u3", name: "Carol", email: "carol@campus.edu", status: "active", warnings: 0, role: "user" },
-  ];
 
   async function load() {
+    if (!token) return;
     setLoading(true);
     try {
-      const r = await fetch(`${API}/api/admin/users`);
-      if (r.ok) {
-        let data = await r.json();
-        // loại admin khỏi list
-        data = data.filter(u => u.role !== "admin");
-        setUsers(data.length ? data : SEEDS);
-      } else {
-        setUsers(SEEDS);
-      }
-    } catch {
-      setUsers(SEEDS);
+      const data = await adminService.getUsers(token);
+      setUsers(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error("Failed to fetch users:", error);
+      setUsers([]);
     } finally {
       setLoading(false);
     }
   }
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); }, [token]);
 
   const warn = async (id) => {
-    await fetch(`${API}/api/admin/users/${id}/warn`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: "Please follow community guidelines." })
-    });
-    load();
+    try {
+      await adminService.warnUser(id, "Please follow community guidelines.", token);
+      load();
+    } catch (error) {
+      console.error("Failed to warn user:", error);
+      alert("Failed to warn user");
+    }
   };
 
   const suspend = async (id) => {
-    await fetch(`${API}/api/admin/users/${id}/suspend`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ reason: "Policy violation" })
-    });
-    load();
+    if (!window.confirm("Are you sure you want to suspend this user?")) return;
+    try {
+      await adminService.suspendUser(id, "Policy violation", token);
+      load();
+    } catch (error) {
+      console.error("Failed to suspend user:", error);
+      alert("Failed to suspend user");
+    }
+  };
+
+  const unsuspend = async (id) => {
+    if (!window.confirm("Are you sure you want to unsuspend this user?")) return;
+    try {
+      await adminService.unsuspendUser(id, token);
+      load();
+    } catch (error) {
+      console.error("Failed to unsuspend user:", error);
+      alert("Failed to unsuspend user");
+    }
   };
 
   if (loading) return <div className="text-sm text-slate-600">Loading users…</div>;
@@ -98,18 +102,25 @@ export default function UsersPanel() {
                       <AlertTriangle className="h-4 w-4" />
                       Warn
                     </button>
-                    <button onClick={() => suspend(u.id)} className="inline-flex items-center gap-1 rounded-lg bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700 shadow-sm shadow-red-100">
-                      <Ban className="h-4 w-4" />
-                      Suspend
-                    </button>
+                    {u.status === 'suspended' ? (
+                      <button onClick={() => unsuspend(u.id)} className="inline-flex items-center gap-1 rounded-lg bg-green-50 px-3 py-1.5 text-xs font-semibold text-green-700 shadow-sm shadow-green-100">
+                        <CheckCircle2 className="h-4 w-4" />
+                        Unsuspend
+                      </button>
+                    ) : (
+                      <button onClick={() => suspend(u.id)} className="inline-flex items-center gap-1 rounded-lg bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700 shadow-sm shadow-red-100">
+                        <Ban className="h-4 w-4" />
+                        Suspend
+                      </button>
+                    )}
                   </div>
                 </td>
               </tr>
             ))}
             {users.length === 0 && (
               <tr>
-                <td className="p-3 text-center text-gray-500" colSpan={6}>
-                  No users
+                <td className="p-3 text-center text-gray-500" colSpan={7}>
+                  No users found
                 </td>
               </tr>
             )}

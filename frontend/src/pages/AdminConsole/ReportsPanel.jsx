@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext.jsx';
-import reportService from '../../services/reportService.js';
+import adminService from '../../services/adminService.js';
 
 export default function ReportsPanel() {
   const { isLoggedIn, user, token } = useAuth();
@@ -13,14 +13,15 @@ export default function ReportsPanel() {
 
   useEffect(() => {
     const fetchTransactions = async () => {
-      if (!hasAccess) return;
+      if (!hasAccess || !token) return;
       setLoading(true);
       setError(null);
       try {
-        const data = await reportService.getAdminTransactions(token);
+        const data = await adminService.getTransactions(token);
         setTransactions(Array.isArray(data) ? data : []);
       } catch (err) {
         setError(err.message || 'Failed to load transactions.');
+        setTransactions([]);
       } finally {
         setLoading(false);
       }

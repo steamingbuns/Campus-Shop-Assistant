@@ -37,7 +37,7 @@ function ProductCard({ product, onAdd, onView, viewMode = 'grid' }) {
         <div className="flex flex-1 items-center gap-4">
           <div className="flex-1 space-y-1">
             <p className="text-xs font-semibold uppercase tracking-[0.12em] text-blue-500">
-              {product.category?.name || 'Campus item'}
+              {product.category?.name || product.categoryName || (typeof product.category === 'string' ? product.category : 'Campus item')}
             </p>
             <h3 className="line-clamp-1 text-lg font-semibold text-slate-900">{product.name}</h3>
             <p className="line-clamp-1 text-sm text-slate-600">
@@ -100,7 +100,7 @@ function ProductCard({ product, onAdd, onView, viewMode = 'grid' }) {
         <div className="flex items-start justify-between gap-3">
           <div className="space-y-1">
             <p className="line-clamp-1 text-xs font-semibold uppercase tracking-[0.12em] text-blue-500">
-              {product.category?.name || 'Campus item'}
+              {product.category?.name || product.categoryName || (typeof product.category === 'string' ? product.category : 'Campus item')}
             </p>
             <h3 className="line-clamp-2 text-base font-semibold text-slate-900">{product.name}</h3>
           </div>
@@ -130,9 +130,13 @@ ProductCard.propTypes = {
     price: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     image: PropTypes.string,
     description: PropTypes.string,
-    category: PropTypes.shape({
-      name: PropTypes.string,
-    }),
+    category: PropTypes.oneOfType([
+      PropTypes.shape({
+        name: PropTypes.string,
+      }),
+      PropTypes.string,
+    ]),
+    categoryName: PropTypes.string,
   }).isRequired,
   onAdd: PropTypes.func,
   onView: PropTypes.func,

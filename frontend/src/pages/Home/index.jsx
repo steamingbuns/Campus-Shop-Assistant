@@ -68,7 +68,7 @@ function Home() {
         </div>
 
         {/* Quick Stats */}
-        <div className="flex flex-wrap items-center justify-center gap-8 pt-8">
+        {/* <div className="flex flex-wrap items-center justify-center gap-8 pt-8">
           <div className="text-center">
             <p className="text-3xl font-bold text-slate-900">500+</p>
             <p className="text-sm text-slate-600">Active Listings</p>
@@ -83,7 +83,7 @@ function Home() {
             <p className="text-3xl font-bold text-slate-900">4.8/5</p>
             <p className="text-sm text-slate-600">Satisfaction</p>
           </div>
-        </div>
+        </div> */}
       </motion.section>
 
       {/* Features Section */}

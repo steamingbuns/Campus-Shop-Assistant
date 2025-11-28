@@ -161,7 +161,7 @@ export async function findProducts({ filters, orderBy, limit, offset }) {
 			p.category_id,
 			c.name AS category_name,
 			p.description AS description,
-			p.description AS name,
+			p.name AS name,
 			p.price,
 			p.stock,
 			p.ratings,
@@ -189,7 +189,7 @@ export async function findProductById(productId) {
 			p.category_id,
 			c.name AS category_name,
 			p.description AS description,
-			p.description AS name,
+			p.name AS name,
 			p.price,
 			p.stock,
 			p.ratings,
@@ -255,6 +255,7 @@ export async function findProductReviews(productId) {
 export async function createProduct({
 	sellerId,
 	categoryId,
+	name,
 	description,
 	price,
 	stock,
@@ -268,6 +269,7 @@ export async function createProduct({
 			INSERT INTO "Product" (
 				seller_id,
 				category_id,
+				name,
 				ratings,
 				stock,
 				description,
@@ -278,6 +280,7 @@ export async function createProduct({
 			) VALUES (
 				${sellerId},
 				${categoryId},
+				${name},
 				${null},
 				${stock},
 				${description},

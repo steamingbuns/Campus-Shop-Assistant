@@ -49,7 +49,7 @@ function Login() {
           </div>
           <div className="flex items-center gap-2">
             <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-blue-50 text-blue-500">2</span>
-            Track pickups, chat with sellers, and secure handoffs.
+            Track pickups, chat with sellers.
           </div>
         </div>
       </div>

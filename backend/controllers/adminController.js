@@ -5,7 +5,7 @@ import * as O from '../models/adminOrderModel.js';
 /* ===== Users ===== */
 export async function getUsers(req, res) {
   try {
-    const users = await U.listNonAdminUsers();
+    const users = await U.listAllUsers();
     res.json(users);
   } catch (e) {
     res.status(500).json({ ok: false, error: e.message });
@@ -25,6 +25,16 @@ export async function postWarnUser(req, res) {
 export async function postSuspendUser(req, res) {
   try {
     const row = await U.suspendUser(req.params.id, req.body?.reason);
+    if (!row) return res.status(403).json({ ok: false, error: 'Not allowed or user not found' });
+    res.json({ ok: true, user: row });
+  } catch (e) {
+    res.status(500).json({ ok: false, error: e.message });
+  }
+}
+
+export async function postUnsuspendUser(req, res) {
+  try {
+    const row = await U.unsuspendUser(req.params.id);
     if (!row) return res.status(403).json({ ok: false, error: 'Not allowed or user not found' });
     res.json({ ok: true, user: row });
   } catch (e) {
@@ -88,6 +98,7 @@ export {
   getUsers as listUsers,
   postWarnUser as warnUser,
   postSuspendUser as suspendUser,
+  postUnsuspendUser as unsuspendUser,
 
   getListings as listListings,
   postApproveListing as approveListing,

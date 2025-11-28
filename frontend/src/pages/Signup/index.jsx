@@ -54,14 +54,14 @@ function Signup() {
         <p className="mt-2 text-base text-slate-600">
           Join the marketplace, list items fast, and connect with trusted students nearby.
         </p>
-        <div className="mt-6 rounded-2xl bg-gradient-to-r from-blue-500 to-blue-500 p-4 text-white shadow-lg shadow-blue-200">
+        {/* <div className="mt-6 rounded-2xl bg-gradient-to-r from-blue-500 to-blue-500 p-4 text-white shadow-lg shadow-blue-200">
           <p className="text-sm font-semibold opacity-90">Perks for sellers</p>
           <ul className="mt-2 space-y-2 text-sm opacity-90">
             <li>• Instant listing creation</li>
             <li>• Smart chat assistant for buyers</li>
             <li>• Pickup scheduling on campus</li>
           </ul>
-        </div>
+        </div> */}
       </div>
 
       <div className="mt-8 lg:mt-0 lg:w-1/2">

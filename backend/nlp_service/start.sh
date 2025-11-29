@@ -2,15 +2,23 @@
 # Start NLP Service Script for macOS/Linux
 cd "$(dirname "$0")"
 
-if [ ! -f "venv/bin/activate" ]; then
+# Support both venv and .venv folder names
+if [ -f ".venv/bin/activate" ]; then
+    VENV_DIR=".venv"
+elif [ -f "venv/bin/activate" ]; then
+    VENV_DIR="venv"
+else
     echo "[ERROR] Virtual environment not found. Run setup.sh first."
     exit 1
 fi
 
-source venv/bin/activate
+source $VENV_DIR/bin/activate
 
-# Use custom model if available, otherwise fallback to en_core_web_sm
-if [ -f "models/campus_shop_nlp/meta.json" ]; then
+# Model priority: models/best > models/campus_shop_nlp > en_core_web_sm
+if [ -f "models/best/meta.json" ]; then
+    echo "Using production model: models/best"
+    export SPACY_MODEL=models/best
+elif [ -f "models/campus_shop_nlp/meta.json" ]; then
     echo "Using custom trained model: models/campus_shop_nlp"
     export SPACY_MODEL=models/campus_shop_nlp
 else

@@ -17,18 +17,24 @@ if ! command -v python3 &> /dev/null; then
 fi
 
 echo "[1/4] Creating virtual environment..."
-if [ ! -d "venv" ]; then
+# Support both venv and .venv folder names
+if [ -f ".venv/bin/activate" ]; then
+    echo "Virtual environment (.venv) already exists, skipping..."
+    VENV_DIR=".venv"
+elif [ -f "venv/bin/activate" ]; then
+    echo "Virtual environment (venv) already exists, skipping..."
+    VENV_DIR="venv"
+else
     python3 -m venv venv
     if [ $? -ne 0 ]; then
         echo "[ERROR] Failed to create virtual environment"
         exit 1
     fi
-else
-    echo "Virtual environment already exists, skipping..."
+    VENV_DIR="venv"
 fi
 
 echo "[2/4] Activating virtual environment..."
-source venv/bin/activate
+source $VENV_DIR/bin/activate
 
 echo "[3/4] Installing dependencies..."
 pip install -r requirements.txt --quiet
@@ -38,12 +44,15 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "[4/4] Setting up spaCy model..."
-# Check if custom trained model exists
-if [ -f "models/campus_shop_nlp/meta.json" ]; then
+# Check if trained model exists (priority: models/best > models/campus_shop_nlp)
+if [ -f "models/best/meta.json" ]; then
+    echo "Production model found: models/best"
+    echo "Using production model for best accuracy."
+elif [ -f "models/campus_shop_nlp/meta.json" ]; then
     echo "Custom trained model found: models/campus_shop_nlp"
     echo "Using custom model for best accuracy."
 else
-    echo "Custom model not found. Downloading en_core_web_sm as fallback..."
+    echo "No trained model found. Downloading en_core_web_sm as fallback..."
     python -m spacy download en_core_web_sm --quiet
     if [ $? -ne 0 ]; then
         echo "[WARNING] Failed to download spaCy model. Will use regex fallback."

@@ -147,7 +147,6 @@ async def parse_text_sync(text: str) -> Dict[str, Any]:
     return await loop.run_in_executor(None, _process)
 
 
-# FIX THIS RIGHT NOW
 def guess_intent_from_text(text: str) -> Dict[str, Any]:
     """A tiny rule-based intent detector as a placeholder.
 
@@ -264,4 +263,4 @@ if __name__ == "__main__":
     import uvicorn
 
     # Default host/port, override with env or uvicorn args in production
-    uvicorn.run("app:app", host="0.0.0.0", port=int(os.environ.get("PORT", 8000)), reload=False)
+    uvicorn.run("app:app", host="0.0.0.0", port=int(os.environ.get("PORT", 5001)), reload=False)

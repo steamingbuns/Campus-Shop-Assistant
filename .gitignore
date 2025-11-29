@@ -11,6 +11,13 @@ frontend/node_modules/
 backend/.env
 frontend/.env
 
+# NLP Service (Python)
+backend/nlp_service/.venv/
+backend/nlp_service/venv/
+backend/nlp_service/models/en_core_web_sm*/
+backend/nlp_service/__pycache__/
+*.pyc
+
 # Misc
 .DS_Store
 npm-debug.log*

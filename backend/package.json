@@ -13,11 +13,14 @@
     "db:reset": "node db/reset.js",
     "seed:admin": "node -r dotenv/config db/seedAdmin.js",
     "seed:users": "node -r dotenv/config db/seedUsers.js",
-    "test": "jest"
+    "test": "jest",
+    "nlp:setup": "cd nlp_service && setup.bat",
+    "nlp:start": "cd nlp_service && start.bat"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "axios": "^1.13.2",
     "bcrypt": "^5.1.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",

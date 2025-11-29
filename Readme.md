@@ -9,6 +9,7 @@ This project is a Campus Shop Assistant, a full-stack e-commerce application. It
 - Order management for users and sellers.
 - Seller dashboard for inventory and order management.
 - User profiles.
+- AI-powered Chatbot for product search, price queries, and recommendations.
 
 ## Setup and Running the Application
 
@@ -123,3 +124,88 @@ npm run db:seed
   ```bash
   curl -X PUT http://localhost:5000/api/orders/1/status -H "Content-Type: application/json" -H "Authorization: Bearer <YOUR_SELLER_TOKEN>" -d '{"status": "shipped"}'
   ```
+
+### Chatbot Routes (`/api/chatbot`)
+
+- **Send a message to the chatbot:**
+  ```bash
+  curl -X POST http://localhost:5000/api/chatbot/query -H "Content-Type: application/json" -d '{"message": "show me laptops"}'
+  ```
+
+- **Example queries:**
+  ```bash
+  # Search for products
+  curl -X POST http://localhost:5000/api/chatbot/query -H "Content-Type: application/json" -d '{"message": "find electronics"}'
+  
+  # Ask for price
+  curl -X POST http://localhost:5000/api/chatbot/query -H "Content-Type: application/json" -d '{"message": "how much is the laptop"}'
+  
+  # Get recommendations
+  curl -X POST http://localhost:5000/api/chatbot/query -H "Content-Type: application/json" -d '{"message": "what do you recommend"}'
+  
+  # Get help
+  curl -X POST http://localhost:5000/api/chatbot/query -H "Content-Type: application/json" -d '{"message": "help"}'
+  ```
+
+---
+
+## Chatbot (Optional Enhanced NLP)
+
+The chatbot works **out of the box** with regex-based intent detection. For enhanced NLP using spaCy:
+
+### Quick Setup (Recommended)
+```bash
+cd backend/nlp_service
+setup.bat     # Windows - creates venv, installs dependencies, sets up model
+start.bat     # Windows - starts NLP service on port 5001
+
+# Linux/macOS
+chmod +x setup.sh start.sh
+./setup.sh && ./start.sh
+```
+
+### Custom Trained Model
+This project includes a **custom trained spaCy model** (`models/campus_shop_nlp`) optimized for campus shopping queries with:
+- **Text Classification:** greeting, get_recommendations, search_product, ask_price, help
+- **Named Entity Recognition:** CATEGORY, CONDITION, PRICE, PRODUCT
+
+The setup scripts will automatically use this custom model if available, falling back to `en_core_web_sm` otherwise.
+
+### Manual Setup
+```bash
+cd backend/nlp_service
+python -m venv venv && venv\Scripts\activate   # Windows
+pip install -r requirements.txt
+# Custom model (recommended):
+set SPACY_MODEL=models/campus_shop_nlp && uvicorn app:app --port 5001
+# Or generic model:
+python -m spacy download en_core_web_sm
+set SPACY_MODEL=en_core_web_sm && uvicorn app:app --port 5001
+```
+
+> **Note:** If NLP service is unavailable, chatbot automatically falls back to regex-based detection.
+
+---
+
+## Running Tests
+
+### Backend Tests (Jest)
+```bash
+cd backend
+npm test
+```
+
+### Frontend Tests (Vitest)
+```bash
+cd frontend
+npm test
+```
+
+### Run Specific Test File
+```bash
+# Backend
+npm test -- chatbot.test.js
+
+# Frontend  
+npm test -- --run chatbotService.test.js
+```

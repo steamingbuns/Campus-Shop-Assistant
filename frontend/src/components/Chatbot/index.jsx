@@ -1,59 +1,102 @@
 import { useState, useRef, useEffect } from 'react';
-import { MessageCircle, Send, X, Sparkles } from 'lucide-react';
+import { MessageCircle, Send, X, ShoppingCart } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useCart } from '../../contexts/CartContext';
+import * as chatbotService from '../../services/chatbotService';
 import avatarImg from '../../assets/chatbot.jpg';
+
+// ProductCard component for displaying products in chat
+const ProductCard = ({ product, onAddToCart, onViewDetails }) => {
+  return (
+    <div className="flex gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
+      {/* Product Image */}
+      <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-slate-100">
+        {product.image ? (
+          <img 
+            src={product.image} 
+            alt={product.name} 
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center text-slate-400">
+            <ShoppingCart className="h-6 w-6" />
+          </div>
+        )}
+      </div>
+      
+      {/* Product Info */}
+      <div className="flex flex-1 flex-col justify-between">
+        <div>
+          <h4 className="text-sm font-medium text-slate-800 line-clamp-1">
+            {product.name || 'Unnamed Product'}
+          </h4>
+          <p className="text-xs text-slate-500 line-clamp-1">
+            {product.category_name || 'Uncategorized'}
+          </p>
+        </div>
+        
+        <div className="flex items-center justify-between">
+          <span className="text-sm font-bold text-blue-600">
+            {chatbotService.formatPrice(product.price)}
+          </span>
+          
+          <div className="flex gap-1">
+            <button
+              onClick={() => onViewDetails(product.id)}
+              className="rounded-lg bg-slate-100 px-2 py-1 text-xs font-medium text-slate-600 transition hover:bg-slate-200"
+            >
+              View
+            </button>
+            <button
+              onClick={() => onAddToCart(product)}
+              className="rounded-lg bg-blue-500 px-2 py-1 text-xs font-medium text-white transition hover:bg-blue-600"
+            >
+              Add
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const Chatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState([
-    {
-      id: 1,
-      text: "Welcome to our store! 👋",
-      sender: "bot",
-      timestamp: new Date()
-    },
-    {
-      id: 2,
-      text: "How can I help you?",
-      sender: "bot",
-      timestamp: new Date()
+  const [isLoading, setIsLoading] = useState(false);
+  const [messages, setMessages] = useState([chatbotService.getInitialMessage()]);
+
+  const navigate = useNavigate();
+  const { addToCart } = useCart();
+
+  const handleQuickAction = (action) => {
+    if (action.type === 'guide') {
+      // Show guide message instead of sending query
+      setMessages(prev => [...prev, chatbotService.createBotMessage(action.message)]);
+    } else {
+      handleSendMessage(action.message);
     }
-  ]);
+  };
 
-  const quickActions = [
-    { id: 'purchase', text: 'Purchase info' },
-    { id: 'order', text: 'Order status' },
-    { id: 'refund', text: 'Refund info' },
-  ];
+  // Handle adding product to cart
+  const handleAddToCart = (product) => {
+    addToCart({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.image,
+      quantity: 1
+    });
+    
+    // Add feedback message
+    setMessages(prev => [...prev, chatbotService.createBotMessage(
+      `✅ Added "${product.name}" to your cart!`
+    )]);
+  };
 
-  const handleQuickAction = (actionId, actionText) => {
-    // Add user message
-    setMessages(prev => [...prev, {
-      text: actionText,
-      sender: 'user'
-    }]);
-
-    // Simulate bot response
-    setTimeout(() => {
-      let response = '';
-      switch (actionId) {
-        case 'purchase':
-          response = 'You can purchase items by adding them to cart and checking out.\n Need help with anything specific?';
-          break;
-        case 'order':
-          response = 'To check your order status, please provide your order number.';
-          break;
-        case 'refund':
-          response = 'For refunds, please check our refund policy. Would you like me to explain the process?';
-          break;
-        default:
-          response = 'How else can I help you?';
-      }
-
-      setMessages(prev => [...prev, {
-        text: response,
-        sender: 'bot'
-      }]);
-    }, 500);
+  // Handle view product details
+  const handleViewDetails = (productId) => {
+    navigate(`/product/${productId}`);
+    setIsOpen(false); // Close chatbot when navigating
   };
 
   const [inputMessage, setInputMessage] = useState('');
@@ -67,23 +110,42 @@ const Chatbot = () => {
     scrollToBottom();
   }, [messages]);
 
+  // Send message to backend API using chatbotService
+  const handleSendMessage = async (text) => {
+    if (!text.trim()) return;
+
+    const userMessage = text.trim();
+    
+    // Add user message to chat
+    setMessages(prev => [...prev, chatbotService.createUserMessage(userMessage)]);
+    setIsLoading(true);
+
+    try {
+      const response = await chatbotService.sendMessage(userMessage);
+      
+      // Add bot reply
+      setMessages(prev => [...prev, chatbotService.createBotMessage(
+        response.responseText || "I couldn't process that request.",
+        response.metadata
+      )]);
+
+    } catch (error) {
+      console.error('Chatbot API error:', error);
+      setMessages(prev => [...prev, chatbotService.createBotMessage(
+        "Sorry, I'm having trouble connecting. Please try again later."
+      )]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleSend = async (e) => {
     e.preventDefault();
-    if (!inputMessage.trim()) return;
+    if (!inputMessage.trim() || isLoading) return;
 
-    // Add user message
-    setMessages(prev => [...prev, { text: inputMessage, sender: 'user' }]);
-    
-    // TODO: Add API call to backend here
-    // For now, simulate bot response
-    setTimeout(() => {
-      setMessages(prev => [...prev, { 
-        text: "I'm searching for relevant items...", 
-        sender: 'bot' 
-      }]);
-    }, 1000);
-
+    const message = inputMessage;
     setInputMessage('');
+    await handleSendMessage(message);
   };
 
   if (!isOpen) {
@@ -123,9 +185,10 @@ const Chatbot = () => {
 
       <div className="max-h-96 overflow-y-auto px-4 py-3 space-y-3">
         {messages.map((message, index) => (
-          <div key={index} className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+          <div key={index} className={`flex flex-col ${message.sender === 'user' ? 'items-end' : 'items-start'}`}>
+            {/* Message bubble */}
             <div
-              className={`max-w-[80%] whitespace-pre-line rounded-2xl px-3 py-2 text-sm shadow-sm ${
+              className={`max-w-[85%] whitespace-pre-line rounded-2xl px-3 py-2 text-sm shadow-sm ${
                 message.sender === 'user'
                   ? 'bg-gradient-to-r from-blue-500 to-blue-500 text-white shadow-blue-200'
                   : 'bg-slate-100 text-slate-800'
@@ -133,19 +196,52 @@ const Chatbot = () => {
             >
               {message.text}
             </div>
+            
+            {/* Product cards (if message has products in metadata) */}
+            {message.metadata?.results && message.metadata.results.length > 0 && (
+              <div className="mt-2 w-full space-y-2">
+                {message.metadata.results.slice(0, 5).map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    onAddToCart={handleAddToCart}
+                    onViewDetails={handleViewDetails}
+                  />
+                ))}
+                {message.metadata.results.length > 5 && (
+                  <p className="text-center text-xs text-slate-500">
+                    +{message.metadata.results.length - 5} more items available
+                  </p>
+                )}
+              </div>
+            )}
           </div>
         ))}
 
-        {messages.length <= 2 && (
+        {/* Loading indicator */}
+        {isLoading && (
+          <div className="flex justify-start">
+            <div className="flex items-center gap-2 rounded-2xl bg-slate-100 px-4 py-2 text-sm text-slate-600">
+              <div className="flex gap-1">
+                <span className="h-2 w-2 animate-bounce rounded-full bg-slate-400" style={{ animationDelay: '0ms' }}></span>
+                <span className="h-2 w-2 animate-bounce rounded-full bg-slate-400" style={{ animationDelay: '150ms' }}></span>
+                <span className="h-2 w-2 animate-bounce rounded-full bg-slate-400" style={{ animationDelay: '300ms' }}></span>
+              </div>
+              Searching...
+            </div>
+          </div>
+        )}
+
+        {/* Quick actions shown at start */}
+        {messages.length <= 1 && !isLoading && (
           <div className="flex flex-wrap gap-2">
-            {quickActions.map((action) => (
+            {chatbotService.quickActions.map((action, index) => (
               <button
-                key={action.id}
-                className="inline-flex items-center gap-1 rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-600 transition hover:border-blue-200"
-                onClick={() => handleQuickAction(action.id, action.text)}
+                key={index}
+                className="inline-flex items-center gap-1 rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-600 transition hover:border-blue-200 hover:bg-blue-100"
+                onClick={() => handleQuickAction(action)}
               >
-                <Sparkles className="h-3 w-3" />
-                {action.text}
+                {action.label}
               </button>
             ))}
           </div>
@@ -157,14 +253,16 @@ const Chatbot = () => {
       <form onSubmit={handleSend} className="flex items-center gap-2 border-t border-blue-50 px-3 py-3">
         <input
           type="text"
-          placeholder="Enter your message..."
-          className="h-11 flex-1 rounded-xl border border-blue-100 bg-white/80 px-3 text-sm text-slate-800 outline-none ring-blue-100 transition focus:ring-2 focus:ring-blue-500"
+          placeholder="Ask me anything..."
+          className="h-11 flex-1 rounded-xl border border-blue-100 bg-white/80 px-3 text-sm text-slate-800 outline-none ring-blue-100 transition focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
           value={inputMessage}
           onChange={(e) => setInputMessage(e.target.value)}
+          disabled={isLoading}
         />
         <button
           type="submit"
-          className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-r from-blue-500 to-blue-500 text-white shadow-sm shadow-blue-200 transition hover:translate-y-[-1px] hover:shadow-md"
+          disabled={isLoading || !inputMessage.trim()}
+          className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-r from-blue-500 to-blue-500 text-white shadow-sm shadow-blue-200 transition hover:translate-y-[-1px] hover:shadow-md disabled:opacity-50 disabled:hover:translate-y-0"
         >
           <Send className="h-4 w-4" />
         </button>

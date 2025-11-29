@@ -16,6 +16,7 @@ import productDetailsRoutes from './routes/productDetailsRoutes.js';
 import ordersInventoryRoutes from './routes/ordersInventoryRoutes.js';
 import healthRoutes from './routes/healthRoutes.js';
 import reportRoutes from './routes/reportRoutes.js';
+import chatbotRoutes from './routes/chatbotRoutes.js';
 
 const PORT = Number.parseInt(process.env.PORT, 10) || 5000;
 const DEFAULT_ALLOWED_ORIGINS = [
@@ -82,6 +83,7 @@ app.use("/api/report", reportRoutes);
 app.use('/api/product-details', productDetailsRoutes);
 app.use('/api/orders-inventory', ordersInventoryRoutes);
 app.use('/api/health', healthRoutes);
+app.use('/api/chatbot', chatbotRoutes);
 app.get('/api/healthz', (_req, res) => res.send('ok'));
 
 app.listen(PORT, () => {

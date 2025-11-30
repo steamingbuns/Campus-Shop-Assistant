@@ -114,7 +114,7 @@ async function handleMessage({ sessionId, userId, text, nlp = null }) {
       parseResult = await nlpClient.parseText(text);
     } catch (err) {
       // If NLP service is unavailable, use regex-based fallback from chatbotModel
-      console.error('NLP parse failed; using chatbotModel fallback. Error:', err && err.message);
+      
       try {
         // chatbotModel.parseUserQuery returns { intent, entities, originalMessage }
         const fallbackParse = await chatbotModel.parseUserQuery(text);
@@ -130,7 +130,7 @@ async function handleMessage({ sessionId, userId, text, nlp = null }) {
         };
         console.log('Fallback parse result:', parseResult);
       } catch (fallbackErr) {
-        console.error('Fallback parsing also failed:', fallbackErr && fallbackErr.message);
+        
         parseResult = { intent: { name: 'unknown', confidence: 0 }, entities: [], noun_chunks: [] };
       }
     }
@@ -240,7 +240,7 @@ async function handleMessage({ sessionId, userId, text, nlp = null }) {
         }
       } catch (err) {
         // Non-fatal: if mapping fails, continue with textual search only
-        console.warn('Entity -> filter mapping failed', err && err.message);
+        
       }
 
       // Pagination + ordering defaults for chatbot searches
@@ -252,15 +252,14 @@ async function handleMessage({ sessionId, userId, text, nlp = null }) {
       let results = [];
       let totalCount = 0;
       try {
-        const [rows, [{ count }]] = await Promise.all([
+        const [rows, count] = await Promise.all([
           productModel.findProducts({ filters, orderBy, limit, offset }),
-          // countProducts expects same filter shape
-          productModel.countProducts(filters).then((c) => [{ count: c }]).catch(() => [{ count: 0 }]),
+          productModel.countProducts(filters),
         ]);
         results = rows || [];
         totalCount = Number((count !== undefined && count !== null) ? count : results.length);
       } catch (err) {
-        console.error('Product search failed', err && err.message);
+        
         results = [];
         totalCount = 0;
       }
@@ -332,7 +331,7 @@ async function handleMessage({ sessionId, userId, text, nlp = null }) {
                 };
               }
             } catch (err) {
-              console.warn('Category fallback search failed', err && err.message);
+              
             }
           }
 
@@ -368,12 +367,12 @@ async function handleMessage({ sessionId, userId, text, nlp = null }) {
                   metadata = { intent, query: broadened, results: bResults, totalCount: bTotal, limit: 20, offset: 0, broadenedFrom: query };
                 }
               } catch (err) {
-                console.warn('Broadened search failed', err && err.message);
+                
               }
             }
           }
         } catch (err) {
-          console.warn('Progressive broadening failed', err && err.message);
+          
         }
       }
 
@@ -381,7 +380,7 @@ async function handleMessage({ sessionId, userId, text, nlp = null }) {
       try {
         // await chatbotModel.saveMessage(sessionId, null, 'bot', reply, metadata);
       } catch (err) {
-        console.warn('Failed to persist bot message', err && err.message);
+        
       }
 
       return { reply, metadata };
@@ -448,7 +447,7 @@ async function handleMessage({ sessionId, userId, text, nlp = null }) {
             };
           }
         } catch (err) {
-          console.error('Price lookup failed', err && err.message);
+          
         }
       }
       
@@ -479,7 +478,7 @@ async function handleMessage({ sessionId, userId, text, nlp = null }) {
           };
         }
       } catch (err) {
-        console.error('Recommendations fetch failed', err && err.message);
+        
       }
       
       return { 
@@ -526,7 +525,7 @@ Just type what you're looking for!`;
             };
           }
         } catch (err) {
-          console.warn('Fallback search failed', err && err.message);
+          
         }
       }
 
@@ -539,7 +538,7 @@ Just type what you're looking for!`;
       return { reply, metadata: { intent } };
     }
   } catch (err) {
-    console.error('Error handling intent flow', err && err.message);
+    
     const reply = "Sorry, something went wrong while processing your request.";
     return { reply, metadata: { error: err && err.message } };
   }
@@ -601,7 +600,7 @@ function extractQueryFromParse(originalText, parseResult) {
     // If no meaningful words found after filtering, return null (browse all)
     return null;
   } catch (err) {
-    console.warn('extractQueryFromParse failed', err && err.message);
+    
   }
   return null; // Return null instead of originalText to allow browse-all behavior
 }
@@ -636,7 +635,7 @@ function parsePriceEntities(entities) {
     if (prices.length === 1) return { maxPrice: prices[0] };
     return { minPrice: Math.min(...prices), maxPrice: Math.max(...prices) };
   } catch (err) {
-    console.warn('parsePriceEntities failed', err && err.message);
+    
     return {};
   }
 }
@@ -662,7 +661,7 @@ async function detectCategoryIdFromEntities(entities) {
     }
     return null;
   } catch (err) {
-    console.warn('detectCategoryIdFromEntities failed', err && err.message);
+    
     return null;
   }
 }

@@ -334,18 +334,34 @@ describe('Chatbot Endpoints', () => {
         .send('invalid json');
 
       // Express returns 400 for invalid JSON
-      expect([400, 500]).toContain(res.statusCode);
+      expect(res.statusCode).toEqual(400);
     });
 
-    it('should handle database errors gracefully', async () => {
+    it('should handle database errors in findProducts gracefully', async () => {
       productModel.findProducts.mockRejectedValue(new Error('Database error'));
+      // countProducts might also fail, but findProducts is the primary one
+      productModel.countProducts.mockResolvedValue(0);
 
       const res = await request(app)
         .post('/api/chatbot/query')
         .send({ message: 'find products' });
 
-      // Should not crash, returns error response
-      expect([200, 500]).toContain(res.statusCode);
+      expect(res.statusCode).toEqual(200);
+      expect(res.body.responseText).toContain("I couldn't find any products");
+      expect(res.body.metadata.results).toEqual([]);
+    });
+
+    it('should handle database errors in countProducts gracefully', async () => {
+      productModel.findProducts.mockResolvedValue([{ id: 1, name: 'A single product' }]);
+      productModel.countProducts.mockRejectedValue(new Error('Database error in count'));
+
+      const res = await request(app)
+        .post('/api/chatbot/query')
+        .send({ message: 'find products' });
+
+      expect(res.statusCode).toEqual(200);
+      expect(res.body.responseText).toContain("I couldn't find any products");
+      expect(res.body.metadata.results).toEqual([]);
     });
   });
 

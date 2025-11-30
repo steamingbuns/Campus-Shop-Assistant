@@ -1,10 +1,10 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { vi } from 'vitest';
-import InventoryManagement from './InventoryManagement';
-import productDetailsService from '../../services/productDetailsService';
-import { AuthProvider } from '../../contexts/AuthContext';
+import InventoryManagement from '../src/pages/SellerDashboard/InventoryManagement';
+import productDetailsService from '../src/services/productDetailsService';
+import { AuthProvider } from '../src/contexts/AuthContext';
 
-vi.mock('../../services/productDetailsService', () => ({
+vi.mock('../src/services/productDetailsService', () => ({
   default: {
     getSellerInventory: vi.fn(),
     getCategories: vi.fn(),
@@ -28,9 +28,15 @@ function renderWithAuth(ui) {
 
 describe('InventoryManagement', () => {
   beforeEach(() => {
+    localStorage.setItem('campusShopUser', JSON.stringify({ role: 'seller' }));
+    localStorage.setItem('campusShopToken', 'test-token');
     vi.clearAllMocks();
     productDetailsService.getSellerInventory.mockResolvedValue(mockInventory);
     productDetailsService.getCategories.mockResolvedValue([{ name: 'Books' }]);
+  });
+  
+  afterEach(() => {
+    localStorage.clear();
   });
 
   it('renders inventory list', async () => {
@@ -42,8 +48,9 @@ describe('InventoryManagement', () => {
     renderWithAuth(<InventoryManagement />);
     await screen.findByText('Item 1');
 
-    fireEvent.click(screen.getByText('+ Add New Item'));
-    fireEvent.change(screen.getByLabelText(/Product Name/i), { target: { value: 'New Item' } });
+    fireEvent.click(screen.getByRole('button', { name: /Add New Item/i }));
+
+    fireEvent.change(await screen.findByLabelText(/Product Name/i), { target: { value: 'New Item' } });
     fireEvent.change(screen.getByLabelText(/Price/i), { target: { value: '12' } });
     fireEvent.change(screen.getByLabelText(/Initial Stock/i), { target: { value: '3' } });
     fireEvent.change(screen.getByLabelText(/Low Stock Threshold/i), { target: { value: '1' } });
@@ -60,7 +67,8 @@ describe('InventoryManagement', () => {
       description: 'Desc',
     });
 
-    fireEvent.click(screen.getByRole('button', { name: /Add Item/i }));
+    const addForm = screen.getByRole('button', { name: /Add Item/i }).closest('form');
+    fireEvent.submit(addForm);
 
     await waitFor(() => {
       expect(productDetailsService.createProduct).toHaveBeenCalled();

@@ -73,10 +73,11 @@ function Signup() {
 
         <form onSubmit={handleSubmit} className="space-y-4 rounded-2xl bg-white/80 p-6 shadow-sm shadow-blue-50 ring-1 ring-blue-50">
           <div className="space-y-2">
-            <label className="text-sm font-semibold text-slate-800">Username</label>
+            <label htmlFor="username-input" className="text-sm font-semibold text-slate-800">Username</label>
             <div className="flex items-center gap-2 rounded-xl border border-blue-100 bg-white/70 px-3 py-2 ring-blue-100 focus-within:ring-2 focus-within:ring-blue-500">
               <UserRound className="h-4 w-4 text-slate-400" />
               <input
+                id="username-input"
                 type="text"
                 className="w-full border-none bg-transparent text-sm text-slate-800 outline-none placeholder:text-slate-400"
                 placeholder="Choose a display name"
@@ -87,10 +88,11 @@ function Signup() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-semibold text-slate-800">Email</label>
+            <label htmlFor="email-input" className="text-sm font-semibold text-slate-800">Email</label>
             <div className="flex items-center gap-2 rounded-xl border border-blue-100 bg-white/70 px-3 py-2 ring-blue-100 focus-within:ring-2 focus-within:ring-blue-500">
               <Mail className="h-4 w-4 text-slate-400" />
               <input
+                id="email-input"
                 type="email"
                 className="w-full border-none bg-transparent text-sm text-slate-800 outline-none placeholder:text-slate-400"
                 placeholder="your.name@campus.edu"
@@ -101,10 +103,11 @@ function Signup() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-semibold text-slate-800">Password</label>
+            <label htmlFor="password-input" className="text-sm font-semibold text-slate-800">Password</label>
             <div className="flex items-center gap-2 rounded-xl border border-blue-100 bg-white/70 px-3 py-2 ring-blue-100 focus-within:ring-2 focus-within:ring-blue-500">
               <Lock className="h-4 w-4 text-slate-400" />
               <input
+                id="password-input"
                 type="password"
                 className="w-full border-none bg-transparent text-sm text-slate-800 outline-none placeholder:text-slate-400"
                 placeholder="At least 6 characters"

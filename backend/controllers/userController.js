@@ -90,7 +90,7 @@ export async function register(req, res) {
     });
 
   } catch (error) {
-    console.error('Registration error:', error);
+    
     res.status(500).json({
       error: 'Failed to register user. Please try again.'
     });
@@ -150,7 +150,7 @@ export async function login(req, res) {
     });
 
   } catch (error) {
-    console.error('Login error:', error);
+    
     res.status(500).json({
       error: 'Failed to login. Please try again.'
     });
@@ -177,7 +177,7 @@ export async function logout(req, res) {
     });
 
   } catch (error) {
-    console.error('Logout error:', error);
+    
     res.status(500).json({
       error: 'Failed to logout. Please try again.'
     });
@@ -214,7 +214,7 @@ export async function getCurrentUser(req, res) {
     });
 
   } catch (error) {
-    console.error('Get current user error:', error);
+    
     res.status(500).json({
       error: 'Failed to get user profile'
     });
@@ -276,7 +276,7 @@ export async function updateProfile(req, res) {
     });
 
   } catch (error) {
-    console.error('Update profile error:', error);
+    
     res.status(500).json({
       error: 'Failed to update profile'
     });

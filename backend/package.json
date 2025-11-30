@@ -14,8 +14,8 @@
     "seed:admin": "node -r dotenv/config db/seedAdmin.js",
     "seed:users": "node -r dotenv/config db/seedUsers.js",
     "test": "jest",
-    "nlp:setup": "cd nlp_service && setup.bat",
-    "nlp:start": "cd nlp_service && start.bat"
+    "nlp:setup": "cd nlp_service && ./setup.sh",
+    "nlp:start": "cd nlp_service && ./start.sh"
   },
   "author": "",
   "license": "ISC",

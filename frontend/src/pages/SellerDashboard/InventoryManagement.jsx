@@ -4,7 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import productDetailsService from '../../services/productDetailsService';
 
 function InventoryManagement() {
-  const { token } = useAuth();
+  const { token, loading: authLoading } = useAuth();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -25,16 +25,20 @@ function InventoryManagement() {
   const [editItem, setEditItem] = useState(null); // Item currently being edited
 
   useEffect(() => {
-    fetchInventory();
-    fetchCategories();
-  }, []);
+    if (authLoading) return;
 
-  const fetchInventory = async () => {
     if (!token) {
       setError('Please log in with a seller account to view inventory.');
+      setItems([]);
       setLoading(false);
       return;
     }
+
+    fetchInventory();
+    fetchCategories();
+  }, [token, authLoading]);
+
+  const fetchInventory = async () => {
     try {
       setLoading(true);
       const response = await productDetailsService.getSellerInventory({ token });
@@ -309,8 +313,9 @@ function InventoryManagement() {
 
             <form onSubmit={handleAddItem} className="mt-4 grid gap-3 sm:grid-cols-2">
               <div className="sm:col-span-2">
-                <label className="text-sm font-semibold text-slate-800">Product Name *</label>
+                <label htmlFor="add-name" className="text-sm font-semibold text-slate-800">Product Name *</label>
                 <input
+                  id="add-name"
                   type="text"
                   value={newItem.name}
                   onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
@@ -319,8 +324,9 @@ function InventoryManagement() {
                 />
               </div>
               <div>
-                <label className="text-sm font-semibold text-slate-800">Category *</label>
+                <label htmlFor="add-category" className="text-sm font-semibold text-slate-800">Category *</label>
                 <select
+                  id="add-category"
                   value={newItem.category}
                   onChange={(e) => setNewItem({ ...newItem, category: e.target.value })}
                   required
@@ -345,8 +351,9 @@ function InventoryManagement() {
                 </select>
               </div>
               <div>
-                <label className="text-sm font-semibold text-slate-800">Price (VND) *</label>
+                <label htmlFor="add-price" className="text-sm font-semibold text-slate-800">Price (VND) *</label>
                 <input
+                  id="add-price"
                   type="number"
                   step="1000"
                   min="0"
@@ -358,8 +365,9 @@ function InventoryManagement() {
                 />
               </div>
               <div>
-                <label className="text-sm font-semibold text-slate-800">Product Image URL</label>
+                <label htmlFor="add-image" className="text-sm font-semibold text-slate-800">Product Image URL</label>
                 <input
+                  id="add-image"
                   type="url"
                   value={newItem.image}
                   onChange={(e) => setNewItem({ ...newItem, image: e.target.value })}
@@ -369,8 +377,9 @@ function InventoryManagement() {
                 <p className="mt-1 text-xs text-slate-500">Optional: Paste an image URL from Unsplash, Imgur, etc.</p>
               </div>
               <div>
-                <label className="text-sm font-semibold text-slate-800">Initial Stock *</label>
+                <label htmlFor="add-stock" className="text-sm font-semibold text-slate-800">Initial Stock *</label>
                 <input
+                  id="add-stock"
                   type="number"
                   value={newItem.stock}
                   onChange={(e) => setNewItem({ ...newItem, stock: e.target.value })}
@@ -380,8 +389,9 @@ function InventoryManagement() {
                 />
               </div>
               <div>
-                <label className="text-sm font-semibold text-slate-800">Low Stock Threshold *</label>
+                <label htmlFor="add-threshold" className="text-sm font-semibold text-slate-800">Low Stock Threshold *</label>
                 <input
+                  id="add-threshold"
                   type="number"
                   value={newItem.lowStockThreshold}
                   onChange={(e) => setNewItem({ ...newItem, lowStockThreshold: e.target.value })}
@@ -391,8 +401,9 @@ function InventoryManagement() {
                 />
               </div>
               <div className="sm:col-span-2">
-                <label className="text-sm font-semibold text-slate-800">Description</label>
+                <label htmlFor="add-description" className="text-sm font-semibold text-slate-800">Description</label>
                 <textarea
+                  id="add-description"
                   value={newItem.description}
                   onChange={(e) => setNewItem({ ...newItem, description: e.target.value })}
                   rows="3"
@@ -440,8 +451,9 @@ function InventoryManagement() {
 
             <form onSubmit={handleUpdateItem} className="mt-4 grid gap-3 sm:grid-cols-2">
               <div className="sm:col-span-2">
-                <label className="text-sm font-semibold text-slate-800">Product Name *</label>
+                <label htmlFor="edit-name" className="text-sm font-semibold text-slate-800">Product Name *</label>
                 <input
+                  id="edit-name"
                   type="text"
                   value={editItem.name}
                   onChange={(e) => setEditItem({ ...editItem, name: e.target.value })}
@@ -450,8 +462,9 @@ function InventoryManagement() {
                 />
               </div>
               <div>
-                <label className="text-sm font-semibold text-slate-800">Category *</label>
+                <label htmlFor="edit-category" className="text-sm font-semibold text-slate-800">Category *</label>
                 <select
+                  id="edit-category"
                   value={editItem.category}
                   onChange={(e) => setEditItem({ ...editItem, category: e.target.value })}
                   required
@@ -476,8 +489,9 @@ function InventoryManagement() {
                 </select>
               </div>
               <div>
-                <label className="text-sm font-semibold text-slate-800">Price (VND) *</label>
+                <label htmlFor="edit-price" className="text-sm font-semibold text-slate-800">Price (VND) *</label>
                 <input
+                  id="edit-price"
                   type="number"
                   step="1000"
                   min="0"
@@ -489,8 +503,9 @@ function InventoryManagement() {
                 />
               </div>
               <div>
-                <label className="text-sm font-semibold text-slate-800">Product Image URL</label>
+                <label htmlFor="edit-image" className="text-sm font-semibold text-slate-800">Product Image URL</label>
                 <input
+                  id="edit-image"
                   type="url"
                   value={editItem.image}
                   onChange={(e) => setEditItem({ ...editItem, image: e.target.value })}
@@ -500,8 +515,9 @@ function InventoryManagement() {
                 <p className="mt-1 text-xs text-slate-500">Optional: Paste an image URL from Unsplash, Imgur, etc.</p>
               </div>
               <div>
-                <label className="text-sm font-semibold text-slate-800">Current Stock *</label>
+                <label htmlFor="edit-stock" className="text-sm font-semibold text-slate-800">Current Stock *</label>
                 <input
+                  id="edit-stock"
                   type="number"
                   value={editItem.stock}
                   onChange={(e) => setEditItem({ ...editItem, stock: e.target.value })}
@@ -511,8 +527,9 @@ function InventoryManagement() {
                 />
               </div>
               <div>
-                <label className="text-sm font-semibold text-slate-800">Low Stock Threshold *</label>
+                <label htmlFor="edit-threshold" className="text-sm font-semibold text-slate-800">Low Stock Threshold *</label>
                 <input
+                  id="edit-threshold"
                   type="number"
                   value={editItem.lowStockThreshold}
                   onChange={(e) => setEditItem({ ...editItem, lowStockThreshold: e.target.value })}
@@ -522,8 +539,9 @@ function InventoryManagement() {
                 />
               </div>
               <div className="sm:col-span-2">
-                <label className="text-sm font-semibold text-slate-800">Description</label>
+                <label htmlFor="edit-description" className="text-sm font-semibold text-slate-800">Description</label>
                 <textarea
+                  id="edit-description"
                   value={editItem.description}
                   onChange={(e) => setEditItem({ ...editItem, description: e.target.value })}
                   rows="3"

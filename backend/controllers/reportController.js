@@ -19,7 +19,6 @@ export const createReport = async (req, res) => {
         }
 
         const newReport = await reportModel.createReport(reporter_id, item_id, details);
-        console.log(newReport);
 
         res.json({ message: 'Report created successfully', newReport: newReport });
     }

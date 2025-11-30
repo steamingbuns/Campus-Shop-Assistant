@@ -5,7 +5,7 @@ import ordersInventoryService from '../../services/ordersInventoryService';
 import orderService from '../../services/orderService';
 
 function OrderManagement() {
-  const { token } = useAuth();
+  const { token, loading: authLoading } = useAuth();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -18,15 +18,19 @@ function OrderManagement() {
   const [selectedOrderForDetails, setSelectedOrderForDetails] = useState(null);
 
   useEffect(() => {
-    fetchOrders();
-  }, []);
+    if (authLoading) return;
 
-  const fetchOrders = async () => {
     if (!token) {
       setError('Please log in as a seller to view orders.');
+      setOrders([]);
       setLoading(false);
       return;
     }
+
+    fetchOrders();
+  }, [token, authLoading]);
+
+  const fetchOrders = async () => {
     try {
       setLoading(true);
       const data = await ordersInventoryService.getSellerOrders(token);

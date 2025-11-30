@@ -1,16 +1,18 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import api from './api';
+import api from '../src/services/api';
 
 describe('api helper', () => {
   const originalFetch = global.fetch;
+  let consoleSpy;
 
   beforeEach(() => {
     global.fetch = vi.fn();
+    consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {
     global.fetch = originalFetch;
-    vi.restoreAllMocks();
+    consoleSpy.mockRestore();
   });
 
   it('includes Authorization header when token provided', async () => {

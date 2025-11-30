@@ -1,11 +1,11 @@
 // chatbotService.test.js - Tests for the chatbot frontend service
 // Uses Vitest with globals enabled (no imports needed for describe, it, expect, vi)
 
-import * as chatbotService from './chatbotService';
-import api from './api';
+import * as chatbotService from '../src/services/chatbotService';
+import api from '../src/services/api';
 
 // Mock the api module
-vi.mock('./api', () => ({
+vi.mock('../src/services/api', () => ({
   default: {
     get: vi.fn(),
     post: vi.fn(),

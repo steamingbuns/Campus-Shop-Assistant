@@ -1,10 +1,10 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { vi } from 'vitest';
-import { AuthProvider } from '../../contexts/AuthContext';
-import OrderManagement from './OrderManagement';
-import ordersInventoryService from '../../services/ordersInventoryService';
+import { AuthProvider } from '../src/contexts/AuthContext';
+import OrderManagement from '../src/pages/SellerDashboard/OrderManagement';
+import ordersInventoryService from '../src/services/ordersInventoryService';
 
-vi.mock('../../services/ordersInventoryService', () => ({
+vi.mock('../src/services/ordersInventoryService', () => ({
   default: {
     getSellerOrders: vi.fn(),
     updateOrderStatus: vi.fn(),
@@ -32,9 +32,19 @@ function renderWithAuth(ui) {
 }
 
 describe('OrderManagement', () => {
+  let consoleSpy;
+
   beforeEach(() => {
+    localStorage.setItem('campusShopUser', JSON.stringify({ role: 'seller' }));
+    localStorage.setItem('campusShopToken', 'test-token');
     vi.clearAllMocks();
+    consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     ordersInventoryService.getSellerOrders.mockResolvedValue(mockOrders);
+  });
+  
+  afterEach(() => {
+    localStorage.clear();
+    consoleSpy.mockRestore();
   });
 
   it('renders orders when fetch succeeds', async () => {

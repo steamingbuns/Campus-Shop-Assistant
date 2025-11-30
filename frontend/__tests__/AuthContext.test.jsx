@@ -1,6 +1,6 @@
 import { renderHook, act } from '@testing-library/react';
 import { vi } from 'vitest';
-import { AuthProvider, useAuth } from './AuthContext';
+import { AuthProvider, useAuth } from '../src/contexts/AuthContext';
 
 const mockLocalStorage = () => {
   const store = {};

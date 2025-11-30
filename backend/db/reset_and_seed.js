@@ -12,12 +12,12 @@ const __dirname = path.dirname(__filename);
 const schemaPath = path.join(__dirname, 'schema.sql');
 
 const seedUsers = [
-    { name: 'John Doe', email: 'john.doe@example.com', password: 'password123', address: '123 Campus Dr', phone: '555-0101', role: 'seller' },
-    { name: 'Jane Smith', email: 'jane.smith@example.com', password: 'password456', address: '456 Dorm Hall', phone: '555-0102', role: 'seller' },
-    { name: 'Bob Wilson', email: 'bob.wilson@example.com', password: 'password789', address: '789 Library Ln', phone: '555-0103', role: 'seller' },
-    { name: 'Alice Brown', email: 'alice.brown@example.com', password: 'password101', address: '321 Science Ct', phone: '555-0104', role: 'seller' },
-    { name: 'Mike Davis', email: 'mike.davis@example.com', password: 'password202', address: '654 Arts Blvd', phone: '555-0105', role: 'seller' },
-    { name: 'Campus Admin', email: 'admin@campus.edu', password: 'admin123', address: 'Admin Office', phone: '555-9999', role: 'admin' },
+    { name: 'John Doe', email: 'john.doe@hcmut.edu.vn', password: 'password123', address: '123 Campus Dr', phone: '555-0101', role: 'seller' },
+    { name: 'Jane Smith', email: 'jane.smith@hcmut.edu.vn', password: 'password456', address: '456 Dorm Hall', phone: '555-0102', role: 'seller' },
+    { name: 'Bob Wilson', email: 'bob.wilson@hcmut.edu.vn', password: 'password789', address: '789 Library Ln', phone: '555-0103', role: 'seller' },
+    { name: 'Alice Brown', email: 'alice.brown@hcmut.edu.vn', password: 'password101', address: '321 Science Ct', phone: '555-0104', role: 'seller' },
+    { name: 'Mike Davis', email: 'mike.davis@hcmut.edu.vn', password: 'password202', address: '654 Arts Blvd', phone: '555-0105', role: 'seller' },
+    { name: 'Campus Admin', email: 'admin@hcmut.edu.vn', password: 'admin123', address: 'Admin Office', phone: '555-9999', role: 'admin' },
 ];
 
 async function insertUsers(sql) {

@@ -1,0 +1,11 @@
+{
+  "labels":[
+    "help",
+    "greeting",
+    "get_recommendations",
+    "ask_price",
+    "search_product"
+  ],
+  "threshold":0.0,
+  "positive_label":null
+}
